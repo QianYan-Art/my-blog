@@ -1,79 +1,68 @@
-# 部署到 `www.shiqianyan.cn`
+# 部署说明（`www.shiqianyan.cn`）
 
-以下步骤按 Ubuntu 服务器示例，日期基准为 2026-03-16。
+本文档对应当前实际方案：**Nginx 直接托管静态文件 + 定时同步私库文章**。
 
-## 1. DNS 解析
+## 1. 站点目录
 
-在域名服务商后台添加：
+- 线上目录：`/www/wwwroot/blog`
+- 站点域名：`www.shiqianyan.cn`
+- Nginx root 指向：`/www/wwwroot/blog`
 
-- 主机记录：`www`
-- 记录类型：`A`
-- 记录值：你的服务器公网 IP
-
-## 2. 上传代码并启动 Node 服务
+## 2. 首次部署
 
 ```bash
-cd /var/www
-mkdir -p shiqianyan-blog
-# 上传本项目文件到 /var/www/shiqianyan-blog
-cd shiqianyan-blog
-npm run start -- --port=3000
+cd /www/wwwroot
+git clone https://github.com/QianYan-Art/my-blog.git blog
+cd blog
+npm ci --omit=dev
 ```
 
-建议用 PM2 托管：
+说明：
+- 站点本身是静态页面，不依赖 Node 常驻服务。
+- Node 仅用于执行同步脚本 `scripts/sync-kbase.js`。
+
+## 3. 私库同步环境变量
+
+服务器需要准备：
+
+- `/etc/blog-sync.env`（`GITHUB_TOKEN`、`KBASE_OWNER`、`KBASE_REPO`、`KBASE_BRANCH`、`KBASE_PUBLIC_DIR` 等）
+- `/usr/local/bin/blog-sync-kbase.sh`（可参考仓库 `ops/blog-sync-kbase.sh`）
+
+手动执行一次同步：
 
 ```bash
-npm i -g pm2
-cd /var/www/shiqianyan-blog
-pm2 start npm --name shiqianyan-blog -- run start -- --port=3000
-pm2 save
-pm2 startup
+/usr/local/bin/blog-sync-kbase.sh
 ```
 
-## 3. 配置 Nginx 反向代理
+成功后会刷新：
 
-安装 Nginx 后，新建站点配置：
+- `assets/data/articles.json`
+- `posts/kbase/*.html`
 
-```nginx
-server {
-    listen 80;
-    server_name www.shiqianyan.cn;
-
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
-}
-```
-
-启用并重载：
+## 4. 更新发布
 
 ```bash
-sudo nginx -t
-sudo systemctl reload nginx
+cd /www/wwwroot/blog
+git fetch --all --prune
+git reset --hard origin/main
+npm ci --omit=dev
+/usr/local/bin/blog-sync-kbase.sh
 ```
 
-## 4. 配置 HTTPS（Let's Encrypt）
+## 5. 定时同步（可选）
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d www.shiqianyan.cn
+crontab -e
 ```
 
-证书续期测试：
+示例（每 15 分钟）：
 
-```bash
-sudo certbot renew --dry-run
+```cron
+*/15 * * * * /usr/local/bin/blog-sync-kbase.sh >> /var/log/blog-sync.log 2>&1
 ```
 
-## 5. 更新发布
+## 6. 故障排查
 
-```bash
-cd /var/www/shiqianyan-blog
-# 上传新文件后
-pm2 restart shiqianyan-blog
-```
+- 同步失败先看：`/var/log/blog-sync.log`
+- 核查 token 权限：私库 `Contents: Read-only` + `Metadata: Read-only`
+- 如果直连 GitHub 不稳，脚本会按配置走代理重试（见 `ops/blog-sync-kbase.sh`）
