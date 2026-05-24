@@ -225,9 +225,25 @@ function markdownToHtml(markdown) {
     return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
   }
 
+  function sanitizeHref(rawHref) {
+    const value = String(rawHref || "").trim();
+    if (!value) return "";
+    if (value.startsWith("#") || value.startsWith("/") || value.startsWith("./") || value.startsWith("../")) {
+      return value;
+    }
+    if (/^https?:/i.test(value) || /^mailto:/i.test(value)) {
+      return value;
+    }
+    return "";
+  }
+
   function inline(value) {
     return esc(value)
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
+        const safeHref = sanitizeHref(href);
+        if (!safeHref) return label;
+        return `<a href="${esc(safeHref)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+      })
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
       .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>")
       .replace(/~~([^~]+)~~/g, "<del>$1</del>")
@@ -482,7 +498,15 @@ async function syncGithub(outputDir) {
     const configFile = configs.get(dir);
     const markdown = await getBlobText(mdFile.sha);
     const frontMatter = parseFrontMatter(markdown);
-    const config = configFile ? JSON.parse(await getBlobText(configFile.sha)) : {};
+    let config = {};
+    if (configFile) {
+      try {
+        config = JSON.parse(await getBlobText(configFile.sha));
+      } catch {
+        console.warn(`[sync:kbase] 跳过损坏配置: ${configFile.path}`);
+        config = {};
+      }
+    }
     const meta = { ...frontMatter, ...config };
     const slug = uniqueSlug(slugify(meta.slug || relativePath), used);
     const commitDate = await readGithubCommitDate(mdFile.path);

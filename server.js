@@ -35,21 +35,33 @@ function cacheHeaderFor(filePath) {
 }
 
 function safePathname(pathname) {
-  const decoded = decodeURIComponent(pathname);
-  const normalized = path.normalize(decoded).replace(/^(\.\.[/\\])+/, "");
-  return normalized;
+  try {
+    const decoded = decodeURIComponent(pathname || "/");
+    if (decoded.includes("\0")) return null;
+    const normalized = path.posix.normalize(decoded.replace(/\\/g, "/"));
+    if (normalized.startsWith("/../") || normalized === "/..") return null;
+    return normalized;
+  } catch {
+    return null;
+  }
+}
+
+function isWithinRoot(filePath) {
+  const relative = path.relative(ROOT_DIR, filePath);
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
 }
 
 function resolveFile(requestPath) {
   const cleanPath = safePathname(requestPath);
-  let filePath = path.join(ROOT_DIR, cleanPath);
+  if (cleanPath === null) return null;
+  let filePath = path.resolve(ROOT_DIR, `.${cleanPath}`);
 
-  if (cleanPath === "/" || cleanPath === "") {
+  if (cleanPath === "/") {
     filePath = path.join(ROOT_DIR, "index.html");
-  } else if (!path.extname(filePath)) {
-    filePath = path.join(ROOT_DIR, cleanPath, "index.html");
+  } else if (!path.extname(cleanPath)) {
+    filePath = path.resolve(ROOT_DIR, `.${cleanPath}/index.html`);
     if (!fs.existsSync(filePath)) {
-      filePath = path.join(ROOT_DIR, `${cleanPath}.html`);
+      filePath = path.resolve(ROOT_DIR, `.${cleanPath}.html`);
     }
   }
 
@@ -59,8 +71,13 @@ function resolveFile(requestPath) {
 const server = http.createServer((req, res) => {
   const { pathname } = url.parse(req.url);
   const filePath = resolveFile(pathname || "/");
+  if (!filePath) {
+    res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("400 Bad Request");
+    return;
+  }
 
-  if (!filePath.startsWith(ROOT_DIR)) {
+  if (!isWithinRoot(filePath)) {
     res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
     res.end("403 Forbidden");
     return;
