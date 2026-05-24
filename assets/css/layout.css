@@ -108,6 +108,10 @@
 
 /* Mobile: ≤ 720px */
 @media (max-width: 720px) {
+  .page {
+    padding: 0 clamp(18px, 4.6vw, 22px);
+  }
+
   .hero-split {
     display: flex;
     flex-direction: column;
