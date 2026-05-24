@@ -1,37 +1,62 @@
-# shiqianyan.cn 静态博客
+# 千颜的博客
 
-一个仿 `RyuChan` 视觉风格的轻量静态博客，特点是：
+纸面风格的个人静态博客，用来展示首页、项目页、关于页，以及从 `QianYan-KBase/public` 同步生成的文章索引和文章详情页。
 
-- 顶部大图轮播 + 波浪过渡
-- 玻璃态卡片布局 + 侧栏个人信息
-- 纯静态页面，无构建步骤
-- 仅依赖 Node 运行
+## 特性
+
+- 纯静态输出，Nginx 可直接托管。
+- 首页采用纸张纹理、线稿插图和克制动效。
+- 文章页支持分类、搜索、渐进加载和静态详情页。
+- 文章来源只读取知识库 `public` 目录，不发布 `private` 内容。
+- GitHub 私库 token 只在同步阶段使用，不写入前端页面。
+- 移动端顶部导航使用更紧凑的 GitHub 图标入口，桌面端保留文字入口。
 
 ## 本地运行
 
-```bash
-npm run start
+```powershell
+npm run dev
 ```
 
-默认端口 `3000`，可通过环境变量或参数改端口：
+默认服务端口由 `server.js` 控制，当前开发环境常用 `http://127.0.0.1:3333`。
 
-```bash
-PORT=8080 npm run start
-# 或
-npm run start -- --port=8080
+## 同步文章
+
+从本地知识库同步：
+
+```powershell
+npm run sync:kbase:local
 ```
 
-## 目录说明
+从 GitHub 私库同步：
+
+```powershell
+$env:GITHUB_TOKEN="你的只读 token"
+npm run sync:kbase
+```
+
+同步后会生成：
+
+- `assets/data/articles.json`
+- `posts/kbase/*.html`
+
+## 目录结构
 
 - `index.html`：首页
-- `about.html`：关于页
-- `posts/*.html`：文章详情页
-- `assets/css/style.css`：样式
-- `assets/js/*.js`：交互
-- `server.js`：Node 静态服务
+- `blog/index.html`：文章列表页
+- `projects/index.html`：项目页
+- `about/index.html`：关于页
+- `assets/css/`：样式与响应式布局
+- `assets/js/`：首页、插图和文章列表交互
+- `scripts/sync-kbase.js`：知识库文章同步与静态页生成
+- `ops/blog-sync-kbase.sh`：服务器定时同步脚本模板
+- `posts/kbase/`：生成后的文章详情页
 
-## 内容修改
+## 部署说明
 
-1. 在 `index.html` 修改文章卡片列表。
-2. 在 `posts/` 新增文章页面。
-3. 图片放在 `assets/images/` 并替换引用路径。
+线上站点目录为 `/www/wwwroot/blog`。部署时上传当前静态项目，随后在服务器执行文章同步脚本：
+
+```bash
+/usr/local/bin/blog-sync-kbase.sh
+```
+
+服务器同步脚本会读取 GitHub 私库的 `public` 目录，生成新的静态文章索引与详情页，并带有文章数量保护，避免异常同步把线上文章刷空。
