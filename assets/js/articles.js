@@ -101,6 +101,12 @@
 
   function renderFilters(items) {
     var categories = getCategories(items);
+    categories.sort(function(a, b) {
+      var order = { "本地记录": 1, "服务器记录": 2 };
+      var orderA = order[a] || 99;
+      var orderB = order[b] || 99;
+      return orderA - orderB;
+    });
     filters.innerHTML = '<button class="article-filter is-active" type="button" data-filter="all">全部</button>' +
       categories.map(function(category) {
         return '<button class="article-filter" type="button" data-filter="' + escapeHtml(category) + '">' + escapeHtml(category) + '</button>';
@@ -247,6 +253,19 @@
       if (searchInput) searchInput.focus();
     });
   }
+
+  document.addEventListener('keydown', function(event) {
+    if (!searchInput) return;
+    var activeEl = document.activeElement;
+    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
+      return;
+    }
+    if (event.key === '/') {
+      event.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+  });
 
   window.addEventListener('resize', function() {
     if (!visibleArticles.length) return;
