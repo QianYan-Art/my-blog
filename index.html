@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>千颜 · QianYan</title>
+  <meta name="description" content="诗千颜的个人博客——把灵感做成完成品，也让代码保留一点温度。">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page">
+  <div class="binding"></div>
+  <div class="corner-mark cm-tl"></div>
+  <div class="corner-mark cm-tr"></div>
+  <div class="corner-mark cm-bl"></div>
+  <div class="corner-mark cm-br"></div>
+  <canvas id="grid-overlay"></canvas>
+
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/">
+      <span class="site-nav__mark" aria-hidden="true"></span>
+      <span class="site-nav__title">千颜</span>
+    </a>
+    <span class="site-nav__meta">QianYan · AI · Full-stack</span>
+    <nav class="site-nav__links">
+      <a href="/blog/">文章</a>
+      <a href="/projects/">项目</a>
+      <a href="/about/">关于</a>
+    </nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">
+      GitHub
+      <svg width="10" height="9" viewBox="0 0 10 9" fill="none" aria-hidden="true"><path d="M0.5 4.5H8M5 1.5L8 4.5L5 7.5" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </header>
+  <div class="site-nav__rule reveal reveal--rule" style="--reveal-delay: var(--t-rule-top)"></div>
+
+  <main class="page-main page-main--home">
+    <div class="hero-split">
+      <section class="hero-pane">
+        <p class="hero-eyebrow reveal reveal--fade" style="--reveal-delay: var(--t-label)">§ Personal Blog</p>
+
+        <h1 class="hero-title">
+          <span class="hero-title__line reveal reveal--write" style="--reveal-delay: var(--t-hero-1)">千颜的博客<span class="hero-title__cursor" aria-hidden="true"></span></span>
+          <span class="hero-title__line reveal reveal--write" style="--reveal-delay: var(--t-hero-2)">
+            <span class="hero-title__mark">记录想法与项目</span>
+          </span>
+          <span class="hero-title__line reveal reveal--write" style="--reveal-delay: var(--t-hero-3)">
+            也记录代码温度
+          </span>
+        </h1>
+
+        <p class="hero-quote reveal reveal--fade" style="--reveal-delay: var(--t-hero-3)">AI 应用 · 自动化工作流 · 全栈开发</p>
+
+        <div class="hero-actions reveal reveal--fade" style="--reveal-delay: var(--t-projects)">
+          <a class="cta" href="/blog/">
+            <span class="cta-ornament" aria-hidden="true"></span>
+            <span>阅读文章</span>
+            <svg width="24" height="10" viewBox="0 0 24 10" fill="none" aria-hidden="true">
+              <line x1="0.5" y1="5" x2="20" y2="5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+              <polyline points="16,1.4 20.2,5 16,8.6" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+            <span class="cta-corner cta-corner--tl" aria-hidden="true"></span>
+            <span class="cta-corner cta-corner--br" aria-hidden="true"></span>
+          </a>
+          <a class="cta-secondary" href="https://qianyan.4071253.xyz" target="_blank" rel="noopener">服务器探针 →</a>
+        </div>
+      </section>
+
+      <aside class="plate-pane reveal reveal--rise" style="--reveal-delay: var(--t-plate)">
+        <div class="plate__head">
+          <span class="plate__head-num">QY. 01</span>
+          <span class="plate__head-rule"></span>
+          <span class="plate__head-meta">卷首插图 · 正文首页</span>
+        </div>
+        <p class="plate__title">
+          <span class="plate__title-cn">千颜</span>
+          <span class="plate__title-sep">·</span>
+          <span class="plate__title-en">The Keeper of Warm Code</span>
+        </p>
+        <div class="plate__frame-wrap">
+          <div class="plate__frame" id="plateFrame">
+            <img class="plate__art" src="/assets/images/qianyan-hero-lineart-alpha.png" alt="千颜头像生成的自然黑白漫画线稿插图">
+          </div>
+        </div>
+        <p class="plate__caption">
+          <span class="plate__caption-num">FIG.&thinsp;0.1&nbsp;—&nbsp;</span>
+          <span class="plate__caption-text">功不唐捐，玉汝于成。</span>
+        </p>
+        <div class="plate__prop">
+          <div class="prop__eyebrow">
+            <span class="prop__eyebrow-num">题记</span>
+          </div>
+          <p class="prop__body">
+            一个项目好不好，常常先看它有没有自己的节奏、结构与余味。<span class="prop__end"></span>
+          </p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__rule reveal reveal--rule" style="--reveal-delay: var(--t-status)"></div>
+    <div class="status-bar reveal reveal--fade" style="--reveal-delay: var(--t-status)">
+      <div class="status-item"><span class="status-key">Location</span><span class="status-dot"></span><span class="status-val">ZZU · Earth</span></div>
+      <div class="status-item"><span class="status-key">Focus</span><span class="status-val">AI · Full-stack</span></div>
+      <div class="status-spacer"></div>
+      <div class="status-item"><span class="status-key">Email</span><span class="status-val">suyuan4071253@163.com</span></div>
+      <div class="status-item"><span class="status-key">Updated</span><span class="status-val" id="footDate">23 May 2026</span></div>
+    </div>
+  </footer>
+
+  <script src="/assets/js/home.js"></script>
+  <script src="/assets/js/plate.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>我把个人博客改成了纯静态架构</title>
+    <link rel="stylesheet" href="/assets/css/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="logo" href="/">ShiQianYan</a>
+        <nav class="nav-links">
+          <a href="/">首页</a>
+          <a href="/about">关于</a>
+          <a class="active" href="/posts/my-first-note">文章</a>
+          <button class="theme-btn" data-theme-toggle type="button">深色</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main container" style="padding-top: 88px">
+      <article class="card article">
+        <h1>我把个人博客改成了纯静态架构</h1>
+        <p>发布时间：2026-03-16 · 分类：部署</p>
+        <img src="/assets/images/banner3.jpg" alt="文章封面" />
+        <p>这次改造目标很明确：部署要简单，维护成本要低，视觉上保留原来喜欢的“头图 + 波浪 + 卡片”风格。</p>
+        <h2>为什么不继续用复杂构建链路</h2>
+        <p>如果博客更新频率不高，过重的工程链路反而会增加维护负担。纯静态页面 + Node 轻服务，已经足够覆盖大部分场景。</p>
+        <h2>实际收益</h2>
+        <ul>
+          <li>无编译发布，拷贝即上线</li>
+          <li>回滚简单，直接替换文件</li>
+          <li>故障定位更直观</li>
+        </ul>
+      </article>
+    </main>
+    <footer class="footer container">© 2026 shiqianyan.cn</footer>
+    <script src="/assets/js/theme.js"></script>
+  </body>
+</html>

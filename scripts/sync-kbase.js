@@ -1,0 +1,542 @@
+const fs = require("fs");
+const path = require("path");
+const https = require("https");
+const { execFileSync } = require("child_process");
+
+const ROOT = path.resolve(__dirname, "..");
+const OWNER = process.env.KBASE_OWNER || "QianYan-Art";
+const REPO = process.env.KBASE_REPO || "QianYan-KBase";
+const BRANCH = process.env.KBASE_BRANCH || "main";
+const TOKEN = process.env.GITHUB_TOKEN || process.env.KBASE_TOKEN;
+const LOCAL_PATH = process.env.KBASE_LOCAL_PATH || path.resolve(ROOT, "..", "QianYan-KBase");
+const PUBLIC_DIR = process.env.KBASE_PUBLIC_DIR || "public";
+const SOURCE_MODE = process.env.KBASE_SOURCE || (fs.existsSync(LOCAL_PATH) ? "local" : "github");
+const OUTPUT = path.join(ROOT, "assets", "data", "articles.json");
+const POSTS_DIR = path.join(ROOT, "posts", "kbase");
+const TEMP_ROOT = path.join(ROOT, ".tmp", "kbase-sync");
+
+if (SOURCE_MODE === "github" && !TOKEN) {
+  console.error("缺少 GITHUB_TOKEN 或 KBASE_TOKEN。不要把 token 写进前端代码，请在本地/CI 环境变量中提供。");
+  process.exit(1);
+}
+
+function requestJson(url) {
+  return new Promise((resolve, reject) => {
+    const req = https.request(url, {
+      headers: {
+        "User-Agent": "qianyan-static-blog-sync",
+        "Accept": "application/vnd.github+json",
+        "Authorization": `Bearer ${TOKEN}`,
+        "X-GitHub-Api-Version": "2022-11-28"
+      }
+    }, (res) => {
+      let body = "";
+      res.setEncoding("utf8");
+      res.on("data", (chunk) => body += chunk);
+      res.on("end", () => {
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          reject(new Error(`GitHub API ${res.statusCode}: ${body.slice(0, 300)}`));
+          return;
+        }
+        try {
+          resolve(JSON.parse(body));
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+    req.on("error", reject);
+    req.end();
+  });
+}
+
+async function getBlobText(sha) {
+  const blob = await requestJson(`https://api.github.com/repos/${OWNER}/${REPO}/git/blobs/${sha}`);
+  if (blob.encoding === "base64") {
+    return Buffer.from(blob.content, "base64").toString("utf8");
+  }
+  return blob.content || "";
+}
+
+function slugify(value) {
+  return String(value || "note")
+    .trim()
+    .replace(/\\/g, "/")
+    .split("/")
+    .filter(Boolean)
+    .pop()
+    .replace(/\.[^.]+$/, "")
+    .replace(/[^\w\u4e00-\u9fa5-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase() || "note";
+}
+
+function uniqueSlug(base, used) {
+  let slug = base || "note";
+  let index = 2;
+  while (used.has(slug)) {
+    slug = `${base}-${index}`;
+    index += 1;
+  }
+  used.add(slug);
+  return slug;
+}
+
+function parseFrontMatter(markdown) {
+  const match = markdown.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
+  if (!match) return {};
+  return match[1].split(/\r?\n/).reduce((data, line) => {
+    const pair = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+    if (!pair) return data;
+    const key = pair[1];
+    let value = pair[2].trim();
+    if ((value.startsWith("[") && value.endsWith("]"))) {
+      value = value.slice(1, -1).split(",").map((item) => item.trim().replace(/^['"]|['"]$/g, "")).filter(Boolean);
+    } else {
+      value = value.replace(/^['"]|['"]$/g, "");
+    }
+    data[key] = value;
+    return data;
+  }, {});
+}
+
+function stripFrontMatter(markdown) {
+  return markdown.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, "");
+}
+
+function titleFromMarkdown(markdown, fallback) {
+  return stripFrontMatter(markdown).match(/^#\s+(.+)$/m)?.[1]?.trim() || fallback;
+}
+
+function cleanDisplayTitle(value) {
+  return String(value || "")
+    .trim()
+    .replace(/^(20\d{2})[._-](\d{1,2})[._-](\d{1,2})(?:\s*[_\- ]\s*|\s+)/, "")
+    .replace(/^[_\-\s]+/, "")
+    .trim();
+}
+
+function dateFromPath(filePath, stats) {
+  const matched = filePath.match(/(20\d{2})[.-](\d{1,2})[.-](\d{1,2})/);
+  if (matched) {
+    return `${matched[1]}-${matched[2].padStart(2, "0")}-${matched[3].padStart(2, "0")}`;
+  }
+  return stats.mtime.toISOString().slice(0, 10);
+}
+
+function dateHintFromPath(filePath) {
+  const matched = String(filePath).match(/(20\d{2})[.-](\d{1,2})[.-](\d{1,2})/);
+  if (!matched) return "";
+  return `${matched[1]}-${matched[2].padStart(2, "0")}-${matched[3].padStart(2, "0")}`;
+}
+
+function readLocalGitDate(filePath) {
+  try {
+    const relative = path.relative(LOCAL_PATH, filePath).replace(/\\/g, "/");
+    const value = execFileSync("git", ["-C", LOCAL_PATH, "log", "-1", "--format=%cs", "--", relative], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"]
+    }).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value;
+    }
+  } catch {
+    // ignore and fall back to filename / mtime date
+  }
+  return "";
+}
+
+async function readGithubCommitDate(repoPath) {
+  try {
+    const commits = await requestJson(`https://api.github.com/repos/${OWNER}/${REPO}/commits?sha=${encodeURIComponent(BRANCH)}&path=${encodeURIComponent(repoPath)}&per_page=1`);
+    const value = commits?.[0]?.commit?.committer?.date || commits?.[0]?.commit?.author?.date || "";
+    if (/^\d{4}-\d{2}-\d{2}T/.test(value)) {
+      return value.slice(0, 10);
+    }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value;
+    }
+  } catch {
+    // ignore and fall back to filename date
+  }
+  return "";
+}
+
+function kbaseSection(relativePath) {
+  const parts = String(relativePath).split(/[\\/]+/).filter(Boolean);
+  const root = parts[0] || "";
+  if (root === "my_local" || root === "local") {
+    return { category: "本地记录", sourceType: "local", section: "Local Notes" };
+  }
+  if (root === "my_server" || root === "server") {
+    return { category: "服务器记录", sourceType: "server", section: "Server Notes" };
+  }
+  return { category: "知识库", sourceType: "public", section: "Public Notes" };
+}
+
+function htmlEscape(value) {
+  return String(value || "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+}
+
+function plainSummary(markdown) {
+  const text = stripFrontMatter(markdown)
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/!\[[^\]]*]\([^)]+\)/g, "")
+    .replace(/\[[^\]]+]\([^)]+\)/g, (match) => match.replace(/^\[|\]\([^)]+\)$/g, ""))
+    .replace(/[#>*_`~-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.slice(0, 110) || "这篇文章来自千颜的私有知识库，已在同步阶段生成静态索引。";
+}
+
+function parseDateValue(value) {
+  if (!value) return NaN;
+  const normalized = String(value).trim().replace(/\./g, "-").replace(/\//g, "-");
+  const matched = normalized.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (matched) {
+    return new Date(Number(matched[1]), Number(matched[2]) - 1, Number(matched[3])).getTime();
+  }
+  const timestamp = new Date(normalized).getTime();
+  return Number.isNaN(timestamp) ? NaN : timestamp;
+}
+
+function compareByDateDesc(a, b) {
+  const left = parseDateValue(a.date);
+  const right = parseDateValue(b.date);
+  if (!Number.isNaN(left) && !Number.isNaN(right) && left !== right) {
+    return right - left;
+  }
+  if (Number.isNaN(left) && !Number.isNaN(right)) return 1;
+  if (!Number.isNaN(left) && Number.isNaN(right)) return -1;
+  return String(b.date || "").localeCompare(String(a.date || ""));
+}
+
+function markdownToHtml(markdown) {
+  const lines = stripFrontMatter(markdown).split(/\r?\n/);
+  const html = [];
+  let listOpen = false;
+  let listType = "";
+  let paragraph = [];
+  let codeOpen = false;
+  let codeLines = [];
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+  }
+
+  function inline(value) {
+    return esc(value)
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>")
+      .replace(/~~([^~]+)~~/g, "<del>$1</del>")
+      .replace(/`([^`]+)`/g, "<code>$1</code>");
+  }
+
+  function flushParagraph() {
+    if (!paragraph.length) return;
+    html.push(`<p>${inline(paragraph.join(" "))}</p>`);
+    paragraph = [];
+  }
+
+  function closeList() {
+    if (!listOpen) return;
+    html.push(`</${listType}>`);
+    listOpen = false;
+    listType = "";
+  }
+
+  function flushCode() {
+    if (!codeOpen) return;
+    html.push(`<pre><code>${esc(codeLines.join("\n"))}</code></pre>`);
+    codeLines = [];
+    codeOpen = false;
+  }
+
+  function isTableRow(line) {
+    return /^\s*\|.+\|\s*$/.test(line);
+  }
+
+  function isTableSeparator(line) {
+    return /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line);
+  }
+
+  function splitTableRow(line) {
+    return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((cell) => cell.trim());
+  }
+
+  function renderTable(startIndex) {
+    const headers = splitTableRow(lines[startIndex]);
+    const rows = [];
+    let index = startIndex + 2;
+    while (index < lines.length && isTableRow(lines[index])) {
+      rows.push(splitTableRow(lines[index]));
+      index += 1;
+    }
+    const thead = `<thead><tr>${headers.map((cell) => `<th>${inline(cell)}</th>`).join("")}</tr></thead>`;
+    const tbody = rows.map((row) => `<tr>${headers.map((_, cellIndex) => `<td>${inline(row[cellIndex] || "")}</td>`).join("")}</tr>`).join("");
+    html.push(`<div class="post-table-wrap"><table>${thead}<tbody>${tbody}</tbody></table></div>`);
+    return index - 1;
+  }
+
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+    const line = lines[lineIndex];
+    if (/^```/.test(line.trim())) {
+      if (codeOpen) {
+        flushCode();
+      } else {
+        flushParagraph();
+        closeList();
+        codeOpen = true;
+        codeLines = [];
+      }
+      continue;
+    }
+    if (codeOpen) {
+      codeLines.push(line);
+      continue;
+    }
+    if (/^\s*$/.test(line)) {
+      flushParagraph();
+      closeList();
+      continue;
+    }
+    if (isTableRow(line) && lineIndex + 1 < lines.length && isTableSeparator(lines[lineIndex + 1])) {
+      flushParagraph();
+      closeList();
+      lineIndex = renderTable(lineIndex);
+      continue;
+    }
+    const heading = line.match(/^(#{1,3})\s+(.+)$/);
+    if (heading) {
+      flushParagraph();
+      closeList();
+      html.push(`<h${heading[1].length + 1}>${inline(heading[2])}</h${heading[1].length + 1}>`);
+      continue;
+    }
+    const bullet = line.match(/^[-*]\s+(.+)$/);
+    if (bullet) {
+      flushParagraph();
+      if (!listOpen || listType !== "ul") {
+        closeList();
+        html.push("<ul>");
+        listOpen = true;
+        listType = "ul";
+      }
+      html.push(`<li>${inline(bullet[1])}</li>`);
+      continue;
+    }
+    const ordered = line.match(/^\d+\.\s+(.+)$/);
+    if (ordered) {
+      flushParagraph();
+      if (!listOpen || listType !== "ol") {
+        closeList();
+        html.push("<ol>");
+        listOpen = true;
+        listType = "ol";
+      }
+      html.push(`<li>${inline(ordered[1])}</li>`);
+      continue;
+    }
+    paragraph.push(line.trim());
+  }
+  flushCode();
+  flushParagraph();
+  closeList();
+  return html.join("\n");
+}
+
+function renderPost(article, markdown) {
+  const tags = (article.tags || []).map((tag) => `<span>${htmlEscape(tag)}</span>`).join("");
+  const title = htmlEscape(article.title);
+  const summary = htmlEscape(article.summary);
+  const category = htmlEscape(article.category);
+  const date = htmlEscape(article.date);
+  const readingTime = htmlEscape(article.readingTime);
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title} · 千颜</title>
+  <meta name="description" content="${summary}">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">${category}</p>
+      <h1>${title}<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>${date}</span><span>${readingTime}</span></div>
+      <div class="article-card__tags">${tags}</div>
+      <div class="post-content">${markdownToHtml(markdown)}</div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>`;
+}
+
+function walkMarkdownFiles(dir) {
+  const result = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name === ".git" || entry.name === ".obsidian" || entry.name === "node_modules") continue;
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      result.push(...walkMarkdownFiles(fullPath));
+    } else if (/\.mdx?$/i.test(entry.name)) {
+      result.push(fullPath);
+    }
+  }
+  return result;
+}
+
+function readLocalConfig(filePath) {
+  const configPath = path.join(path.dirname(filePath), "config.json");
+  if (!fs.existsSync(configPath)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(configPath, "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+async function syncLocal(outputDir) {
+  if (!fs.existsSync(LOCAL_PATH)) {
+    throw new Error(`本地知识库不存在：${LOCAL_PATH}`);
+  }
+  const publicPath = path.join(LOCAL_PATH, PUBLIC_DIR);
+  if (!fs.existsSync(publicPath)) {
+    throw new Error(`公开文章目录不存在：${publicPath}`);
+  }
+
+  const used = new Set();
+  const files = walkMarkdownFiles(publicPath);
+  const articles = files.map((filePath) => {
+    const markdown = fs.readFileSync(filePath, "utf8");
+    const stats = fs.statSync(filePath);
+    const relativePath = path.relative(publicPath, filePath);
+    const section = kbaseSection(relativePath);
+    const config = readLocalConfig(filePath);
+    const frontMatter = parseFrontMatter(markdown);
+    const meta = { ...frontMatter, ...config };
+    const baseSlug = slugify(meta.slug || relativePath);
+    const slug = uniqueSlug(baseSlug, used);
+    const article = {
+      id: slug,
+      title: cleanDisplayTitle(meta.title || titleFromMarkdown(markdown, path.basename(filePath, path.extname(filePath)))),
+      summary: meta.summary || meta.description || plainSummary(markdown),
+      date: dateHintFromPath(relativePath) || meta.date || meta.created || readLocalGitDate(filePath) || dateFromPath(relativePath, stats),
+      category: meta.category || section.category,
+      tags: Array.isArray(meta.tags) ? meta.tags : [],
+      href: `/posts/kbase/${slug}.html`,
+      readingTime: meta.readingTime || `${Math.max(1, Math.ceil(stripFrontMatter(markdown).length / 700))} min`,
+      featured: Boolean(meta.featured),
+      sourceType: section.sourceType,
+      section: section.section,
+      sourcePath: relativePath.replace(/\\/g, "/")
+    };
+    fs.writeFileSync(path.join(outputDir, `${slug}.html`), renderPost(article, markdown), "utf8");
+    return article;
+  });
+
+  articles.sort(compareByDateDesc);
+  return articles;
+}
+
+async function syncGithub(outputDir) {
+  const tree = await requestJson(`https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${encodeURIComponent(BRANCH)}?recursive=1`);
+  const files = tree.tree.filter((item) => item.type === "blob");
+  const configs = new Map(files.filter((file) => /(^|\/)config\.json$/i.test(file.path)).map((file) => [path.posix.dirname(file.path), file]));
+  const publicPrefix = `${PUBLIC_DIR.replace(/^\/|\/$/g, "")}/`;
+  const markdownFiles = files.filter((file) => file.path.startsWith(publicPrefix) && /\.mdx?$/i.test(file.path));
+  const used = new Set();
+  const articles = [];
+
+  for (const mdFile of markdownFiles) {
+    const dir = path.posix.dirname(mdFile.path);
+    const relativePath = mdFile.path.slice(publicPrefix.length);
+    const section = kbaseSection(relativePath);
+    const configFile = configs.get(dir);
+    const markdown = await getBlobText(mdFile.sha);
+    const frontMatter = parseFrontMatter(markdown);
+    const config = configFile ? JSON.parse(await getBlobText(configFile.sha)) : {};
+    const meta = { ...frontMatter, ...config };
+    const slug = uniqueSlug(slugify(meta.slug || relativePath), used);
+    const commitDate = await readGithubCommitDate(mdFile.path);
+    const article = {
+      id: slug,
+      title: cleanDisplayTitle(meta.title || stripFrontMatter(markdown).match(/^#\s+(.+)$/m)?.[1] || slug),
+      summary: meta.summary || meta.description || plainSummary(markdown),
+      date: dateHintFromPath(relativePath) || meta.date || meta.created || commitDate || "",
+      category: meta.category || section.category,
+      tags: Array.isArray(meta.tags) ? meta.tags : [],
+      href: `/posts/kbase/${slug}.html`,
+      readingTime: meta.readingTime || `${Math.max(1, Math.ceil(stripFrontMatter(markdown).length / 700))} min`,
+      featured: Boolean(meta.featured),
+      sourceType: section.sourceType,
+      section: section.section,
+      sourcePath: relativePath
+    };
+    fs.writeFileSync(path.join(outputDir, `${slug}.html`), renderPost(article, markdown), "utf8");
+    articles.push(article);
+  }
+
+  articles.sort(compareByDateDesc);
+  return articles;
+}
+
+async function main() {
+  fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
+  fs.rmSync(TEMP_ROOT, { recursive: true, force: true });
+  fs.mkdirSync(TEMP_ROOT, { recursive: true });
+  const nextPostsDir = path.join(TEMP_ROOT, "posts");
+  const nextOutput = path.join(TEMP_ROOT, "articles.json");
+  fs.mkdirSync(nextPostsDir, { recursive: true });
+
+  const articles = SOURCE_MODE === "github" ? await syncGithub(nextPostsDir) : await syncLocal(nextPostsDir);
+
+  const groups = articles.reduce((result, article) => {
+    const key = article.sourceType || "public";
+    result[key] = (result[key] || 0) + 1;
+    return result;
+  }, {});
+
+  fs.writeFileSync(nextOutput, JSON.stringify({
+    updatedAt: new Date().toISOString(),
+    source: SOURCE_MODE === "github" ? `${OWNER}/${REPO}` : LOCAL_PATH,
+    publicDir: PUBLIC_DIR,
+    groups,
+    articles
+  }, null, 2), "utf8");
+
+  fs.rmSync(POSTS_DIR, { recursive: true, force: true });
+  fs.mkdirSync(path.dirname(POSTS_DIR), { recursive: true });
+  fs.renameSync(nextPostsDir, POSTS_DIR);
+  fs.copyFileSync(nextOutput, OUTPUT);
+  fs.rmSync(TEMP_ROOT, { recursive: true, force: true });
+
+  console.log(`已从 ${SOURCE_MODE}/${PUBLIC_DIR} 同步 ${articles.length} 篇文章到 ${path.relative(ROOT, OUTPUT)}。`);
+}
+
+main().catch((error) => {
+  console.error(error.message);
+  process.exit(1);
+});

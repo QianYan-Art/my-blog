@@ -1,0 +1,9 @@
+dist-deploy.tar.gz
+.tmp/
+.serena/
+tmp-video-frames/
+tmp-*.html
+tmp-*.json
+tmp-*.csv
+*.log
+微信图片_*.png

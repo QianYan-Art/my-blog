@@ -1,0 +1,12 @@
+{
+  "name": "shiqianyan-static-blog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "仿 RyuChan 风格的静态个人博客",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "sync:kbase:local": "node scripts/sync-kbase.js",
+    "sync:kbase": "node scripts/sync-kbase.js"
+  }
+}

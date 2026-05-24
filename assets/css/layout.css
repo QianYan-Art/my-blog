@@ -1,0 +1,141 @@
+/* ========================================
+   layout.css — Page scaffolding & breakpoints
+   ======================================== */
+
+.page {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 var(--page-pad-x);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.page-main {
+  flex: 1;
+  position: relative;
+  padding-top: clamp(6px, 1.2vh, 16px);
+}
+
+/* ---- Hero split ---- */
+
+.hero-split {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+  min-height: calc(100svh - 220px);
+  width: 100%;
+  overflow: visible;
+  perspective: 1400px;
+}
+
+.hero-pane {
+  position: relative;
+  flex: 0 0 var(--split-left, 63%);
+  max-width: var(--split-left, 63%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding-top: clamp(10px, 3vh, 32px);
+  padding-right: clamp(24px, 3.6vw, 56px);
+  z-index: 2;
+}
+
+.plate-pane {
+  position: absolute;
+  right: 0;
+  top: clamp(60px, 8vh, 100px); /* 确保绝对不与右上角导航栏重叠 */
+  bottom: clamp(20px, 3vh, 40px); /* 确保不与页脚重叠 */
+  width: var(--split-right, 37%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  min-width: 0;
+  padding-left: clamp(20px, 2.6vw, 36px);
+  z-index: 1;
+}
+
+/* Central divider */
+.hero-split::before {
+  content: "";
+  position: absolute;
+  left: var(--split-left, 63%);
+  top: 8%;
+  bottom: 8%;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--line-strong) 12%,
+    var(--line-strong) 88%,
+    transparent 100%
+  );
+  z-index: 0;
+  transform-origin: top;
+  animation: divider-draw 0.7s var(--ease-brush) 0.35s both;
+}
+
+/* ---- Home sections ---- */
+
+.home-section {
+  padding-block: var(--space-6);
+}
+
+/* ---- List resets ---- */
+
+.archive-list,
+.project-index {
+  list-style: none;
+  padding: 0;
+}
+
+/* ---- Responsive breakpoints ---- */
+
+/* Tablet: 721px – 1199px */
+@media (max-width: 1200px) {
+  :root {
+    --split-left: 56%;
+    --split-right: 44%;
+  }
+
+  .hero-split {
+  }
+}
+
+/* Mobile: ≤ 720px */
+@media (max-width: 720px) {
+  .hero-split {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(30px, 7vw, 42px);
+    min-height: auto;
+    overflow: visible;
+    padding-block: var(--space-4) var(--space-5);
+  }
+
+  .hero-pane,
+  .plate-pane {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .hero-pane {
+    padding-top: 0;
+  }
+
+  .hero-split::before {
+    display: none;
+  }
+
+  /* Hide ornamentation on mobile */
+  .binding,
+  .corner-mark {
+    display: none;
+  }
+}

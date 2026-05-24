@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>项目 · 千颜</title>
+  <meta name="description" content="诗千颜的项目展示。">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page">
+  <div class="binding"></div>
+  <div class="corner-mark cm-tl"></div>
+  <div class="corner-mark cm-tr"></div>
+  <div class="corner-mark cm-bl"></div>
+  <div class="corner-mark cm-br"></div>
+  <canvas id="grid-overlay"></canvas>
+
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/">
+      <span class="site-nav__mark" aria-hidden="true"></span>
+      <span class="site-nav__title">千颜</span>
+    </a>
+    <span class="site-nav__meta">QianYan · ZZU · Earth</span>
+    <nav class="site-nav__links">
+      <a href="/blog/">文章</a>
+      <a href="/projects/">项目</a>
+      <a href="/about/">关于</a>
+    </nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+
+  <main class="page-main" style="display:flex;flex-direction:column;padding-block:var(--space-7);max-width:42rem;margin:0 auto;width:100%;">
+    <p class="hero-eyebrow" style="margin-bottom:var(--space-4)">§ 项目</p>
+    <h1 style="font-family:var(--font-ui);font-size:clamp(28px,3.6vw,48px);font-weight:500;line-height:1.2;letter-spacing:-0.005em;color:#1A1410;">精选项目</h1>
+
+    <ul class="project-index" style="margin-top:var(--space-5);list-style:none;padding:0;">
+      <li style="border-top:1px solid var(--line-strong);padding-block:var(--space-4);">
+        <span style="font-family:var(--font-mono);font-size:var(--text-micro);color:var(--mist);letter-spacing:0.12em;text-transform:uppercase;">Python · Safety · System Design</span>
+        <a href="https://github.com/QianYan-Art/SafetyRAISE-OS" target="_blank" rel="noopener" style="display:block;font-family:var(--font-ui);font-size:var(--text-lede);font-weight:600;color:var(--ink);text-decoration:none;margin-top:var(--space-2);">SafetyRAISE-OS</a>
+        <p style="font-size:var(--text-body);color:var(--lead);margin-top:var(--space-1);line-height:1.6;">道路交通事故分析报告生成系统。以安全为导向，探索系统结构、协同与操作思维如何塑造更具韧性的工作流。</p>
+      </li>
+      <li style="border-top:1px solid var(--line-strong);padding-block:var(--space-4);">
+        <span style="font-family:var(--font-mono);font-size:var(--text-micro);color:var(--mist);letter-spacing:0.12em;text-transform:uppercase;">Python · Workflow · Automation</span>
+        <a href="https://github.com/QianYan-Art/translate-workflow" target="_blank" rel="noopener" style="display:block;font-family:var(--font-ui);font-size:var(--text-lede);font-weight:600;color:var(--ink);text-decoration:none;margin-top:var(--space-2);">translate-workflow</a>
+        <p style="font-size:var(--text-body);color:var(--lead);margin-top:var(--space-1);line-height:1.6;">将重复翻译任务转化为清晰、从容的工作流，让内容处理不再机械，从开始到完成一气呵成。</p>
+      </li>
+      <li style="border-top:1px solid var(--line-strong);padding-block:var(--space-4);">
+        <span style="font-family:var(--font-mono);font-size:var(--text-micro);color:var(--mist);letter-spacing:0.12em;text-transform:uppercase;">JavaScript · Realtime · Full-stack</span>
+        <a href="https://github.com/QianYan-Art/realtime-chat-app" target="_blank" rel="noopener" style="display:block;font-family:var(--font-ui);font-size:var(--text-lede);font-weight:600;color:var(--ink);text-decoration:none;margin-top:var(--space-2);">realtime-chat-app</a>
+        <p style="font-size:var(--text-body);color:var(--lead);margin-top:var(--space-1);line-height:1.6;">实时聊天应用，以前端交互与响应性为核心，探索流畅的即时通讯体验与应用架构的协作。</p>
+      </li>
+      <li style="border-top:1px solid var(--line-strong);padding-block:var(--space-4);">
+        <span style="font-family:var(--font-mono);font-size:var(--text-micro);color:var(--mist);letter-spacing:0.12em;text-transform:uppercase;">Skills · Characters · ACG</span>
+        <a href="https://github.com/QianYan-Art/Character-skills" target="_blank" rel="noopener" style="display:block;font-family:var(--font-ui);font-size:var(--text-lede);font-weight:600;color:var(--ink);text-decoration:none;margin-top:var(--space-2);">Character-skills</a>
+        <p style="font-size:var(--text-body);color:var(--lead);margin-top:var(--space-1);line-height:1.6;">ACG 角色 skills 集合，探索角色系统与交互设计。</p>
+      </li>
+    </ul>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__rule"></div>
+    <div class="status-bar">
+      <div class="status-item"><span class="status-key">千颜</span><span class="status-dot"></span><span class="status-val">QianYan·Shi</span></div>
+      <div class="status-spacer"></div>
+      <div class="status-item"><span class="status-key">Updated</span><span class="status-val" id="footDate">23 May 2026</span></div>
+    </div>
+  </footer>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

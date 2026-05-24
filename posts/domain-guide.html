@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>主域名部署实战：www.shiqianyan.cn</title>
+    <link rel="stylesheet" href="/assets/css/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="logo" href="/">ShiQianYan</a>
+        <nav class="nav-links">
+          <a href="/">首页</a>
+          <a href="/about">关于</a>
+          <a class="active" href="/posts/domain-guide">文章</a>
+          <button class="theme-btn" data-theme-toggle type="button">深色</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main container" style="padding-top: 88px">
+      <article class="card article">
+        <h1>主域名部署实战：www.shiqianyan.cn</h1>
+        <p>发布时间：2026-02-28 · 分类：部署</p>
+        <img src="/assets/images/banner2.jpg" alt="域名部署封面" />
+        <p>如果目标是省心，把站点服务固定在 3000 端口，再由 Nginx 反向代理到 80/443，会更稳。证书交给 Certbot 自动续期即可。</p>
+        <h2>上线要点</h2>
+        <ul>
+          <li>DNS 的 A 记录先指向云服务器公网 IP</li>
+          <li>Node 服务用 PM2 托管，避免断连退出</li>
+          <li>Nginx 只做转发和 HTTPS 终止</li>
+        </ul>
+      </article>
+    </main>
+    <footer class="footer container">© 2026 shiqianyan.cn</footer>
+    <script src="/assets/js/theme.js"></script>
+  </body>
+</html>
