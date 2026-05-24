@@ -27,14 +27,14 @@
       <span class="site-nav__mark" aria-hidden="true"></span>
       <span class="site-nav__title">千颜</span>
     </a>
-    <span class="site-nav__meta">QianYan · KBase · Notes</span>
+    <span class="site-nav__meta" data-full="QianYan · KBase · Notes" data-short="QianYan · Notes" data-mini="QY · Notes" data-micro="KBase · Notes">QianYan · KBase · Notes</span>
     <nav class="site-nav__links">
       <a href="/blog/" aria-current="page">文章</a>
       <a href="/projects/">项目</a>
       <a href="/about/">关于</a>
     </nav>
     <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">
-      GitHub
+      <span class="site-nav__github-label" data-full="GitHub" data-short="GH">GitHub</span>
       <svg width="10" height="9" viewBox="0 0 10 9" fill="none" aria-hidden="true"><path d="M0.5 4.5H8M5 1.5L8 4.5L5 7.5" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
   </header>
@@ -52,6 +52,13 @@
         <p class="articles-lede reveal reveal--fade" style="--reveal-delay: var(--t-projects)">
           每一篇笔记都是一次回看：本地实验、服务器维护、项目复盘，最后都归档成可以再次出发的路标。
         </p>
+        <label class="article-search article-search--hero reveal reveal--fade" for="articleSearch" style="--reveal-delay: var(--t-projects)">
+          <span class="article-search__label">搜索文章</span>
+          <span class="article-search__field">
+            <input id="articleSearch" type="search" placeholder="搜索标题、摘要、标签..." autocomplete="off">
+            <button class="article-search__clear" id="articleSearchClear" type="button" aria-label="清空搜索" hidden>×</button>
+          </span>
+        </label>
       </div>
 
       <aside class="articles-ledger reveal reveal--rise" style="--reveal-delay: var(--t-plate)" aria-label="文章状态">
@@ -75,13 +82,6 @@
           <h2 id="articles-heading">全部文章</h2>
         </div>
         <div class="article-board__controls">
-          <label class="article-search" for="articleSearch">
-            <span class="article-search__label">搜索</span>
-            <span class="article-search__field">
-              <input id="articleSearch" type="search" placeholder="搜索标题、摘要、标签..." autocomplete="off">
-              <button class="article-search__clear" id="articleSearchClear" type="button" aria-label="清空搜索" hidden>×</button>
-            </span>
-          </label>
           <div class="article-filters" id="articleFilters" aria-label="文章分类筛选">
             <button class="article-filter is-active" type="button" data-filter="all">全部</button>
           </div>

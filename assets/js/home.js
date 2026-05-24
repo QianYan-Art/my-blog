@@ -1,9 +1,125 @@
 (function() {
   var dateEl = document.getElementById('footDate');
+  var resizeRaf = 0;
+
   if (dateEl) {
     var d = new Date();
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     dateEl.textContent = String(d.getDate()).padStart(2,'0') + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  function fitTextBlock(target, options) {
+    if (!target) return;
+    var max = options.max;
+    var min = options.min;
+    var step = options.step || 1;
+
+    target.style.fontSize = '';
+    target.style.letterSpacing = '';
+
+    if (window.innerWidth > 720) return;
+
+    var size = max;
+    target.style.fontSize = size + 'px';
+
+    while (size > min && target.scrollWidth > target.clientWidth + 1) {
+      size -= step;
+      target.style.fontSize = size + 'px';
+    }
+
+    if (target.scrollWidth > target.clientWidth + 1) {
+      target.style.letterSpacing = '-0.1em';
+      while (size > min && target.scrollWidth > target.clientWidth + 1) {
+        size -= step;
+        target.style.fontSize = size + 'px';
+      }
+    }
+  }
+
+  function fitNavRow() {
+    var nav = document.querySelector('.site-nav');
+    var brand = document.querySelector('.site-nav__brand');
+    var meta = document.querySelector('.site-nav__meta');
+    var github = document.querySelector('.site-nav__github');
+    var githubLabel = document.querySelector('.site-nav__github-label');
+    if (!nav || !brand || !meta || !github) return;
+
+    brand.style.fontSize = '';
+    meta.style.fontSize = '';
+    meta.style.letterSpacing = '';
+    github.style.fontSize = '';
+    if (meta.dataset && meta.dataset.full) {
+      meta.textContent = meta.dataset.full;
+    }
+    if (githubLabel && githubLabel.dataset && githubLabel.dataset.full) {
+      githubLabel.textContent = githubLabel.dataset.full;
+    }
+
+    if (window.innerWidth > 720) return;
+
+    if (githubLabel && githubLabel.dataset && githubLabel.dataset.short) {
+      githubLabel.textContent = githubLabel.dataset.short;
+    }
+
+    var brandSize = 17;
+    var metaSize = 7;
+    var githubSize = 12;
+    brand.style.fontSize = brandSize + 'px';
+    meta.style.fontSize = metaSize + 'px';
+    github.style.fontSize = githubSize + 'px';
+
+    var guard = 0;
+    while (guard < 40) {
+      guard += 1;
+      var totalWidth = brand.scrollWidth + meta.scrollWidth + github.scrollWidth + 26;
+      if (totalWidth <= nav.clientWidth) {
+        break;
+      }
+      if (meta.dataset && meta.dataset.short && meta.textContent !== meta.dataset.short) {
+        meta.textContent = meta.dataset.short;
+        continue;
+      }
+      if (meta.dataset && meta.dataset.mini && meta.textContent !== meta.dataset.mini) {
+        meta.textContent = meta.dataset.mini;
+        continue;
+      }
+      if (meta.dataset && meta.dataset.micro && meta.textContent !== meta.dataset.micro) {
+        meta.textContent = meta.dataset.micro;
+        continue;
+      }
+      if (githubLabel && githubLabel.dataset && githubLabel.dataset.short && githubLabel.textContent !== githubLabel.dataset.short) {
+        githubLabel.textContent = githubLabel.dataset.short;
+        continue;
+      }
+      if (metaSize > 5) {
+        metaSize -= 0.25;
+        meta.style.fontSize = metaSize + 'px';
+      } else if (githubSize > 9) {
+        githubSize -= 0.25;
+        github.style.fontSize = githubSize + 'px';
+      } else if (brandSize > 13) {
+        brandSize -= 0.25;
+        brand.style.fontSize = brandSize + 'px';
+      } else {
+        break;
+      }
+    }
+  }
+
+  function fitHeroTitles() {
+    fitTextBlock(document.querySelector('.hero-title'), { max: 48, min: 30, step: 1 });
+    fitTextBlock(document.querySelector('.articles-title'), { max: 54, min: 28, step: 1 });
+    fitTextBlock(document.querySelector('.post-body h1'), { max: 46, min: 28, step: 1 });
+  }
+
+  function applyResponsiveFitting() {
+    fitNavRow();
+    fitHeroTitles();
+  }
+
+  function scheduleResponsiveFitting() {
+    if (resizeRaf) cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(applyResponsiveFitting);
   }
 
   // Grid overlay
@@ -73,10 +189,19 @@
     }
 
     window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('resize', scheduleResponsiveFitting);
     if (document.readyState === 'complete') {
       resizeCanvas();
     } else {
       window.addEventListener('load', resizeCanvas);
     }
+  } else {
+    window.addEventListener('resize', scheduleResponsiveFitting);
+  }
+
+  if (document.readyState === 'complete') {
+    scheduleResponsiveFitting();
+  } else {
+    window.addEventListener('load', scheduleResponsiveFitting);
   }
 })();
