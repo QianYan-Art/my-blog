@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codex 上下文配置压缩记录 · 千颜</title>
+  <meta name="description" content="20260520 Codex 上下文配置压缩记录 1. 目标 把 C:\tmp 下的 Codex 常驻配置压缩到“足够可用、但尽量省上下文”的状态，同时保留关键执行边界。 2. 本次处理对象 C:\tmp\AGENTS.">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">本地记录</p>
+      <h1>Codex 上下文配置压缩记录<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-20</span><span>6 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>2026-05-20 Codex 上下文配置压缩记录</h2>
+<h3>1. 目标</h3>
+<p>把 <code>C:\tmp</code> 下的 Codex 常驻配置压缩到“足够可用、但尽量省上下文”的状态，同时保留关键执行边界。</p>
+<h3>2. 本次处理对象</h3>
+<ul>
+<li><code>C:\tmp\AGENTS.md</code></li>
+<li><code>C:\tmp\AGENTS.min.md</code></li>
+<li><code>C:\tmp\CONTEXT_OPTIMIZATION.md</code></li>
+</ul>
+<h3>3. 操作过程</h3>
+<ol>
+<li>检查 <code>D:\Answer\QianYan-KBase\my_local\本机</code> 下既有文档命名方式，确认采用 <code>YYYY-MM-DD_主题.md</code>。</li>
+<li>先在 <code>C:\tmp</code> 新建平衡版 <code>AGENTS.md</code>，保留中文输出、<code>workdir</code>、<code>apply_patch</code>、不覆盖用户改动、按需加载等硬规则。</li>
+<li>再补充 <code>AGENTS.min.md</code>，用于更低上下文占用场景。</li>
+<li>新建 <code>CONTEXT_OPTIMIZATION.md</code>，把按需加载、局部读取、输出摘要化等策略单独外置，避免常驻文件继续变胖。</li>
+<li>根据进一步压缩需求，再次收紧 <code>AGENTS.md</code>，删除项目分析清单、冗余说明、较软的风格化描述，保留最低必要规则。</li>
+</ol>
+<h3>4. 压缩思路</h3>
+<p>本次压缩遵循以下原则：</p>
+<ul>
+<li>只保留影响执行正确性的规则。</li>
+<li>风格偏好、方法论、教程说明不进入主常驻文件。</li>
+<li>能合并的规则合并，避免重复。</li>
+<li>把“怎么省上下文”从主规则中拆出去，变成单独说明文件。</li>
+</ul>
+<h3>5. 最终状态</h3>
+<h4>5.1 主常驻配置</h4>
+<p><code>C:\tmp\AGENTS.md</code> 现已压缩为短版，只保留四类信息：</p>
+<ul>
+<li>必守规则</li>
+<li>工具优先级</li>
+<li>上下文控制</li>
+<li>交付要求</li>
+</ul>
+<h4>5.2 辅助文件</h4>
+<ul>
+<li><code>C:\tmp\AGENTS.min.md</code>：极限省上下文版本</li>
+<li><code>C:\tmp\CONTEXT_OPTIMIZATION.md</code>：维护与使用说明</li>
+</ul>
+<h3>6. 结果评估</h3>
+<p>相较于最初的长版思路，当前结构更适合常驻：</p>
+<ul>
+<li>主文件更短，模型更容易稳定抓住重点。</li>
+<li>低频内容外置，减少每轮会话的固定负担。</li>
+<li>仍保留了关键边界，实际使用风险较低。</li>
+</ul>
+<h3>7. 后续建议</h3>
+<ul>
+<li>日常使用优先 <code>C:\tmp\AGENTS.md</code>。</li>
+<li>明确追求最低 token 占用时，切换到 <code>C:\tmp\AGENTS.min.md</code>。</li>
+<li>后续新增规则前，先判断是否真的影响执行正确性；若不是，优先写入 <code>CONTEXT_OPTIMIZATION.md</code> 或其他按需文档，而不是继续扩充 <code>AGENTS.md</code>。</li>
+</ul>
+<h3>8. 后续补充优化（Codex 全局配置）</h3>
+<h4>8.1 配置检查结论</h4>
+<p>继续检查 <code>C:\Users\lenovo\.codex\config.toml</code> 后，发现还有两类值得优化的默认项：</p>
+<ul>
+<li><code>mcp-router</code> 的 MCP 注册</li>
+<li>默认启用的文档类重插件</li>
+</ul>
+<h4>8.2 已执行调整</h4>
+<ol>
+<li>删除 <code>mcp-router</code> 配置块：</li>
+<p>- <code>[mcp_servers.mcp-router]</code> - <code>[mcp_servers.mcp-router.env]</code> - <code>MCPR_TOKEN</code></p>
+<li>关闭以下默认插件：</li>
+<p>- <code>documents@openai-primary-runtime</code> - <code>spreadsheets@openai-primary-runtime</code> - <code>presentations@openai-primary-runtime</code></p>
+<li>保留：</li>
+<p>- <code>browser@openai-bundled</code></p>
+</ol>
+<h4>8.3 调整理由</h4>
+<ul>
+<li><code>mcp-router</code> 会引入额外 MCP 能力面和配置负担，不适合作为默认常驻。</li>
+<li>文档、表格、演示类插件属于低频重能力，按需开启更合理。</li>
+<li><code>browser</code> 仍是较常见且相对通用的本地验证工具，因此先保留。</li>
+</ul>
+<h4>8.4 当前状态</h4>
+<p><code>C:\Users\lenovo\.codex\config.toml</code> 已进一步收紧，目前只保留：</p>
+<ul>
+<li>基础模型设置</li>
+<li>两个 marketplace 源</li>
+<li><code>browser</code> 插件</li>
+<li>hook 信任状态</li>
+<li>Windows 沙箱设置</li>
+<li>项目信任设置</li>
+</ul>
+<h3>9. 日志清理与 rtk 项目接入</h3>
+<h4>9.1 日志清理</h4>
+<p>按“不动聊天记录”的要求，清理目标限定为 <code>.codex</code> 下的日志类文件：</p>
+<ul>
+<li><code>log/</code></li>
+<li><code>sandbox.log</code></li>
+<li><code>sandbox_commands.rust.log</code></li>
+<li><code>logs_2.sqlite*</code></li>
+</ul>
+<p>结果：</p>
+<ul>
+<li><code>log/</code> 与两个 <code>sandbox</code> 日志已清理</li>
+<li><code>logs_2.sqlite</code>、<code>logs_2.sqlite-shm</code>、<code>logs_2.sqlite-wal</code> 未能删除</li>
+</ul>
+<p>未删除原因：</p>
+<ul>
+<li>这三份 SQLite 日志文件被当前运行中的 Codex 进程占用</li>
+<li>需要在 Codex 完全退出后再删除，当前会话内无法安全清空</li>
+</ul>
+<h4>9.2 rtk 项目接入</h4>
+<p>已将仓库拉取到：</p>
+<ul>
+<li><code>C:\tmp\rtk</code></li>
+</ul>
+<p>分支：</p>
+<ul>
+<li><code>develop</code></li>
+</ul>
+<h4>9.3 Codex 项目配置</h4>
+<p>已在 <code>C:\Users\lenovo\.codex\config.toml</code> 中新增：</p>
+<ul>
+<li><code>[projects.&#39;c:\tmp\rtk&#39;]</code></li>
+<li><code>trust_level = &quot;trusted&quot;</code></li>
+</ul>
+<p>这样 Codex 对该项目有单独的明确项目信任配置，而不只是依赖更大的 <code>C:\</code> 范围信任。</p>
+<h4>9.4 项目级 AGENTS 配置</h4>
+<p>仓库原本没有 <code>AGENTS.md</code>，但存在 <code>CLAUDE.md</code>。因此新增：</p>
+<ul>
+<li><code>C:\tmp\rtk\AGENTS.md</code></li>
+</ul>
+<p>内容为从 <code>CLAUDE.md</code> 提炼出的 Codex 适配版规则，重点保留：</p>
+<ul>
+<li>项目身份与避免同名仓库混淆</li>
+<li>Rust 构建、测试、格式化、clippy 命令</li>
+<li><code>anyhow::Result</code>、避免 <code>unwrap()</code>、正则复用等代码规则</li>
+<li>Rust 文件修改后的强制验证要求</li>
+<li>优先最小必要改动的工作方式</li>
+</ul>
+<h3>10. 账号切换后的配置回退与恢复</h3>
+<h4>10.1 现象</h4>
+<p>切换 Codex 登录账号后，<code>C:\tmp</code> 下的以下文件未发生回退：</p>
+<ul>
+<li><code>AGENTS.md</code></li>
+<li><code>AGENTS.min.md</code></li>
+<li><code>CONTEXT_OPTIMIZATION.md</code></li>
+</ul>
+<p>但 <code>C:\Users\lenovo\.codex\config.toml</code> 中，默认插件状态被客户端重新写回。</p>
+<h4>10.2 回退项</h4>
+<p>被重新启用的插件包括：</p>
+<ul>
+<li><code>documents@openai-primary-runtime</code></li>
+<li><code>spreadsheets@openai-primary-runtime</code></li>
+<li><code>presentations@openai-primary-runtime</code></li>
+</ul>
+<h4>10.3 恢复处理</h4>
+<p>再次将上述 3 个默认重插件关闭，恢复到此前的精简状态，仅保留：</p>
+<ul>
+<li><code>browser@openai-bundled</code></li>
+</ul>
+<h4>10.4 结论</h4>
+<p>账号切换不会覆盖 <code>C:\tmp</code> 下自建的规则文件，但可能会改写 <code>.codex\config.toml</code> 中的默认插件启用状态。后续如再次切换账号，应优先复查该文件。</p>
+<h3>11. Chrome 连接启用与检测</h3>
+<h4>11.1 配置调整</h4>
+<p>在 <code>C:\Users\lenovo\.codex\config.toml</code> 中启用：</p>
+<ul>
+<li><code>chrome@openai-bundled</code></li>
+</ul>
+<p>保留：</p>
+<ul>
+<li><code>browser@openai-bundled</code></li>
+</ul>
+<h4>11.2 检测结果</h4>
+<p>使用插件自带脚本检查后，当前环境满足 Chrome 连接所需的基础条件：</p>
+<ul>
+<li>系统默认浏览器为 Google Chrome</li>
+<li>本机已安装 Chrome</li>
+<li>Codex Chrome 扩展已安装、已注册、已启用</li>
+<li>Native Messaging Host manifest 存在且配置正确</li>
+</ul>
+<h4>11.3 结论</h4>
+<p>从本机配置与桥接状态看，Chrome 连接已可用。若当前已打开的 Codex 会话仍未显示对应能力，通常需要新开会话或重启 Codex 以重新加载插件能力。</p>
+<h3>12. 全局 AGENTS 统一</h3>
+<h4>12.1 问题</h4>
+<p>此前精简的是 <code>C:\tmp\AGENTS.md</code>，而 <code>C:\Users\lenovo\.codex\AGENTS.md</code> 仍保留旧版长模板，导致全局默认规则与工作目录规则不一致。</p>
+<h4>12.2 处理</h4>
+<p>将：</p>
+<ul>
+<li><code>C:\Users\lenovo\.codex\AGENTS.md</code></li>
+</ul>
+<p>同步替换为与 <code>C:\tmp\AGENTS.md</code> 同风格的精简常驻版，统一默认生效行为。</p>
+<h4>12.3 结果</h4>
+<p>现在全局目录与 <code>C:\tmp</code> 工作目录都使用短版规则，减少因规则文件位置不同导致的行为不一致。</p></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

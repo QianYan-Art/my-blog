@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RackNerd VPS 运维记录（2026-05-21） · 千颜</title>
+  <meta name="description" content="RackNerd VPS 运维记录（20260521） 机器：RackNerd VPS — 2 vCPU / 2.4G RAM / 40G SSD + 1.2G 日志盘 系统：Ubuntu 22.04 LTS / Xan">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>RackNerd VPS 运维记录（2026-05-21）<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-21</span><span>24 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>RackNerd VPS 运维记录（2026-05-21）</h2>
+<p>&gt; <strong>机器</strong>：RackNerd VPS — 2 vCPU / 2.4G RAM / 40G SSD + 1.2G 日志盘 &gt; <strong>系统</strong>：Ubuntu 22.04 LTS / XanMod 6.19.9 &gt; <strong>IP</strong>：<code>23.238.70.240</code>（RackNerd 于 2026-05-21 迁移邮件中分配的新 IP；旧 IP <code>74.48.40.123</code> 已废弃） &gt; <strong>hostname</strong>：<code>racknerd-df2acce</code>（2026-05-21 迁移后系统当前实际 hostname；邮件服务名仍为 <code>mail.qianyan.me</code>）</p>
+<p>---</p>
+<h3>一、MuMuAINovel 历史维护（已下线）</h3>
+<h4>1.1 修复配置</h4>
+<div class="post-table-wrap"><table><thead><tr><th>文件</th><th>字段</th><th>修改前</th><th>修改后</th></tr></thead><tbody><tr><td><code>/root/MuMuAINovel/.env</code></td><td><code>FRONTEND_URL</code></td><td><code>http://localhost:8000</code></td><td><code>https://mumu.qianyan.me</code></td></tr><tr><td><code>/root/MuMuAINovel/.env</code></td><td><code>CORS_ORIGINS</code></td><td><code>[&quot;http://localhost:8000&quot;,&quot;http://127.0.0.1:8000&quot;]</code></td><td>新增 <code>&quot;https://mumu.qianyan.me&quot;</code></td></tr></tbody></table></div>
+<p>修改后执行 <code>docker compose up -d --force-recreate mumuainovel</code> 使配置生效。</p>
+<h4>1.2 Docker 日志轮转</h4>
+<p>新建 <code>/etc/docker/daemon.json</code>，防止容器日志撑满磁盘：</p>
+<pre><code>{
+  &quot;log-driver&quot;: &quot;json-file&quot;,
+  &quot;log-opts&quot;: {
+    &quot;max-size&quot;: &quot;10m&quot;,
+    &quot;max-file&quot;: &quot;3&quot;
+  }
+}</code></pre>
+<p>修改后执行 <code>systemctl restart docker</code>（容器会自动恢复）。</p>
+<h4>1.3 系统清理</h4>
+<div class="post-table-wrap"><table><thead><tr><th>清理项</th><th>说明</th></tr></thead><tbody><tr><td>旧内核 5.15.0-177-generic</td><td>已移除，仅保留 XanMod 6.19.9</td></tr><tr><td>kejilion.sh / .bak / menu.sh / tcpx.sh / get-docker.sh</td><td>未使用的 VPS 工具脚本，已删除</td></tr><tr><td>test-c/ 空目录</td><td>已删除</td></tr><tr><td>.env 备份</td><td>已创建 <code>/root/MuMuAINovel/.env.bak.2026-05-15_1524</code></td></tr></tbody></table></div>
+<h4>1.4 下线前状态（历史）</h4>
+<pre><code>容器状态：mumuainovel (healthy) / mumuainovel-postgres (healthy) / watchtower (healthy)
+健康检查：http://127.0.0.1:8000/health → {&quot;status&quot;:&quot;ok&quot;}
+应用版本：APP_VERSION=1.0.8
+默认模型：DeepSeek-V3.2-Thinking
+AI 中转：juya.owl.ci
+Watchtower：每日 UTC 20:00（北京 04:00）自动检查更新，白名单模式（仅 mumuainovel + watchtower）
+数据库备份：每日 03:40 自动备份到 /root/backup_mumu/，保留 14 天</code></pre>
+<h4>1.5 2026-05-18 重启复核（历史）</h4>
+<p>为确认系统更新与内核调整后服务可自动恢复，已于 2026-05-18 执行一次正常重启，结果如下：</p>
+<pre><code>主机名：post-station
+Postfix / Dovecot / OpenDKIM / Nginx / Docker / cron / certbot.timer：均自动拉起
+MuMuAINovel 健康检查：http://127.0.0.1:8000/health → {&quot;status&quot;:&quot;ok&quot;}
+Docker 容器：mumuainovel / mumuainovel-postgres / watchtower 均恢复，其中核心容器状态为 healthy
+reboot-required 标记：已消失</code></pre>
+<h4>1.6 2026-05-19 下线与清理</h4>
+<p>MuMuAINovel 已于 2026-05-19（服务器本地时间）执行正式下线，当前这台 RackNerd VPS 仅保留邮件相关用途。</p>
+<p>本次清理项：</p>
+<ul>
+<li>停止并删除容器：<code>mumuainovel</code>、<code>mumuainovel-postgres</code>、<code>watchtower</code></li>
+<li>删除 Docker 卷与网络：<code>mumuainovel_postgres_data</code>、<code>mumuainovel_ai-story-network</code></li>
+<li>删除项目目录：<code>/root/MuMuAINovel</code></li>
+<li>删除运维脚本目录：<code>/root/mumu_ops</code></li>
+<li>删除数据库备份目录：<code>/root/backup_mumu</code></li>
+<li>删除日志目录与日志文件：<code>/mnt/logs/mumuainovel</code>、<code>/var/log/mumu-db-backup.log</code>、<code>/var/log/mumu-full-update.log</code></li>
+<li>删除 Nginx 站点：<code>/etc/nginx/sites-available/mumuainovel.conf</code> 与 <code>/etc/nginx/sites-enabled/mumuainovel.conf</code></li>
+<li>删除 root crontab 中的 MuMu 数据库备份与全量更新任务</li>
+</ul>
+<p>清理后复核结果：</p>
+<pre><code>MuMu 相关容器：0
+MuMu 相关 Docker 镜像：0
+MuMu 相关 Docker 卷 / 网络：0
+MuMu 相关目录与日志残留：0
+邮件服务：Postfix / Dovecot / OpenDKIM / Nginx / Docker / cron / certbot.timer 均保持 active
+邮件端口：25 / 465 / 587 / 993 监听正常</code></pre>
+<p>---</p>
+<h3>二、域名邮箱搭建</h3>
+<h4>2.1 安装的组件</h4>
+<div class="post-table-wrap"><table><thead><tr><th>组件</th><th>用途</th><th>监听端口</th></tr></thead><tbody><tr><td>Postfix 3.6.4</td><td>MTA（邮件传输代理）</td><td>25 / 587 / 465</td></tr><tr><td>Dovecot</td><td>IMAP（邮件读取）</td><td>143 / 993</td></tr><tr><td>OpenDKIM 2.11</td><td>DKIM 签名</td><td>127.0.0.1:8891</td></tr></tbody></table></div>
+<h4>2.2 关键配置路径</h4>
+<div class="post-table-wrap"><table><thead><tr><th>配置</th><th>路径</th></tr></thead><tbody><tr><td>Postfix 主配置</td><td><code>/etc/postfix/main.cf</code></td></tr><tr><td>Postfix master</td><td><code>/etc/postfix/master.cf</code></td></tr><tr><td>虚拟邮箱映射</td><td><code>/etc/postfix/vmailbox</code>（需 <code>postmap</code>）</td></tr><tr><td>Dovecot 认证</td><td><code>/etc/dovecot/conf.d/10-auth.conf</code></td></tr><tr><td>Dovecot 用户</td><td><code>/etc/dovecot/users</code></td></tr><tr><td>Dovecot SSL</td><td><code>/etc/dovecot/conf.d/10-ssl.conf</code></td></tr><tr><td>DKIM 签名表</td><td><code>/etc/opendkim/SigningTable</code></td></tr><tr><td>DKIM 密钥表</td><td><code>/etc/opendkim/KeyTable</code></td></tr><tr><td>DKIM 公钥</td><td><code>/etc/opendkim/keys/qianyan.me/mail.txt</code></td></tr><tr><td>TLS 证书</td><td><code>/etc/letsencrypt/live/mail.qianyan.me/</code></td></tr></tbody></table></div>
+<h4>2.3 当前邮箱账号</h4>
+<div class="post-table-wrap"><table><thead><tr><th>邮箱</th><th>用途</th><th>邮箱目录</th></tr></thead><tbody><tr><td>shi@mail.qianyan.me</td><td>管理员（最高权限）</td><td><code>/var/mail/vmail/mail.qianyan.me/shi/</code></td></tr><tr><td>a3k7m2@mail.qianyan.me</td><td>接码用</td><td><code>/var/mail/vmail/mail.qianyan.me/a3k7m2/</code></td></tr><tr><td>b8n4j1@mail.qianyan.me</td><td>接码用</td><td><code>/var/mail/vmail/mail.qianyan.me/b8n4j1/</code></td></tr><tr><td>c2h6g9@mail.qianyan.me</td><td>接码用</td><td><code>/var/mail/vmail/mail.qianyan.me/c2h6g9/</code></td></tr><tr><td>d5t8r3@mail.qianyan.me</td><td>接码用</td><td><code>/var/mail/vmail/mail.qianyan.me/d5t8r3/</code></td></tr><tr><td>e1y7u6@mail.qianyan.me</td><td>接码用</td><td><code>/var/mail/vmail/mail.qianyan.me/e1y7u6/</code></td></tr><tr><td>f4w9i5@mail.qianyan.me</td><td>接码用</td><td><code>/var/mail/vmail/mail.qianyan.me/f4w9i5/</code></td></tr><tr><td>g7o2s8@mail.qianyan.me</td><td>接码用</td><td><code>/var/mail/vmail/mail.qianyan.me/g7o2s8/</code></td></tr><tr><td>h6l3p4@mail.qianyan.me</td><td>接码用</td><td><code>/var/mail/vmail/mail.qianyan.me/h6l3p4/</code></td></tr><tr><td>i9q5a1@mail.qianyan.me</td><td>接码用</td><td><code>/var/mail/vmail/mail.qianyan.me/i9q5a1/</code></td></tr><tr><td>j2v8b7@mail.qianyan.me</td><td>接码用</td><td><code>/var/mail/vmail/mail.qianyan.me/j2v8b7/</code></td></tr></tbody></table></div>
+<h4>2.4 批量创建邮箱</h4>
+<p>脚本位置：<code>/root/mail_ops/add-mail-user.sh</code></p>
+<pre><code># 单个创建
+/root/mail_ops/add-mail-user.sh user1@mail.qianyan.me 密码
+
+# 批量创建（文件格式：邮箱 密码，每行一个）
+/root/mail_ops/add-mail-user.sh -f /root/mail_ops/users.txt</code></pre>
+<p>支持的域名（已配置在 <code>virtual_mailbox_domains</code>）：</p>
+<ul>
+<li><code>qianyan.me</code> → 邮箱格式 <code>xxx@qianyan.me</code></li>
+<li><code>mail.qianyan.me</code> → 邮箱格式 <code>xxx@mail.qianyan.me</code></li>
+</ul>
+<h4>2.5 Let&#39;s Encrypt 证书</h4>
+<ul>
+<li><strong>域名</strong>：mail.qianyan.me</li>
+<li><strong>签发</strong>：Let&#39;s Encrypt (R13)</li>
+<li><strong>有效期</strong>：2026-05-15 → 2026-08-13</li>
+<li><strong>自动续期</strong>：certbot 内置定时任务（每天检查两次）</li>
+<li><strong>续期钩子</strong>：</li>
+<p>- pre：<code>/etc/letsencrypt/renewal-hooks/pre/nginx-stop.sh</code>（停 Nginx 释放 80 端口） - post：<code>/etc/letsencrypt/renewal-hooks/post/mail-reload.sh</code>（启 Nginx + reload Postfix + Dovecot）</p>
+</ul>
+<h4>2.6 DNS 记录（迁移前历史值）</h4>
+<p>以下记录均在 EdgeOne <code>qianyan.me</code> 域名下创建，主机记录列已标注：</p>
+<div class="post-table-wrap"><table><thead><tr><th>类型</th><th>主机记录</th><th>值</th><th>状态</th></tr></thead><tbody><tr><td>A</td><td>mail</td><td>74.48.40.123</td><td>✅</td></tr><tr><td>MX</td><td>mail</td><td><code>mail.qianyan.me</code>（优先级 10）</td><td>✅</td></tr><tr><td>TXT</td><td>mail</td><td><code>v=spf1 mx a ip4:74.48.40.123 ~all</code></td><td>✅</td></tr><tr><td>TXT</td><td>mail._domainkey</td><td><code>v=DKIM1; h=sha256; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm2QsPpNJb6QoNQ4bCY9nH2DpzydAwEk+l0RJHu2V7vf4eoxPiTDaems0Vpsf7JUuQE7NXIK7px1KVM1bb9VUfU1XIzloFm1ruvCCdL39p92AwxeAY1xTampJlWNjHbNnGxJWPFnph3eahauoQqOC+wQYOvvCMf00bty/Hm3+BDZicekGuR1zcpgXqAyAhDT5AWOZZE7GL5GIFyrx6zcOe7vpjqNueC/n9+q94wREDS0vuewKCSAfTscUhi96CuysEpUxJY4EeJ5uNGCcjJbmVCYQGdDeOMakpP0JcG0AeYXTYqXcCRBEdm1IX72eTObWtsvU8iI8aQlpPw695vIXrwIDAQAB</code></td><td>✅</td></tr><tr><td>TXT</td><td>_dmarc.mail</td><td><code>v=DMARC1; p=quarantine; pct=100</code></td><td>✅</td></tr></tbody></table></div>
+<p>&gt; 注意：DKIM 值极长，EdgeOne 保存后 DNS 查询会多一个尾随 <code>\n</code>——这无影响，接收方会忽略。</p>
+<h4>2.6.1 2026-05-21 迁移后已完成的 DNS / 邮件切换</h4>
+<p>RackNerd 已通知这台 VPS 从 Los Angeles DC-02 迁移到 DC-03，并为 VPS 分配了新 IP：<code>23.238.70.240</code>。 截至当前记录，EdgeOne 中 <code>A</code> 与 <code>SPF</code> 已完成切换，RackNerd 也已确认新 IP 的 PTR / rDNS 已配置。</p>
+<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>当前正式值</th><th>说明</th></tr></thead><tbody><tr><td><code>mail.qianyan.me</code> A</td><td><code>23.238.70.240</code></td><td>已切换完成</td></tr><tr><td><code>mail</code> SPF TXT</td><td><code>v=spf1 mx a ip4:23.238.70.240 ~all</code></td><td>已切换完成</td></tr><tr><td>MX</td><td><code>mail.qianyan.me</code>（优先级 10）</td><td>保持不变</td></tr><tr><td>DKIM TXT</td><td>现有 <code>mail._domainkey</code></td><td>保持不变</td></tr><tr><td>DMARC TXT</td><td>现有 <code>_dmarc.mail</code></td><td>保持不变</td></tr></tbody></table></div>
+<p>额外说明：</p>
+<ul>
+<li>旧 IP <code>74.48.40.123</code> 后续不要继续使用</li>
+<li>当前新 IP <code>23.238.70.240</code> 的 PTR / rDNS 已指向 <code>mail.qianyan.me</code></li>
+<li>2026-05-21 晚间复核：<code>23.238.70.240 -&gt; mail.qianyan.me</code> 反查已生效；服务器本机以 <code>shi@mail.qianyan.me</code> 发往 Gmail 的测试邮件返回 <code>250 2.0.0 OK</code>，说明 Gmail 已接受这次 rDNS 更新后的出站邮件</li>
+</ul>
+<h4>2.7 本次补充修复（5/17）</h4>
+<ul>
+<li><strong>Dovecot IMAP namespace</strong>：10-mail.conf 缺少 <code>namespace inbox</code> 块，导致 IMAP 登录后无法列出收件箱（<code>namespace configuration error</code>）。已补全。</li>
+<li><strong>DKIM 密钥重建</strong>：原密钥在拷贝过程中损坏，DNS 公钥与服务器私钥不匹配。已执行 <code>opendkim-genkey</code> 重新生成，EdgeOne 上的 <code>mail._domainkey</code> 记录已同步更新。</li>
+<li><strong>证书续期 pre-hook</strong>：certbot 使用 standalone 模式（需占用 80 端口），但 Nginx 也在 80。已加 <code>nginx-stop.sh</code> pre-hook 解决续期时端口冲突。</li>
+</ul>
+<h4>2.8 接码邮箱批量创建（2026-05-18）</h4>
+<p>创建 10 个随机前缀邮箱用于注册接码；当时最初通过本机旧 skill <code>mail-verify-code</code> 读取验证码，现已统一升级为 <code>mail-vps-ops</code>。</p>
+<p><strong>密码对照表（请勿外泄）：</strong></p>
+<div class="post-table-wrap"><table><thead><tr><th>#</th><th>邮箱</th><th>密码</th></tr></thead><tbody><tr><td>1</td><td>a3k7m2@mail.qianyan.me</td><td>xK9pQ2mN</td></tr><tr><td>2</td><td>b8n4j1@mail.qianyan.me</td><td>rT5yW8vL</td></tr><tr><td>3</td><td>c2h6g9@mail.qianyan.me</td><td>mJ3kF7nB</td></tr><tr><td>4</td><td>d5t8r3@mail.qianyan.me</td><td>pL9cX4wQ</td></tr><tr><td>5</td><td>e1y7u6@mail.qianyan.me</td><td>hN2vR8jM</td></tr><tr><td>6</td><td>f4w9i5@mail.qianyan.me</td><td>gB6tK3yD</td></tr><tr><td>7</td><td>g7o2s8@mail.qianyan.me</td><td>wQ4mH9nF</td></tr><tr><td>8</td><td>h6l3p4@mail.qianyan.me</td><td>vJ8rL2kC</td></tr><tr><td>9</td><td>i9q5a1@mail.qianyan.me</td><td>nF7yT5gX</td></tr><tr><td>10</td><td>j2v8b7@mail.qianyan.me</td><td>kD3pW6rH</td></tr></tbody></table></div>
+<p><strong>操作记录：</strong></p>
+<pre><code># 创建用户列表文件（创建后已删除）
+/root/mail_ops/add-mail-user.sh -f /root/mail_ops/users.txt
+
+# 生成完成后删除中间文件
+rm /root/mail_ops/users.txt</code></pre>
+<p><strong>接码邮箱 IMAP 配置：</strong></p>
+<div class="post-table-wrap"><table><thead><tr><th>设置</th><th>值</th></tr></thead><tbody><tr><td>IMAP 服务器</td><td>mail.qianyan.me</td></tr><tr><td>IMAP 端口</td><td>993 (SSL/TLS)</td></tr><tr><td>用户名</td><td>完整邮箱地址</td></tr></tbody></table></div>
+<p>---</p>
+<h4>2.9 2026-05-21 Los Angeles DC-02 -&gt; DC-03 物理迁移</h4>
+<p>RackNerd 于 2026-05-21 发出“新 IP 已分配”通知，确认如下：</p>
+<ul>
+<li>旧 IP：<code>74.48.40.123</code></li>
+<li>新 IP：<code>23.238.70.240</code></li>
+<li>仅 IP 变化；登录凭据不变；数据保留</li>
+<li>官方说明：收到邮件后约等待 30 分钟，再尝试使用新 IP 访问</li>
+</ul>
+<p>本地记录到的后续核对结果：</p>
+<ul>
+<li><code>23.238.70.240:23333</code> 的 TCP 端口已可连通</li>
+<li>但在一次短时探测中，SSH 仍出现 <code>Connection timed out during banner exchange</code></li>
+<li>因此在完成 DNS 切换前，应先以“新 IP 已分配、网络正在收尾”为准，不要把旧 IP 继续写入任何新配置</li>
+</ul>
+<p>后续状态更新（2026-05-21，执行 <code>Reconfigure Network</code> 后）：</p>
+<ul>
+<li><code>23.238.70.240:23333</code> 可正常 SSH 登录</li>
+<li><code>23.238.70.240:25/465/587/993</code> 均已从外部探测为可连通</li>
+<li>服务器当前实际值：</li>
+<p>- <code>hostnamectl --static</code> → <code>racknerd-df2acce</code> - <code>/etc/mailname</code> → <code>mail.qianyan.me</code> - <code>postconf myhostname</code> → <code>mail.qianyan.me</code></p>
+<li>结论：迁移后的邮件服务已经在新 IP 上恢复，可开始切换 DNS 与外部引用</li>
+</ul>
+<p>本次迁移后，需要跟着调整的对象：</p>
+<ul>
+<li>EdgeOne 中 <code>mail.qianyan.me</code> 的 <code>A</code> 记录</li>
+<li>EdgeOne 中 <code>mail</code> SPF 记录里的 <code>ip4</code></li>
+<li>新 IP 的 PTR / rDNS 工单</li>
+<li>Hermes 服务器上的邮件 VPS 目标 IP</li>
+<li>本机 <code>mail-vps-ops</code> skill 的邮件 VPS 目标 IP</li>
+<li>本地运维文档中的旧 IP 引用</li>
+</ul>
+<h3>三、邮件服务运维脚本</h3>
+<div class="post-table-wrap"><table><thead><tr><th>脚本</th><th>用途</th></tr></thead><tbody><tr><td><code>/root/mail_ops/mail-health.sh</code></td><td>一键健康检查（服务状态、端口、磁盘、队列）</td></tr><tr><td><code>/root/mail_ops/mail-cleanup.sh</code></td><td>清理 Trash（&gt;30天）和 Junk（&gt;14天）</td></tr><tr><td><code>/root/mail_ops/add-mail-user.sh</code></td><td>创建/批量创建邮箱用户</td></tr><tr><td><code>/root/mail_ops/mail_read.py</code></td><td>通用邮件操作脚本（按完整邮箱地址读取邮件、列附件、导出附件、发信、回复、转发、清理）</td></tr><tr><td><code>/usr/local/bin/hermes-mail-api.py</code></td><td>Hermes / 本机 skill 的受限邮件 API 入口（支持只读与读写动作）</td></tr><tr><td><code>/usr/local/bin/hermes-mail-ssh-gateway</code></td><td>Hermes 受限 SSH 强制命令网关（仅放行白名单邮件子命令）</td></tr></tbody></table></div>
+<p>---</p>
+<h3>四、定时任务汇总</h3>
+<div class="post-table-wrap"><table><thead><tr><th>时间</th><th>任务</th><th>归属</th></tr></thead><tbody><tr><td>每天 02:00</td><td>清理延迟邮件队列</td><td>邮件</td></tr><tr><td>每天 03:00（周日）</td><td>清理 30 天前的压缩日志</td><td>邮件</td></tr><tr><td>每天 04:00</td><td>邮箱清理（Trash/Junk）</td><td>邮件</td></tr><tr><td>每天 08:00</td><td>邮件队列状态记录</td><td>邮件</td></tr><tr><td>开机</td><td>iptables-restore</td><td>系统</td></tr></tbody></table></div>
+<p>---</p>
+<h3>五、日志路径</h3>
+<div class="post-table-wrap"><table><thead><tr><th>日志</th><th>路径</th><th>轮转策略</th></tr></thead><tbody><tr><td>邮件日志</td><td><code>/mnt/logs/mail/mail.log</code></td><td>每天轮转，保留 14 天，压缩</td></tr><tr><td>邮件清理日志</td><td><code>/mnt/logs/mail/mail-cleanup.log</code></td><td>随清理脚本写入</td></tr><tr><td>邮件队列状态</td><td><code>/mnt/logs/mail/queue-status.log</code></td><td>每日追加</td></tr><tr><td>Nginx 日志</td><td><code>/var/log/nginx/</code></td><td>内置 logrotate，14 天</td></tr></tbody></table></div>
+<p>---</p>
+<h3>六、审查发现的遗留问题</h3>
+<h4>6.1 kejilion.sh 定时下载（已移除）</h4>
+<p>原先存在一条每天凌晨 <code>02:02</code> 从外部下载并刷新 <code>kejilion.sh</code> 的 root crontab。该行为存在明显供应链风险。</p>
+<p>当前状态：</p>
+<ul>
+<li>该 crontab 条目已移除</li>
+<li>当前保留的 root crontab 仅剩邮件队列清理、邮件清理、日志清理与 <code>iptables-restore</code></li>
+</ul>
+<h4>6.2 SMTP 端口 25 外网可达</h4>
+<p>当前 iptables 仅限制了 SSH 端口（22/23333），其余端口依赖默认 ACCEPT 策略。邮件端口（25/465/587/993）和 HTTP（80）对公网开放，这是邮件服务器的正常状态，但需注意不要成为开放中继（当前已配置 <code>smtpd_relay_restrictions</code> 只允许认证用户发信，安全）。</p>
+<h4>6.3 PTR 反向 DNS</h4>
+<p>当前正式 PTR / rDNS：</p>
+<ul>
+<li><code>23.238.70.240 -&gt; mail.qianyan.me</code></li>
+</ul>
+<p>2026-05-21 晚间复核结果：</p>
+<ul>
+<li><code>Resolve-DnsName -Type PTR 23.238.70.240</code> 已返回 <code>mail.qianyan.me</code></li>
+<li>服务器本机发往 Gmail 的测试邮件已被 <code>gmail-smtp-in.l.google.com</code> 以 <code>250 2.0.0 OK</code> 接收</li>
+</ul>
+<p>结论：</p>
+<ul>
+<li>当前 PTR 配置已到位</li>
+<li>后续如果 RackNerd 再迁移 IP，需要重新为新 IP 提交 PTR / rDNS 工单</li>
+</ul>
+<h4>6.4 systemd-networkd-wait-online 超时（已处理）</h4>
+<ul>
+<li>现象：重启后 <code>systemd-networkd-wait-online.service</code> 报红，提示 <code>Timeout occurred while waiting for network connectivity.</code></li>
+<li>原因：当前实际网络由现有网络脚本与 Docker bridge 正常带起，但 <code>networkctl</code> 中相关接口显示为 <code>unmanaged</code>，<code>wait-online</code> 的等待条件与当前环境不匹配。</li>
+<li>处理：已执行</li>
+</ul>
+<pre><code>systemctl disable systemd-networkd-wait-online.service
+systemctl stop systemd-networkd-wait-online.service
+systemctl reset-failed systemd-networkd-wait-online.service</code></pre>
+<ul>
+<li>当前影响：不影响 SSH、邮件、Nginx、Docker 正常工作。</li>
+<li>回滚：</li>
+</ul>
+<pre><code>systemctl enable systemd-networkd-wait-online.service
+systemctl start systemd-networkd-wait-online.service</code></pre>
+<h4>6.5 kejilion 内核菜单 13-16 红字闪退（已查明）</h4>
+<ul>
+<li>现象：在 kejilion 脚本的 <code>13-16</code> 更新内核菜单中，界面短暂无反应后闪出红字并退出，肉眼难以看清报错。</li>
+<li>结论：当前不是内核损坏，而是“当前已无更新 + GRUB 更新链路不完整”的组合问题。</li>
+<li>已确认状态：</li>
+<p>- 当前运行内核：<code>6.19.9-x64v3-xanmod1</code> - 当前已装元包：<code>linux-xanmod-x64v3 6.19.9-xanmod1-0</code> - <code>apt-cache policy linux-xanmod-x64v3</code> 显示 Installed 与 Candidate 相同，说明当时并没有新的 XanMod 候选可升 - 系统中 <code>update-grub</code> 不存在 - <code>grub-common</code> / <code>grub-pc</code> / <code>grub2-common</code> 处于 <code>rc</code> 状态，只剩配置残留</p>
+<li>影响：不影响当前邮件、Nginx、Docker 运行，也不影响本次已完成的正常重启。</li>
+<li>建议：后续不要把 kejilion 的 <code>13-16</code> 当作这台 VPS 的常规维护入口；如需追查瞬时红字，可用：</li>
+</ul>
+<pre><code>script -q -c &quot;bash kejilion.sh&quot; /root/kejilion-kernel.log
+tail -n 120 /root/kejilion-kernel.log</code></pre>
+<p>---</p>
+<h3>七、邮件客户端配置</h3>
+<div class="post-table-wrap"><table><thead><tr><th>设置</th><th>值</th></tr></thead><tbody><tr><td>邮箱地址</td><td>shi@mail.qianyan.me</td></tr><tr><td>IMAP 服务器</td><td>mail.qianyan.me</td></tr><tr><td>IMAP 端口</td><td>993（SSL/TLS）</td></tr><tr><td>SMTP 服务器</td><td>mail.qianyan.me</td></tr><tr><td>SMTP 端口</td><td>587（STARTTLS）</td></tr><tr><td>用户名</td><td>完整邮箱地址</td></tr><tr><td>密码</td><td>创建时设定的密码</td></tr></tbody></table></div>
+<p>---</p>
+<h3>八、多域名邮箱扩展指南</h3>
+<p>当前 Postfix 已配置 <code>virtual_mailbox_domains = qianyan.me, mail.qianyan.me</code>，支持多域名。 Dovecot 的 <code>mail_location = maildir:/var/mail/vmail/%d/%n</code> 天然按域名隔离。</p>
+<h4>8.1 新增域名完整步骤（以 <code>example.com</code> 为例）</h4>
+<p>#### ① DNS 记录（在域名 DNS 控制台添加）</p>
+<div class="post-table-wrap"><table><thead><tr><th>类型</th><th>主机记录</th><th>值</th></tr></thead><tbody><tr><td>A</td><td><code>mail</code> 或 <code>@</code></td><td><code>74.48.40.123</code></td></tr><tr><td>MX</td><td><code>@</code></td><td><code>mail.example.com</code>（优先级 10）</td></tr><tr><td>TXT</td><td><code>@</code></td><td><code>v=spf1 mx a ip4:74.48.40.123 ~all</code></td></tr><tr><td>TXT</td><td><code>mail._domainkey</code></td><td>DKIM 公钥（由第③步生成）</td></tr><tr><td>TXT</td><td><code>_dmarc</code></td><td><code>v=DMARC1; p=quarantine; pct=100</code></td></tr></tbody></table></div>
+<p>#### ② 域名加入 Postfix</p>
+<pre><code>postconf -e virtual_mailbox_domains=&#39;qianyan.me, mail.qianyan.me, example.com&#39;</code></pre>
+<p>#### ③ 生成 DKIM 密钥</p>
+<pre><code>mkdir -p /etc/opendkim/keys/example.com
+cd /etc/opendkim/keys/example.com
+opendkim-genkey -D /etc/opendkim/keys/example.com/ -d example.com -s mail
+chown -R opendkim:opendkim /etc/opendkim/keys/example.com</code></pre>
+<p>#### ④ 注册 DKIM 到 KeyTable 和 SigningTable</p>
+<p>编辑 <code>/etc/opendkim/KeyTable</code>：</p>
+<pre><code>mail._domainkey.example.com example.com:mail:/etc/opendkim/keys/example.com/mail.private</code></pre>
+<p>编辑 <code>/etc/opendkim/SigningTable</code>：</p>
+<pre><code>*@example.com mail._domainkey.example.com</code></pre>
+<p>#### ⑤ TLS 证书</p>
+<p><strong>方案 A（推荐）</strong>：将新域名作为 SAN 加入现有证书（使用现有续期钩子）：</p>
+<pre><code>certbot certonly --standalone --pre-hook &#39;systemctl stop nginx&#39; \
+  -d mail.qianyan.me -d example.com \
+  --post-hook &#39;/etc/letsencrypt/renewal-hooks/post/mail-reload.sh&#39;</code></pre>
+<p><strong>方案 B</strong>：为每个域名签发独立证书，在 Postfix/Dovecot 中配置 <code>smtpd_tls_CAfile</code> 合并。</p>
+<p>#### ⑥ 重启服务</p>
+<pre><code>systemctl restart postfix dovecot opendkim</code></pre>
+<h4>8.2 Hermes 远程邮件操作集成（2026-05-18）</h4>
+<p>已增加一条供 Hermes QQBot 使用的远程邮件操作链路：</p>
+<ul>
+<li>Hermes 服务器：<code>81.70.168.127</code></li>
+<li>连通性实测：</li>
+<p>- <code>74.48.40.123:23333</code> 可达 - <code>74.48.40.123:993</code> 可达 - <code>74.48.40.123:587</code> 可达</p>
+<li>邮件 VPS 通用邮件脚本：<code>/root/mail_ops/mail_read.py</code></li>
+<li>邮件 VPS 只读账号：<code>hermesmail</code></li>
+<li>邮件 VPS 读写账号：<code>hermesmailrw</code></li>
+<li>受限 sudoers：<code>/etc/sudoers.d/hermesmail-mail-api</code></li>
+<li>受限 key 网关：</li>
+<p>- <code>/home/hermesmail/.ssh/authorized_keys</code> - <code>/home/hermesmailrw/.ssh/authorized_keys</code> 二者都强制执行 <code>/usr/local/bin/hermes-mail-ssh-gateway</code></p>
+</ul>
+<p>设计说明：</p>
+<ul>
+<li>远端脚本直接按完整邮箱地址映射 Maildir：<code>/var/mail/vmail/&lt;domain&gt;/&lt;local&gt;/</code></li>
+<li>这样 Hermes 侧不需要存每个邮箱密码</li>
+<li>将来新增域名后缀时，只要仍沿用当前 Maildir 结构，Hermes 无需改逻辑</li>
+<li>Hermes 使用的不是 root key，而是专用受限 key；已实测请求 <code>uname -a</code> 会被拒绝</li>
+</ul>
+<p>当前读取返回能力：</p>
+<ul>
+<li><code>message_ref</code></li>
+<li><code>from</code></li>
+<li><code>subject</code></li>
+<li><code>date</code></li>
+<li><code>codes</code></li>
+<li><code>snippet</code></li>
+<li><code>body_text</code></li>
+<li><code>attachments</code></li>
+</ul>
+<p>当前操作能力：</p>
+<ul>
+<li><code>list-attachments</code></li>
+<li><code>export-attachment</code></li>
+<li><code>send-mail</code></li>
+<li><code>reply-mail</code></li>
+<li><code>forward-mail</code></li>
+<li><code>move-mail-to-trash</code></li>
+<li><code>delete-mail</code></li>
+</ul>
+<p>说明：</p>
+<ul>
+<li><code>mail_verify.py</code> 已淘汰，后续统一使用 <code>mail_read.py</code></li>
+<li><code>mail_read.py</code> 是新的通用版本，适合 Hermes QQBot skill 处理“最新邮件 / 指定关键词邮件 / 验证码邮件 / 附件 / 发信 / 回复 / 转发 / 清理操作”</li>
+<li>Hermes 侧顶层 skill 当前名为 <code>mail-vps-ops</code></li>
+<li>与文档定位相关的顶层 skill 当前名为 <code>hermes-md-locator</code></li>
+</ul>
+<p>#### ⑦ 创建邮箱</p>
+<pre><code># 单个创建
+/root/mail_ops/add-mail-user.sh user@example.com 密码
+
+# 批量创建（格式：邮箱 密码，每行一个）
+/root/mail_ops/add-mail-user.sh -f /root/mail_ops/users.txt</code></pre>
+<h4>8.3 关键检查清单</h4>
+<ul>
+<li>[ ] DNS A 记录已指向 <code>74.48.40.123</code></li>
+<li>[ ] DNS MX 记录已配置</li>
+<li>[ ] DNS SPF TXT 记录已配置</li>
+<li>[ ] DNS DKIM TXT 记录已配置（从 <code>mail.txt</code> 中复制）</li>
+<li>[ ] <code>virtual_mailbox_domains</code> 已包含新域名</li>
+<li>[ ] DKIM 密钥已生成并注册到 KeyTable / SigningTable</li>
+<li>[ ] TLS 证书已签发</li>
+<li>[ ] Postfix / Dovecot / OpenDKIM 已重启</li>
+<li>[ ] 用 <code>mail-health.sh</code> 验证服务状态</li>
+<li>[ ] 用外部邮箱发测试邮件确认收发</li>
+</ul>
+<p>---</p>
+<h3>九、本机 Codex Skill 配置</h3>
+<p>当前本机 skill 已升级为 <code>mail-vps-ops</code>，不再局限于“只读验证码”。本机运行时固定使用：</p>
+<pre><code>C:\tmp\mail_vps_ops_runtime\74.48.40.123_ssh.key</code></pre>
+<p>该 key 副本目录当前为保留状态，便于后续直接调用，不按“一次性临时文件”处理。</p>
+<h4>9.1 Skill 位置</h4>
+<pre><code>C:\Users\lenovo\.codex\skills\mail-vps-ops\
+├── SKILL.md               ← 通用读写邮件 skill 说明
+├── agents/
+│   └── openai.yaml        ← Codex 注册信息
+└── scripts/
+    └── mail_read.py       ← 本地调用脚本（自动 SSH + 结构化返回）</code></pre>
+<h4>9.2 服务器端依赖</h4>
+<div class="post-table-wrap"><table><thead><tr><th>文件</th><th>说明</th></tr></thead><tbody><tr><td><code>/root/mail_ops/mail_read.py</code></td><td>邮件解析与操作脚本，被 Hermes / 本机 skill 远程调用</td></tr><tr><td><code>/usr/local/bin/hermes-mail-api.py</code></td><td>Hermes 受限邮件 API 入口</td></tr><tr><td><code>/usr/local/bin/hermes-mail-ssh-gateway</code></td><td>SSH 强制命令网关，负责把子命令限制在邮件操作白名单内</td></tr></tbody></table></div>
+<h4>9.3 当前能力</h4>
+<ul>
+<li>列出邮箱列表</li>
+<li>读取最新邮件或按条件筛选邮件</li>
+<li>提取验证码</li>
+<li>列出附件并导出附件</li>
+<li>发送邮件</li>
+<li>回复 / 转发邮件</li>
+<li>移到 Trash / 永久删除</li>
+</ul>
+<h4>9.4 使用方式</h4>
+<p>在对话中告诉 AI “读取某个完整邮箱的最新邮件 / 验证码 / 附件”，或手动运行：</p>
+<pre><code>python &quot;C:\Users\lenovo\.codex\skills\mail-vps-ops\scripts\mail_read.py&quot; list-mailboxes --limit 5
+python &quot;C:\Users\lenovo\.codex\skills\mail-vps-ops\scripts\mail_read.py&quot; read-mail --email a3k7m2@mail.qianyan.me --require-code --want codes,snippet</code></pre>
+<p>输出示例：</p>
+<pre><code>{
+  &quot;ok&quot;: true,
+  &quot;email&quot;: &quot;a3k7m2@mail.qianyan.me&quot;,
+  &quot;matched&quot;: 1,
+  &quot;messages&quot;: [
+    {
+      &quot;codes&quot;: [
+        &quot;032334&quot;
+      ],
+      &quot;snippet&quot;: &quot;Your temporary ChatGPT verification code ...&quot;
+    }
+  ]
+}</code></pre>
+<h4>9.5 Codex 注册配置</h4>
+<pre><code>customDirectories:
+  - C:\Users\lenovo\.codex\skills\mail-vps-ops
+includeSkills:
+  - mail-vps-ops</code></pre></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

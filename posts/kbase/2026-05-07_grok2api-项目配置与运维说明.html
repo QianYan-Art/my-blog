@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>grok2api 项目配置与运维说明 · 千颜</title>
+  <meta name="description" content="grok2api 项目配置与运维说明 最后更新：20260507 1. 项目定位 grok2api 是一个将 Grok Web 侧能力封装为 OpenAI 兼容接口的反向代理项目。 当前用途： 对外提供 /v1/mode">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>grok2api 项目配置与运维说明<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-07</span><span>9 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>grok2api 项目配置与运维说明</h2>
+<p>最后更新：2026-05-07</p>
+<h3>1. 项目定位</h3>
+<p><code>grok2api</code> 是一个将 Grok Web 侧能力封装为 OpenAI 兼容接口的反向代理项目。 当前用途：</p>
+<ul>
+<li>对外提供 <code>/v1/models</code>、<code>/v1/chat/completions</code> 等兼容接口</li>
+<li>通过导入 Grok 账号令牌，复用网页账号额度</li>
+<li>通过自定义域名对外提供统一 API 入口</li>
+</ul>
+<p>本项目当前不是直接调用官方公开 API，而是走 Grok Web 侧链路，因此<strong>出口 IP、Cloudflare 风控、账号状态、Cookie / Token 有效性</strong>都会直接影响可用性。</p>
+<h3>2. 当前服务器信息</h3>
+<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>当前值</th></tr></thead><tbody><tr><td>服务器公网 IP</td><td><code>124.156.206.155</code></td></tr><tr><td>SSH 端口</td><td><code>23333</code></td></tr><tr><td>登录用户</td><td><code>root</code></td></tr><tr><td>系统</td><td>Debian</td></tr><tr><td>项目目录</td><td><code>/opt/grok2api</code></td></tr><tr><td>容器编排</td><td><code>docker compose</code></td></tr><tr><td>对外域名</td><td><code>https://grok.4071253.xyz</code></td></tr><tr><td>本地 API 监听</td><td><code>127.0.0.1:8000</code></td></tr><tr><td>Cloudflare 解挑战组件</td><td><code>flaresolverr</code></td></tr><tr><td>项目级专用代理</td><td><code>shadowsocks-libev-local@grok2api</code></td></tr></tbody></table></div>
+<h3>3. 当前部署结构</h3>
+<p>当前部署由 4 部分组成：</p>
+<ol>
+<li><code>grok2api</code> 主服务容器  </li>
+<p>负责账号加载、OpenAI 兼容接口、请求转发。</p>
+<li><code>flaresolverr</code> 容器  </li>
+<p>负责尝试处理 <code>grok.com</code> 的 Cloudflare 挑战。</p>
+<li>本机 <code>ss-local</code> 服务  </li>
+<p>将一条外部 Shadowsocks 节点转为本机可用的 <code>SOCKS5</code> 代理。</p>
+<li>站点反代层  </li>
+<p>将外部域名请求转发到本机 <code>127.0.0.1:8000</code>。</p>
+</ol>
+<p>可简化理解为：</p>
+<p><code>外部请求 -&gt; 站点反代 -&gt; grok2api -&gt; SOCKS5 代理 -&gt; Grok Web</code></p>
+<h3>4. 当前目录结构</h3>
+<p>项目核心目录：</p>
+<ul>
+<li><code>/opt/grok2api/docker-compose.yml</code></li>
+<li><code>/opt/grok2api/.env</code></li>
+<li><code>/opt/grok2api/data/config.toml</code></li>
+<li><code>/opt/grok2api/data/accounts.db</code></li>
+<li><code>/opt/grok2api/logs/</code></li>
+</ul>
+<p>说明：</p>
+<ul>
+<li><code>.env</code> 主要控制容器级启动参数</li>
+<li><code>data/config.toml</code> 是运行时核心配置文件</li>
+<li><code>accounts.db</code> 保存导入账号与令牌数据</li>
+<li><code>logs/</code> 保存项目文件日志</li>
+</ul>
+<h3>5. 当前容器与服务</h3>
+<p>当前已知服务：</p>
+<ul>
+<li><code>grok2api</code></li>
+<li><code>flaresolverr</code></li>
+<li><code>grok-caddy</code></li>
+<li><code>grok-watchtower</code></li>
+<li><code>shadowsocks-libev-local@grok2api</code>（systemd）</li>
+</ul>
+<p>其中：</p>
+<ul>
+<li><code>grok2api</code> 是主业务容器</li>
+<li><code>flaresolverr</code> 是挑战处理容器</li>
+<li><code>grok-caddy</code> 是站点层组件</li>
+<li><code>grok-watchtower</code> 用于镜像更新监控</li>
+<li><code>shadowsocks-libev-local@grok2api</code> 只给本项目提供代理，不影响全局流量</li>
+</ul>
+<h3>6. 关键配置说明</h3>
+<h4>6.1 <code>.env</code></h4>
+<p>当前 <code>.env</code> 主要用于以下内容：</p>
+<ul>
+<li>时区</li>
+<li>日志级别</li>
+<li>容器监听地址与端口</li>
+<li>数据目录、日志目录</li>
+<li>账号存储后端类型</li>
+</ul>
+<p>当前账号存储后端使用本地数据库。</p>
+<h4>6.2 <code>data/config.toml</code></h4>
+<p>此文件是最重要的运行配置。</p>
+<p>当前关键字段：</p>
+<ul>
+<li><code>[app]</code></li>
+<li><code>[logging]</code></li>
+<li><code>[features]</code></li>
+<li><code>[proxy.egress]</code></li>
+<li><code>[proxy.clearance]</code></li>
+<li><code>[retry]</code></li>
+<li><code>[account.refresh]</code></li>
+</ul>
+<p>其中最关键的是代理配置：</p>
+<p>当前值为：</p>
+<ul>
+<li><code>proxy.egress.mode = &quot;single_proxy&quot;</code></li>
+<li><code>proxy.egress.proxy_url = &quot;socks5://172.18.0.1:1080&quot;</code></li>
+<li><code>proxy.egress.resource_proxy_url = &quot;socks5://172.18.0.1:1080&quot;</code></li>
+<li><code>proxy.clearance.mode = &quot;flaresolverr&quot;</code></li>
+</ul>
+<p>这表示：</p>
+<ul>
+<li>主业务请求走固定代理</li>
+<li>资源请求也走同一条固定代理</li>
+<li>Cloudflare clearance 仍由 <code>flaresolverr</code> 参与处理</li>
+</ul>
+<h3>7. 为什么必须加代理</h3>
+<p>最初服务器直连 <code>grok.com</code> 时，返回结果是：</p>
+<ul>
+<li><code>HTTP/2 403</code></li>
+<li>响应头包含 <code>cf-mitigated: challenge</code></li>
+</ul>
+<p>说明问题不在项目代码本身，而在<strong>服务器出口 IP 被 Cloudflare / grok.com 风控挑战</strong>。</p>
+<p>后续验证结论：</p>
+<ul>
+<li>服务器原始出口：新加坡腾讯云 IP</li>
+<li>直连 <code>grok.com</code>：403 challenge</li>
+<li>切到日本 Shadowsocks 出口后：<code>grok.com</code> 返回 <code>HTTP/2 200</code></li>
+</ul>
+<p>因此本项目当前可用性的核心，不是“是否启动成功”，而是“代理出口是否能过 Grok 风控”。</p>
+<h3>8. 当前代理链路</h3>
+<h4>8.1 Shadowsocks 来源</h4>
+<p>当前接入的是一条外部 Shadowsocks 节点。 此节点不是给全机做全局代理，而是只提供给 <code>grok2api</code> 使用。</p>
+<h4>8.2 本机转换方式</h4>
+<p>由于 <code>grok2api</code> 支持 <code>http / https / socks5</code>，但不直接吃 <code>ss://</code> 链接，因此当前做法是：</p>
+<ol>
+<li>使用 <code>ss-local</code> 连接外部 SS 节点</li>
+<li>在宿主机开放一个本地 <code>SOCKS5</code> 入口</li>
+<li><code>grok2api</code> 再连接这个 <code>SOCKS5</code> 地址</li>
+</ol>
+<h4>8.3 当前 systemd 服务</h4>
+<p>服务名：</p>
+<ul>
+<li><code>shadowsocks-libev-local@grok2api</code></li>
+</ul>
+<p>配置文件：</p>
+<ul>
+<li><code>/etc/shadowsocks-libev/grok2api.json</code></li>
+</ul>
+<p>当前监听地址：</p>
+<ul>
+<li><code>172.18.0.1:1080</code></li>
+</ul>
+<p>这里使用 <code>172.18.0.1</code> 而不是 <code>127.0.0.1</code>，原因是：</p>
+<ul>
+<li><code>grok2api</code> 运行在 Docker 容器里</li>
+<li>容器访问不到宿主机回环地址 <code>127.0.0.1</code></li>
+<li>但可以访问 Docker bridge 地址 <code>172.18.0.1</code></li>
+</ul>
+<p>这是本次修复里的关键点。</p>
+<h3>9. 为什么不是全局代理</h3>
+<p>当前代理只作用于 <code>grok2api</code>，理由如下：</p>
+<ul>
+<li><code>ss-local</code> 只是单独监听一个本地端口</li>
+<li>系统没有配置全局 <code>http_proxy</code> / <code>https_proxy</code></li>
+<li>Docker 没有统一注入全局代理环境变量</li>
+<li>只有 <code>/opt/grok2api/data/config.toml</code> 显式引用了 <code>socks5://172.18.0.1:1080</code></li>
+</ul>
+<p>结论：</p>
+<ul>
+<li>这条代理是<strong>项目级代理</strong></li>
+<li>不是系统级代理</li>
+<li>不会自动影响服务器上的其他项目</li>
+</ul>
+<h3>10. 当前运行状态判断</h3>
+<p>当前已确认正常的项目状态：</p>
+<ul>
+<li><code>shadowsocks-libev-local@grok2api</code> 正常运行</li>
+<li><code>grok2api</code> 容器健康</li>
+<li><code>flaresolverr</code> 容器运行正常</li>
+<li><code>grok2api</code> 已加载 <code>single_proxy</code></li>
+<li><code>GET /v1/models</code> 可正常返回模型列表</li>
+<li>网页端刷新额度成功</li>
+</ul>
+<p>这说明至少以下链路已恢复：</p>
+<ul>
+<li>账号读取正常</li>
+<li>上游访问正常</li>
+<li>代理出口正常</li>
+<li>Cloudflare 风控处理正常</li>
+</ul>
+<h3>11. 常用检查命令</h3>
+<h4>11.1 查看容器状态</h4>
+<pre><code>cd /opt/grok2api
+docker compose ps</code></pre>
+<h4>11.2 查看主服务日志</h4>
+<pre><code>docker logs --tail 100 grok2api</code></pre>
+<h4>11.3 查看挑战组件日志</h4>
+<pre><code>docker logs --tail 100 flaresolverr</code></pre>
+<h4>11.4 查看 SS 本地服务状态</h4>
+<pre><code>systemctl status shadowsocks-libev-local@grok2api</code></pre>
+<h4>11.5 查看本地代理监听</h4>
+<pre><code>ss -lntp | grep 1080</code></pre>
+<h4>11.6 验证代理出口 IP</h4>
+<pre><code>curl --socks5-hostname 172.18.0.1:1080 https://api.ipify.org</code></pre>
+<h4>11.7 验证项目接口</h4>
+<pre><code>curl -H &quot;Authorization: Bearer &lt;你的API_KEY&gt;&quot; http://127.0.0.1:8000/v1/models</code></pre>
+<h3>12. 常见故障排查</h3>
+<h4>12.1 <code>grok.com</code> 返回 403 challenge</h4>
+<p>现象：</p>
+<ul>
+<li>网页端或日志里出现 <code>403</code></li>
+<li>日志出现 <code>cf-mitigated: challenge</code></li>
+</ul>
+<p>排查方向：</p>
+<ol>
+<li>先测代理出口能否打开 <code>https://grok.com</code></li>
+<li>再看 <code>flaresolverr</code> 是否超时或报错</li>
+<li>再确认账号本身是否失效</li>
+</ol>
+<p>优先判断：</p>
+<ul>
+<li>大多数情况先怀疑出口 IP</li>
+<li>不是先怀疑账号</li>
+</ul>
+<h4>12.2 <code>ERR_PROXY_CONNECTION_FAILED</code></h4>
+<p>现象：</p>
+<ul>
+<li><code>flaresolverr</code> 日志出现 <code>ERR_PROXY_CONNECTION_FAILED</code></li>
+</ul>
+<p>本项目已实际踩过的原因：</p>
+<ul>
+<li>容器里配置了 <code>socks5://127.0.0.1:1080</code></li>
+<li>但容器无法访问宿主机回环地址</li>
+</ul>
+<p>修法：</p>
+<ul>
+<li>改为 <code>socks5://172.18.0.1:1080</code></li>
+</ul>
+<h4>12.3 容器正常但接口不可用</h4>
+<p>优先检查：</p>
+<ol>
+<li><code>docker compose ps</code></li>
+<li><code>docker logs grok2api</code></li>
+<li><code>curl http://127.0.0.1:8000/v1/models</code></li>
+<li><code>curl --socks5-hostname 172.18.0.1:1080 https://api.ipify.org</code></li>
+</ol>
+<h4>12.4 网页端能开，但刷新额度失败</h4>
+<p>说明：</p>
+<ul>
+<li>站点反代未必有问题</li>
+<li>更可能是 Grok 上游链路不通或账号状态异常</li>
+</ul>
+<p>优先检查：</p>
+<ul>
+<li><code>grok2api</code> 日志里的上游状态码</li>
+<li><code>flaresolverr</code> 是否卡在 challenge</li>
+<li>代理出口是否变化</li>
+</ul>
+<h3>13. 变更 SS 节点的方法</h3>
+<p>如果后续需要更换 Shadowsocks 节点，只改两处：</p>
+<h4>13.1 修改 SS 本地服务配置</h4>
+<p>文件：</p>
+<ul>
+<li><code>/etc/shadowsocks-libev/grok2api.json</code></li>
+</ul>
+<p>改完后重启：</p>
+<pre><code>systemctl restart shadowsocks-libev-local@grok2api</code></pre>
+<h4>13.2 验证端口与出口</h4>
+<pre><code>ss -lntp | grep 1080
+curl --socks5-hostname 172.18.0.1:1080 https://api.ipify.org
+curl --socks5-hostname 172.18.0.1:1080 -I https://grok.com</code></pre>
+<p>如果 <code>grok.com</code> 返回 <code>200</code> 或正常页面响应，再继续下一步。</p>
+<h4>13.3 必要时重启项目</h4>
+<pre><code>cd /opt/grok2api
+docker compose restart grok2api</code></pre>
+<h3>14. 不建议的做法</h3>
+<p>以下做法不建议继续使用：</p>
+<ul>
+<li>直接让服务器公网 IP 直连 <code>grok.com</code></li>
+<li>依赖 <code>WARP</code> 作为主要修复手段</li>
+<li>在容器内写 <code>127.0.0.1:1080</code> 指向宿主机代理</li>
+<li>把这条项目代理误改成系统全局代理</li>
+<li>频繁手动改动账号池而不看日志</li>
+</ul>
+<p>原因：</p>
+<ul>
+<li>这些做法要么不稳定，要么容易引入新的定位困难</li>
+</ul>
+<h3>15. 建议的维护原则</h3>
+<p>建议长期遵守：</p>
+<ol>
+<li>优先保代理出口稳定，再谈账号问题</li>
+<li>变更代理后先测 <code>grok.com</code>，再测项目接口</li>
+<li>每次改配置前保留一次手工备份</li>
+<li>只在确认需要时再动 <code>flaresolverr</code></li>
+<li>不把项目级代理扩散成全局代理</li>
+</ol>
+<h3>16. 当前结论</h3>
+<p>当前 <code>grok2api</code> 已完成以下修复：</p>
+<ul>
+<li>修复原始服务器出口被 Grok 风控拦截的问题</li>
+<li>接入项目级专用 Shadowsocks 代理</li>
+<li>通过 <code>ss-local</code> 转换为 Docker 可访问的 <code>SOCKS5</code></li>
+<li>修复容器访问宿主机代理地址错误的问题</li>
+<li>验证模型列表接口恢复正常</li>
+<li>验证网页端额度刷新恢复正常</li>
+</ul>
+<p>因此，当前项目状态可以定义为：</p>
+<ul>
+<li><strong>服务已恢复</strong></li>
+<li><strong>代理链路已稳定接入</strong></li>
+<li><strong>后续重点关注代理出口质量与账号有效性</strong></li>
+</ul></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

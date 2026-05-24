@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hermes 邮件 VPS 集成说明 · 千颜</title>
+  <meta name="description" content="Hermes 邮件 VPS 集成说明 最后更新：20260521 1. 目标 本文专门记录 Hermes QQBot 与邮件 VPS 的集成方式，包括： 读取邮箱列表 读取最新邮件 列出与取回附件 发送邮件 回复 / 转">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>Hermes 邮件 VPS 集成说明<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-21</span><span>8 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>Hermes 邮件 VPS 集成说明</h2>
+<p>最后更新：2026-05-21</p>
+<h3>1. 目标</h3>
+<p>本文专门记录 Hermes QQBot 与邮件 VPS 的集成方式，包括：</p>
+<ul>
+<li>读取邮箱列表</li>
+<li>读取最新邮件</li>
+<li>列出与取回附件</li>
+<li>发送邮件</li>
+<li>回复 / 转发邮件</li>
+<li>移到 Trash / 永久删除</li>
+<li>通过 QQ 把附件发回用户</li>
+</ul>
+<p>主文档入口：</p>
+<ul>
+<li>服务器全局状态：<code>/home/hermes/HERMES_CURRENT_GLOBAL_STATUS.md</code></li>
+<li>维护说明：<code>/home/hermes/HERMES_TANGYUGE_MAINTENANCE.md</code></li>
+</ul>
+<p>服务器专题副本：</p>
+<ul>
+<li><code>/home/hermes/HERMES_MAIL_VPS_INTEGRATION.md</code></li>
+</ul>
+<p>---</p>
+<h3>2. 机器与链路</h3>
+<p>Hermes 服务器：</p>
+<ul>
+<li><code>81.70.168.127</code></li>
+<li>运行用户：<code>hermes</code></li>
+</ul>
+<p>邮件 VPS：</p>
+<ul>
+<li><code>23.238.70.240</code></li>
+<li>当前系统主机名：<code>racknerd-df2acce</code></li>
+<li>邮件服务域名：<code>mail.qianyan.me</code></li>
+<li>SSH 端口：<code>23333</code></li>
+</ul>
+<p>当前链路：</p>
+<ol>
+<li>Hermes 通过顶层 skill <code>mail-vps-ops</code> 调用包装脚本。</li>
+<li>包装脚本根据命令类型选择只读或读写受限 key。</li>
+<li>SSH 到邮件 VPS 的受限账号。</li>
+<li><code>authorized_keys</code> 强制执行 <code>/usr/local/bin/hermes-mail-ssh-gateway</code>。</li>
+<li>网关只放行白名单命令，再通过 <code>sudo -n /usr/local/bin/hermes-mail-api.py</code> 读取或操作 Maildir。</li>
+</ol>
+<p>不需要代理。</p>
+<p>迁移补充：</p>
+<ul>
+<li>2026-05-21 RackNerd 物理迁移后，邮件 VPS 公网 IP 已从 <code>74.48.40.123</code> 更换为 <code>23.238.70.240</code></li>
+<li>迁移后执行过 <code>Reconfigure Network</code></li>
+<li>当前 <code>23.238.70.240:23333/25/465/587/993</code> 已恢复连通</li>
+<li>当前 <code>23.238.70.240 -&gt; mail.qianyan.me</code> 的 PTR / rDNS 已生效</li>
+<li>2026-05-21 晚间复核：邮件 VPS 本机发往 Gmail 的测试邮件已被接收，说明新 IP 的 rDNS 与出站链路当前可用</li>
+</ul>
+<p>---</p>
+<h3>3. Hermes 侧路径</h3>
+<ul>
+<li>顶层 skill：</li>
+<p>- <code>/home/hermes/.hermes/skills/mail-vps-ops/SKILL.md</code></p>
+<li>包装脚本：</li>
+<p>- <code>/home/hermes/.hermes/bin/mail_vps_fetch.py</code></p>
+<li>只读 key：</li>
+<p>- <code>/home/hermes/.ssh/mail_vps_readonly_ed25519</code></p>
+<li>读写 key：</li>
+<p>- <code>/home/hermes/.ssh/mail_vps_readwrite_ed25519</code></p>
+<li>附件缓存目录：</li>
+<p>- <code>/home/hermes/.hermes/cache/mail_attachments/</code></p>
+</ul>
+<p>---</p>
+<h3>4. 邮件 VPS 侧路径</h3>
+<ul>
+<li>通用脚本：</li>
+<p>- <code>/root/mail_ops/mail_read.py</code></p>
+<li>Hermes 受限 API：</li>
+<p>- <code>/usr/local/bin/hermes-mail-api.py</code></p>
+<li>SSH 强制命令网关：</li>
+<p>- <code>/usr/local/bin/hermes-mail-ssh-gateway</code></p>
+<li>sudoers：</li>
+<p>- <code>/etc/sudoers.d/hermesmail-mail-api</code></p>
+<li>只读账号：</li>
+<p>- <code>hermesmail</code></p>
+<li>读写账号：</li>
+<p>- <code>hermesmailrw</code></p>
+<li>受限 authorized_keys：</li>
+<p>- <code>/home/hermesmail/.ssh/authorized_keys</code> - <code>/home/hermesmailrw/.ssh/authorized_keys</code></p>
+</ul>
+<p>---</p>
+<h3>5. 命令能力</h3>
+<p>只读：</p>
+<ul>
+<li><code>list-mailboxes</code></li>
+<li><code>read-mail</code></li>
+<li><code>list-attachments</code></li>
+<li><code>fetch-attachment</code></li>
+</ul>
+<p>读写：</p>
+<ul>
+<li><code>send-mail</code></li>
+<li><code>reply-mail</code></li>
+<li><code>forward-mail</code></li>
+<li><code>move-mail-to-trash</code></li>
+<li><code>delete-mail</code></li>
+</ul>
+<p>当前 <code>fetch-attachment</code> 返回：</p>
+<ul>
+<li><code>local_path</code></li>
+<li><code>media_tag</code></li>
+<li><code>attachment</code></li>
+<li><code>message_ref</code></li>
+</ul>
+<p>---</p>
+<h3>6. QQ 发附件规则</h3>
+<p>当用户要求“把附件发给我”时：</p>
+<ol>
+<li>先运行：</li>
+</ol>
+<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py fetch-attachment --email &lt;完整邮箱&gt; --message-ref &lt;message_ref&gt; --attachment-index 1</code></pre>
+<ol>
+<li>读取返回 JSON 中的：</li>
+</ol>
+<ul>
+<li><code>local_path</code></li>
+<li><code>media_tag</code></li>
+</ul>
+<ol>
+<li>回复时单独输出：</li>
+</ol>
+<pre><code>MEDIA:/home/hermes/.hermes/cache/mail_attachments/xxx.ext</code></pre>
+<p>网关会按本地文件路径原生发送：</p>
+<ul>
+<li>图片走图片发送</li>
+<li>其他附件走 document/file 发送</li>
+</ul>
+<p>---</p>
+<h3>7. 写操作安全边界</h3>
+<p>当前策略：</p>
+<ul>
+<li>读和写分离成两把受限 key</li>
+<li>只读 key 不能发信、删信</li>
+<li>网关用户只能执行白名单命令</li>
+</ul>
+<p>执行写操作前建议：</p>
+<ul>
+<li>明确发件人、收件人、主题</li>
+<li>明确要操作的 <code>message_ref</code></li>
+<li>删除类操作优先 <code>move-mail-to-trash</code></li>
+<li><code>delete-mail</code> 仅用于明确确认的永久删除</li>
+</ul>
+<p>---</p>
+<h3>8. 常用调用</h3>
+<p>列邮箱：</p>
+<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py list-mailboxes
+/home/hermes/.hermes/bin/mail_vps_fetch.py list-mailboxes --domain mail.qianyan.me</code></pre>
+<p>读邮件：</p>
+<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py read-mail --email user@mail.qianyan.me
+/home/hermes/.hermes/bin/mail_vps_fetch.py read-mail --email user@mail.qianyan.me --require-code --want message_ref,codes,snippet,attachments</code></pre>
+<p>列附件：</p>
+<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py list-attachments --email user@mail.qianyan.me --message-ref cur/xxxx</code></pre>
+<p>取附件：</p>
+<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py fetch-attachment --email user@mail.qianyan.me --message-ref cur/xxxx --attachment-index 1</code></pre>
+<p>发信：</p>
+<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py send-mail --from-email shi@mail.qianyan.me --to user@example.com --subject &quot;主题&quot; --body &quot;正文&quot;</code></pre>
+<p>回复：</p>
+<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py reply-mail --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx --from-email a3k7m2@mail.qianyan.me --body &quot;回复正文&quot;</code></pre>
+<p>转发：</p>
+<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py forward-mail --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx --from-email a3k7m2@mail.qianyan.me --to other@example.com --body &quot;转发说明&quot;</code></pre>
+<p>移到 Trash：</p>
+<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py move-mail-to-trash --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx</code></pre>
+<p>永久删除：</p>
+<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py delete-mail --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx</code></pre>
+<p>---</p>
+<h3>9. 当前验证结论</h3>
+<p>2026-05-18 已实测通过：</p>
+<ul>
+<li>列邮箱</li>
+<li>读取最新邮件</li>
+<li>列附件</li>
+<li>取附件到 Hermes 本地缓存</li>
+<li>发新邮件</li>
+<li>回复邮件</li>
+<li>转发邮件</li>
+<li>移到 Trash</li>
+<li>永久删除</li>
+</ul>
+<p>测试结论：</p>
+<ul>
+<li>只读功能与读写功能均可用</li>
+<li>附件取回返回 <code>MEDIA:</code> 标签，可供 QQ 发送</li>
+<li>邮件 VPS 主机名当前正常：<code>post-station</code></li>
+<li>邮件服务域名当前仍为：<code>mail.qianyan.me</code></li>
+</ul>
+<p>---</p>
+<h3>10. 清理规则</h3>
+<p>Hermes：</p>
+<ul>
+<li>可清理测试附件缓存：</li>
+<p>- <code>/home/hermes/.hermes/cache/mail_attachments/</code></p>
+<li>不要删除：</li>
+<p>- <code>/home/hermes/.ssh/mail_vps_readonly_ed25519</code> - <code>/home/hermes/.ssh/mail_vps_readwrite_ed25519</code> - <code>/home/hermes/.hermes/bin/mail_vps_fetch.py</code> - <code>/home/hermes/.hermes/skills/mail-vps-ops/</code></p>
+</ul>
+<p>邮件 VPS：</p>
+<ul>
+<li>已淘汰旧脚本：</li>
+<p>- <code>/root/mail_ops/mail_verify.py</code></p>
+<li>不要删除：</li>
+<p>- <code>/root/mail_ops/mail_read.py</code> - <code>/usr/local/bin/hermes-mail-api.py</code> - <code>/usr/local/bin/hermes-mail-ssh-gateway</code> - <code>/etc/sudoers.d/hermesmail-mail-api</code> - 两个 <code>authorized_keys</code></p>
+</ul></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

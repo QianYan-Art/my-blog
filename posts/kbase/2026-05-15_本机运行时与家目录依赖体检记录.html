@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>本机运行时与家目录依赖体检记录 - 2026-05-15 · 千颜</title>
+  <meta name="description" content="本机运行时与家目录依赖体检记录 20260515 一、检查目标 本次检查主要解决以下问题： 1. 明确当前本机常用运行时、包管理器、CLI 工具的真实安装来源与命中路径。 2. 判断 C:\Users\lenovo 家目">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">本地记录</p>
+      <h1>本机运行时与家目录依赖体检记录 - 2026-05-15<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-15</span><span>9 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>本机运行时与家目录依赖体检记录 - 2026-05-15</h2>
+<h3>一、检查目标</h3>
+<p>本次检查主要解决以下问题：</p>
+<ol>
+<li>明确当前本机常用运行时、包管理器、CLI 工具的真实安装来源与命中路径。</li>
+<li>判断 <code>C:\Users\lenovo</code> 家目录是否已经被当成 Node/Bun 项目目录使用。</li>
+<li>核对 <code>ohmypi</code>（实际包名为 <code>@oh-my-pi/pi-coding-agent</code>）当前依赖是否完整、入口是否正常。</li>
+<li>找出环境中的主要风险点，尤其是多版本并存、路径优先级冲突、家目录污染问题。</li>
+</ol>
+<h3>二、已确认的关键结论</h3>
+<h4>1. PowerShell 默认启动目录已调整</h4>
+<p>Windows Terminal 中 <code>PowerShell 7 (Scoop)</code> 的 <code>startingDirectory</code> 已从 <code>%USERPROFILE%</code> 改为：</p>
+<pre><code>C:\tmp\workplace</code></pre>
+<p>这样做的目的：</p>
+<ol>
+<li>避免每次打开终端都落到家目录。</li>
+<li>避免在家目录误执行 <code>npm install</code>、<code>bun add</code> 等命令。</li>
+<li>避免 <code>starship</code> 因家目录存在 <code>package.json</code> / <code>bun.lock</code> 而持续显示 Bun 模块。</li>
+</ol>
+<h4>2. 家目录已被当成 JS/Bun 项目目录使用</h4>
+<p><code>C:\Users\lenovo</code> 当前存在以下关键文件或目录：</p>
+<pre><code>package.json
+package-lock.json
+bun.lock
+node_modules</code></pre>
+<p>这说明此前曾经直接在家目录执行过 Node/Bun 项目相关命令，而不是纯粹的“安装运行时”。</p>
+<p>家目录顶层 <code>package.json</code> 当前内容对应的直接依赖为：</p>
+<pre><code>dependencies:
+- @oh-my-pi/pi-coding-agent ^15.0.2
+- glob ^11.1.0
+- rimraf ^6.1.3
+
+devDependencies:
+- eslint ^9.39.4</code></pre>
+<p>结论：</p>
+<ol>
+<li>家目录现在不能再看成“纯净用户目录”。</li>
+<li>它实际上已经承担了一个 Bun/Node 项目目录的角色。</li>
+<li>后续若继续在家目录执行 <code>npm install</code> / <code>bun install</code> / <code>bun add</code>，会继续污染该目录。</li>
+</ol>
+<h4>3. <code>ohmypi</code> 当前状态正常</h4>
+<p>实际安装内容核对结果如下：</p>
+<pre><code>运行时:
+- bun = C:\Users\lenovo\.bun\bin\bun.exe
+- bun 版本 = 1.3.14
+
+CLI 入口:
+- omp = C:\Users\lenovo\.bun\bin\omp.exe
+
+实际包:
+- @oh-my-pi/pi-coding-agent@15.0.2</code></pre>
+<p><code>@oh-my-pi/pi-coding-agent</code> 包信息中声明：</p>
+<pre><code>engines.bun &gt;= 1.3.14
+bin.omp -&gt; src/cli.ts</code></pre>
+<p>结论：</p>
+<ol>
+<li>当前 Bun 版本满足 <code>ohmypi</code> 的最低要求。</li>
+<li><code>omp</code> 命令入口存在且链路正常。</li>
+<li>当前未发现 <code>ohmypi</code> 因依赖缺失或 Bun 版本不足而失效。</li>
+</ol>
+<h3>三、当前主要运行时与工具来源</h3>
+<h4>1. Node / npm / nvm</h4>
+<pre><code>node  -&gt; D:\jetbrains\node\nodejs\node.exe
+npm   -&gt; D:\jetbrains\node\nodejs\npm.ps1
+nvm   -&gt; D:\jetbrains\node\nvm\nvm.exe</code></pre>
+<p>版本：</p>
+<pre><code>node = v22.17.1
+npm  = 9.5.1
+nvm  = 1.2.2</code></pre>
+<p><code>npm</code> 全局前缀：</p>
+<pre><code>D:\Develop\nodejs\node_global</code></pre>
+<p><code>npm</code> 全局模块根目录：</p>
+<pre><code>D:\Develop\nodejs\node_global\node_modules</code></pre>
+<p>当前 <code>npm -g</code> 安装的重要 CLI 包：</p>
+<pre><code>@openai/codex@0.130.0
+@google/gemini-cli@0.41.1
+context-mode@1.0.111
+wrangler@4.54.0</code></pre>
+<p>结论：</p>
+<ol>
+<li>Node 运行时与 npm 全局包不是同一个目录树。</li>
+<li>当前结构可用，但属于“双落点”设计。</li>
+<li>维护时需要明确：Node 在 <code>D:\jetbrains</code>，全局 npm 包在 <code>D:\Develop\nodejs\node_global</code>。</li>
+</ol>
+<h4>2. Bun</h4>
+<pre><code>bun   -&gt; C:\Users\lenovo\.bun\bin\bun.exe
+bunx  -&gt; C:\Users\lenovo\.bun\bin\bunx.exe
+omp   -&gt; C:\Users\lenovo\.bun\bin\omp.exe</code></pre>
+<p>额外观察：</p>
+<pre><code>C:\Users\lenovo\.bun\bin\bun.exe.outdated</code></pre>
+<p>说明 Bun 近期做过升级，旧版本文件被保留为 <code>bun.exe.outdated</code>。</p>
+<p>结论：</p>
+<ol>
+<li>这是正常升级残留现象。</li>
+<li>只要 <code>bun --version</code> 正常，无需立即处理。</li>
+</ol>
+<h4>3. Python</h4>
+<p>当前默认命中的 Python：</p>
+<pre><code>python -&gt; D:\jetbrains\python\python.exe
+py     -&gt; C:\Windows\py.exe</code></pre>
+<p>版本：</p>
+<pre><code>python = 3.12.8</code></pre>
+<p><code>pip</code> 所属路径：</p>
+<pre><code>D:\jetbrains\python\Lib\site-packages\pip</code></pre>
+<p>同时，本机存在多份 Python 痕迹：</p>
+<pre><code>D:\jetbrains\python\python.exe
+D:\jetbrains\C++\msys2\ucrt64\bin\python.exe
+C:\ProgramData\miniconda3\python.exe
+C:\Users\lenovo\AppData\Local\Microsoft\WindowsApps\python.exe</code></pre>
+<p>结论：</p>
+<ol>
+<li>当前默认 Python 是 <code>D:\jetbrains\python\python.exe</code>。</li>
+<li>但环境里同时存在 MSYS2、Miniconda、WindowsApps 等其他 Python 命中项。</li>
+<li>后续若某些工具没有显式固定解释器，存在命中不同 Python 的风险。</li>
+</ol>
+<h4>4. 其他关键工具</h4>
+<pre><code>java    -&gt; D:\jetbrains\java\jdk-17\bin\java.exe
+mvn     -&gt; D:\jetbrains\maven\apache-maven-3.9.9\bin\mvn.cmd
+git     -&gt; C:\Users\lenovo\scoop\apps\git\current\cmd\git.exe
+docker  -&gt; C:\Program Files\Docker\Docker\resources\bin\docker.exe
+kubectl -&gt; C:\Program Files\Docker\Docker\resources\bin\kubectl.exe
+uv      -&gt; C:\Users\lenovo\.local\bin\uv.exe
+claude  -&gt; C:\Users\lenovo\.local\bin\claude.exe
+cmake   -&gt; C:\Program Files\CMake\bin\cmake.exe</code></pre>
+<p>结论：</p>
+<ol>
+<li>Git 当前命中的是 Scoop 安装版本。</li>
+<li>Docker 与 kubectl 来自 Docker Desktop 自带路径。</li>
+<li><code>uv</code>、<code>claude</code> 这类用户级 CLI 主要落在 <code>C:\Users\lenovo\.local\bin</code>。</li>
+</ol>
+<h3>四、重要冲突与风险点</h3>
+<h4>风险 1：家目录项目化</h4>
+<p>这是当前最明确、最真实的问题源头。</p>
+<p>表现：</p>
+<ol>
+<li>家目录里存在 <code>package.json</code>、<code>bun.lock</code>、<code>package-lock.json</code>、<code>node_modules</code>。</li>
+<li>家目录一度被 <code>npm</code> 和 <code>bun</code> 都操作过。</li>
+<li><code>starship</code> 会把家目录识别成 Bun/Node 项目。</li>
+</ol>
+<p>风险：</p>
+<ol>
+<li>容易误把“项目安装”当成“全局安装”。</li>
+<li>容易继续把依赖装到 <code>C:\Users\lenovo</code>。</li>
+<li>后续清理难度会逐步上升。</li>
+</ol>
+<h4>风险 2：同名命令存在多份来源</h4>
+<p>实际 <code>where</code> 检查中，以下命令存在多路径并存情况：</p>
+<pre><code>python
+node
+npm
+codex
+java
+git</code></pre>
+<p>其中最值得注意的是：</p>
+<p>#### <code>codex</code></p>
+<p>存在以下多份命中：</p>
+<pre><code>D:\Develop\nodejs\node_global\codex.cmd
+C:\Users\lenovo\AppData\Local\OpenAI\Codex\bin\codex.exe
+C:\Program Files\WindowsApps\OpenAI.Codex_...\codex.exe</code></pre>
+<p>当前 shell 命中的是 npm 全局安装版 <code>codex</code>，不是桌面安装目录附带的那份。</p>
+<p>风险：</p>
+<ol>
+<li>升级来源容易混淆。</li>
+<li>不同入口将来可能版本不一致。</li>
+</ol>
+<p>#### <code>python</code></p>
+<p>存在 JetBrains Python、MSYS2 Python、Miniconda Python、WindowsApps 占位项。</p>
+<p>风险：</p>
+<ol>
+<li>某些脚本若不固定解释器，可能走错环境。</li>
+<li>虚拟环境、系统环境、conda 环境之间可能互相污染。</li>
+</ol>
+<h4>风险 3：Node 运行时与 npm 全局包分离</h4>
+<p>当前结构：</p>
+<pre><code>Node 运行时 -&gt; D:\jetbrains\node\nodejs
+npm 全局前缀 -&gt; D:\Develop\nodejs\node_global</code></pre>
+<p>风险：</p>
+<ol>
+<li>维护时需要同时记住两个目录。</li>
+<li>若以后迁移 Node，可能需要重新确认 npm 全局 prefix 与 PATH。</li>
+</ol>
+<h4>风险 4：家目录同时存在 <code>package-lock.json</code> 与 <code>bun.lock</code></h4>
+<p>说明同一个目录先后被两套生态工具处理过：</p>
+<ol>
+<li><code>npm</code> 侧留下 <code>package-lock.json</code></li>
+<li><code>bun</code> 侧留下 <code>bun.lock</code></li>
+</ol>
+<p>风险：</p>
+<ol>
+<li>以后继续在家目录混用 <code>npm install</code> 与 <code>bun install</code>，会进一步制造依赖漂移。</li>
+<li>锁文件与真实安装树可能越来越难解释。</li>
+</ol>
+<h3>五、当前判断：哪些地方是正常的，哪些地方不能再继续放任</h3>
+<h4>当前可接受、暂不需要立即处理</h4>
+<ol>
+<li><code>ohmypi</code> 当前安装链路正常。</li>
+<li><code>bun</code> 当前版本满足 <code>ohmypi</code> 需求。</li>
+<li><code>git</code>、<code>docker</code>、<code>kubectl</code>、<code>mvn</code>、<code>java</code>、<code>uv</code> 均能正常命中。</li>
+<li>Bun 升级后留下 <code>bun.exe.outdated</code> 不属于严重故障。</li>
+</ol>
+<h4>当前最不该继续放任的问题</h4>
+<ol>
+<li>再次在 <code>C:\Users\lenovo</code> 直接执行 <code>npm install</code> / <code>bun add</code> / <code>bun install</code></li>
+<li>不区分 npm 全局安装和项目安装</li>
+<li>在不明确当前命中路径的前提下随意升级 <code>codex</code> / <code>python</code> / <code>node</code></li>
+</ol>
+<h3>六、后续建议</h3>
+<h4>1. 使用纪律</h4>
+<p>以后执行 Node/Bun 相关安装命令时，先确认两件事：</p>
+<ol>
+<li>当前目录是否正确</li>
+<li>这次安装是“项目依赖”还是“全局工具”</li>
+</ol>
+<p>建议心法：</p>
+<pre><code>装工具 -&gt; 先确认是不是全局
+装依赖 -&gt; 先 cd 到项目目录
+当前目录如果是 ~，默认提高警惕</code></pre>
+<h4>2. 近期不建议直接清理家目录这套依赖</h4>
+<p>原因：</p>
+<ol>
+<li>当前 <code>ohmypi</code> 正在依赖这套目录结构。</li>
+<li>贸然移动或删除，容易造成 CLI 失效。</li>
+<li>目前最优策略是“先止血，再审计，再迁移”。</li>
+</ol>
+<h4>3. 建议后续单独做一次“家目录 JS/Bun 项目迁移评估”</h4>
+<p>目标不是立刻迁移，而是先搞清：</p>
+<ol>
+<li>家目录 <code>node_modules</code> 中哪些是 <code>ohmypi</code> 必需依赖</li>
+<li>是否还混入了其他历史项目依赖</li>
+<li>如果将来把 <code>ohmypi</code> 迁到单独目录，应如何保持 <code>omp</code> 继续可用</li>
+</ol>
+<h3>七、一句话总结</h3>
+<p>本机环境当前可以正常使用，但已经形成“多来源运行时 + 多路径命中 + 家目录项目化”的状态。 短期内最正确的策略不是大清理，而是：</p>
+<ol>
+<li>继续使用新的终端默认目录 <code>C:\tmp\workplace</code></li>
+<li>不再在家目录执行项目安装命令</li>
+<li>后续再对家目录这套 Node/Bun 依赖做单独迁移评估</li>
+</ol></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

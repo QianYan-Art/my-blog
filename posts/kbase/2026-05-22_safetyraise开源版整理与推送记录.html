@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafetyRAISE开源版整理与推送记录 · 千颜</title>
+  <meta name="description" content="20260522SafetyRAISE开源版整理与推送记录 1. 目标 在不影响私有部署主线的前提下，将 D:\MCPServer\TSanalysisreport 当前较新的部署版代码整理为可公开发布的开源版，并推送到">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">本地记录</p>
+      <h1>SafetyRAISE开源版整理与推送记录<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-22</span><span>9 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>2026-05-22_SafetyRAISE开源版整理与推送记录</h2>
+<h3>1. 目标</h3>
+<p>在不影响私有部署主线的前提下，将 <code>D:\MCP_Server\TS_analysis_report</code> 当前较新的部署版代码整理为可公开发布的开源版，并推送到开源仓库 <code>QianYan-Art/SafetyRAISE-OS</code>。 本次记录只保留“从部署版整理为开源版并推送”的过程细节，私有部署版的日常开发、服务器维护、现网切换等内容仍以项目内 <code>项目文档</code> 目录为准。</p>
+<h3>2. 项目与仓库信息</h3>
+<ul>
+<li>本地项目目录：<code>D:\MCP_Server\TS_analysis_report</code></li>
+<li>私有部署仓库：<code>QianYan-Art/SafetyRAISE.git</code></li>
+<li>开源仓库：<code>QianYan-Art/SafetyRAISE-OS.git</code></li>
+<li>私有部署主线：<code>codex/server-deploy</code></li>
+<li>私有主分支：<code>main</code></li>
+<li>开源主分支：<code>main</code></li>
+<li>开源快照标签：<code>opensource</code></li>
+</ul>
+<p>本次开源整理的基线不是旧的 <code>opensource</code> 快照内容，而是直接以当前部署版较新的代码状态为基础，再做一次面向公开仓库的脱敏、裁剪、重写和验证。</p>
+<h3>3. 开源整理前的判断</h3>
+<p>开始前先确认了一个原则：不能把私有部署仓库里的现状直接原样推到开源仓库。主要原因有四类。</p>
+<h4>3.1 私有维护文档不适合公开</h4>
+<p>项目目录下原有 <code>项目文档</code> 里的内容大量面向本机与服务器维护，包含：</p>
+<ul>
+<li>服务器路径与宿主机挂载结构</li>
+<li>远端分支与推送约定</li>
+<li>线上 Nginx 实际生效位置</li>
+<li>SSH、切换流程、维护习惯</li>
+</ul>
+<p>这些内容对开源用户没有直接帮助，反而会泄露维护结构与内部习惯，因此不能进入开源仓库主线。</p>
+<h4>3.2 配置文件混有私有部署信息</h4>
+<p>整理前，配置中存在以下几类不适合公开的内容：</p>
+<ul>
+<li>真实 API Key</li>
+<li>私有域名和私有端点</li>
+<li>本机绝对路径</li>
+<li>私有部署默认值</li>
+</ul>
+<p>如果只删文档、不改配置，开源仓库仍然会带来安全风险与误导。</p>
+<h4>3.3 README 与说明文档不符合开源仓库口径</h4>
+<p>原始文档更像“当前维护者的工作备忘录”，不适合作为开源仓库首页。 开源仓库需要明确回答：</p>
+<ul>
+<li>项目是什么</li>
+<li>提供哪些能力</li>
+<li>clone 后怎么启动</li>
+<li>需要准备哪些模型和运行资产</li>
+<li>哪些能力依赖本地模型、哪些依赖外部 API</li>
+</ul>
+<h4>3.4 旧开源仓库已有历史内容，但不能直接沿用</h4>
+<p><code>SafetyRAISE-OS</code> 仓库原来放的是更早的 opensource 快照。 经过检查后决定：旧内容不再作为新的开源基线，但可以保留“旧快照曾存在”的历史认知；新的开源版应直接以当前部署代码整理生成。</p>
+<h3>4. 开源版整理的实际步骤</h3>
+<h4>4.1 先从当前部署代码抽出开源整理线</h4>
+<p>整理时采用的思路不是改坏私有部署线，而是先从部署代码抽出一条开源整理线，集中完成下面几类工作：</p>
+<ol>
+<li>删除不适合公开的文件</li>
+<li>重写面向公开仓库的文档</li>
+<li>拆分并脱敏配置</li>
+<li>补齐开源用户需要的最小样例</li>
+<li>运行验证</li>
+<li>推送到 <code>origin-os/main</code></li>
+</ol>
+<h4>4.2 删除不适合进入开源仓库的内容</h4>
+<p>开源整理阶段移除了下列内容或同类内容：</p>
+<ul>
+<li><code>项目文档/</code> 整个目录</li>
+<li>私有运维相关更新脚本</li>
+<li><code>start-all.bat</code></li>
+<li>不必要的测试文件与仅用于本地维护的文件</li>
+<li>面向私有部署维护的脚本或说明</li>
+</ul>
+<p>这里的原则很明确： 开源仓库只保留开源用户真正需要的代码、配置模板、最小样例和公开说明，不保留开发期间的内部维护资料。</p>
+<h4>4.3 配置脱敏与默认值重设</h4>
+<p>这一部分是开源整理的核心。</p>
+<p>处理动作包括：</p>
+<ol>
+<li>去掉配置文件中的真实 <code>OPENROUTER_API_KEY</code></li>
+<li>去掉配置文件中的真实 <code>QIANYAN_API_KEY</code></li>
+<li>去掉配置文件中的真实 <code>DUCKCODING_API_KEY</code></li>
+<li>统一改成读取环境变量</li>
+<li>将不适合公开的私有默认值改成通用或示例值</li>
+</ol>
+<p>除了 API Key，还同步整理了：</p>
+<ul>
+<li>专家模型默认配置</li>
+<li>报告模型三档端点说明</li>
+<li>YOLO、embedding、reranker 的默认说明</li>
+<li>本机绝对路径改为公开可理解的示例路径或仓库内相对约定</li>
+</ul>
+<h4>4.4 重写 README 与公开文档</h4>
+<p>开源版重新梳理了以下文档：</p>
+<ul>
+<li><code>README.md</code></li>
+<li><code>docs/quickstart.md</code></li>
+<li><code>docs/configuration.md</code></li>
+<li><code>docs/deployment.md</code></li>
+<li><code>docs/prepare-runtime-assets.md</code></li>
+</ul>
+<p>这几份文档的职责分别被重新定义为：</p>
+<ul>
+<li><code>README.md</code>：仓库首页，只讲项目定位、能力、快速入口</li>
+<li><code>quickstart.md</code>：安装依赖、启动顺序、最小联调</li>
+<li><code>configuration.md</code>：环境变量、模型端点、运行配置说明</li>
+<li><code>deployment.md</code>：通用部署说明，不写私有运维口径</li>
+<li><code>prepare-runtime-assets.md</code>：模型、权重、知识库和运行资产准备方式</li>
+</ul>
+<p>后续又针对文风做过一次收紧，避免出现“给维护者看的备忘语气”，统一调整为“给开源用户看的说明文风”。</p>
+<h4>4.5 增加开源用户最关心的运行资产说明</h4>
+<p>这是后来重点补的一次。</p>
+<p>为了避免其他人 clone 后不知道该下载什么、怎么补知识库，开源版专门补齐了以下内容：</p>
+<ol>
+<li>YOLO 模型需要什么</li>
+<li>embedding 模型需要什么</li>
+<li>reranker 模型需要什么</li>
+<li>专家小模型如何接入</li>
+<li>报告模型三档端点在哪里改</li>
+<li>知识库的最小文件格式是什么</li>
+<li>dense 检索资产需要哪些文件</li>
+</ol>
+<p>同时新增了最小知识库样例，帮助使用者理解文件结构，而不是只看抽象描述。</p>
+<h4>4.6 专家小模型公开链接接入</h4>
+<p>在专家小模型准备发布到 Hugging Face 后，开源仓库侧做了两件事：</p>
+<ol>
+<li>默认模型名更新为：</li>
+<p>- <code>suyuan37/SafetyRAISE-TS-Qwen3</code></p>
+<li>文档中同步说明：</li>
+<p>- 这里填的是“模型名”和“推理服务加载后的模型标识” - 不是直接把 Hugging Face 网页地址塞进程序</p>
+</ol>
+<p>随后又检查了程序默认值是否和文档一致，确认了：</p>
+<ul>
+<li>专家模型默认 provider</li>
+<li>专家模型默认 <code>base_url</code></li>
+<li>专家模型默认 <code>model</code></li>
+</ul>
+<p>这三者在开源版里保持一致，不再出现“文档说一种方式，程序默认却是另一种协议”的问题。</p>
+<h4>4.7 报告模型三档端点重新核对</h4>
+<p>开源版整理过程中，专门复查了报告模型的三档配置：</p>
+<ul>
+<li><code>max</code></li>
+<li><code>pro</code></li>
+<li><code>lite</code></li>
+</ul>
+<p>确认点包括：</p>
+<ol>
+<li>配置文件里三档端点都存在</li>
+<li>程序侧选择逻辑正常</li>
+<li>前端公开配置只暴露 <code>max / pro / lite</code></li>
+<li>不直接向前端暴露供应商名</li>
+<li>文档中明确写清每档在哪改、如何换端点</li>
+</ol>
+<p>这一步是为了确保开源用户不会因为文档不清或默认值错位而误配报告模型。</p>
+<h3>5. 开源验证过程</h3>
+<p>整理不是只改文档，期间实际做过多轮验证。</p>
+<h4>5.1 基础验证</h4>
+<ul>
+<li>后端配置加载验证</li>
+<li>FastAPI 应用导入验证</li>
+<li>前端 <code>npm run build</code> 验证</li>
+<li>本地健康检查接口验证</li>
+<li><code>app-config</code> 接口验证</li>
+</ul>
+<h4>5.2 运行资产相关验证</h4>
+<p>针对开源版额外验证了：</p>
+<ul>
+<li>最小知识库样例是否能被读取</li>
+<li>检索器是否能在样例数据上返回结果</li>
+<li><code>/ready</code> 中缺失运行资产时的诊断信息是否合理</li>
+</ul>
+<p>确认结果是： 开源仓库可以正常启动和暴露基础接口，但完整报告生成仍然依赖用户自行准备知识库、YOLO 权重、本地模型服务和外部 API，这一点在文档中已经明确说明。</p>
+<h4>5.3 文档与程序一致性验证</h4>
+<p>后续又专门做过一次“不要只查文档，也查程序”的复查，重点确认：</p>
+<ul>
+<li>专家模型默认值是否和文档一致</li>
+<li>专家模型 provider 是否和默认接入方式一致</li>
+<li>报告模型三档端点是否和文档一致</li>
+<li><code>.env.example</code> 是否和配置文件说明一致</li>
+</ul>
+<h3>6. 推送到开源仓库后的安全问题与修复</h3>
+<p>这一步非常关键，必须单独记录。</p>
+<h4>6.1 问题发现</h4>
+<p>虽然开源版当前工作树已经是脱敏后的干净状态，但 GitHub 后续发来了告警： <code>SafetyRAISE-OS</code> 仓库历史中暴露了真实 OpenRouter Key。</p>
+<p>排查后确认：</p>
+<ul>
+<li>不是“当前文件又传错了”</li>
+<li>而是“开源仓库之前的历史提交里仍然残留了真实 key”</li>
+</ul>
+<p>也就是说，当前树干净，不代表历史干净。</p>
+<h4>6.2 根因</h4>
+<p>开源仓库在整理初期虽然已经改掉了当前配置文件中的真实 key，但仍然沿用了早先的提交历史。 那些旧提交里包含过真实的：</p>
+<ul>
+<li>OpenRouter Key</li>
+<li>QianYan Key</li>
+<li>DuckCoding Key</li>
+</ul>
+<p>因此 GitHub secret scanning 仍然会报警。</p>
+<h4>6.3 处理方式</h4>
+<p>这里没有继续做“修当前文件”这种表面动作，而是直接处理根因：</p>
+<ol>
+<li>切回开源分支 <code>main</code></li>
+<li>以当前已经脱敏的工作树创建全新根提交</li>
+<li>重写开源仓库 <code>main</code> 的公开历史</li>
+<li>强推到 <code>origin-os/main</code></li>
+<li>重新更新开源快照标签 <code>opensource</code></li>
+</ol>
+<p>这样处理后，开源仓库当前树和公开历史都不再包含旧的真实 key。</p>
+<h4>6.4 修复后的确认</h4>
+<p>修复后重新检查了：</p>
+<ul>
+<li>当前开源树</li>
+<li>新的开源远端历史</li>
+<li>开源快照标签</li>
+</ul>
+<p>确认新的开源仓库历史不再命中旧的 key 特征。 也就是说，本次开源整理最终不是“只洗工作树”，而是把公开历史也一起洗干净了。</p>
+<h3>7. Hugging Face 专家模型仓库的补充情况</h3>
+<p>开源版整理过程中，专家小模型同步发布到了 Hugging Face：</p>
+<ul>
+<li><code>https://huggingface.co/suyuan37/SafetyRAISE-TS-Qwen3</code></li>
+</ul>
+<p>上传权重后，Hugging Face 一度把两个 <code>safetensors</code> 分片判为 unsafe。 后续通过邮件提交误报复核请求，官方回复已修复，因此这一问题最后不构成开源发布阻塞。</p>
+<p>这里记录它的目的不是作为开源仓库主问题，而是说明开源版文档里引用的专家模型仓库已经走完一次可用性核验，不是未完成占位链接。</p>
+<h3>8. 开源版最终推送结果</h3>
+<p>开源整理收束后，开源仓库最终状态为：</p>
+<ul>
+<li>开源主分支：<code>origin-os/main</code></li>
+<li>开源快照标签：<code>opensource</code></li>
+</ul>
+<p>两者已对齐到同一份整理完成且安全清理后的提交。 因此后续如果需要回看“开源版稳定快照”，优先看 <code>opensource</code>；如果继续沿开源主线演进，则以 <code>origin-os/main</code> 为准。</p>
+<h3>9. 与私有部署线的关系</h3>
+<p>本次开源版整理完成后，私有部署线与开源线形成了明确分工：</p>
+<h4>9.1 私有部署线负责</h4>
+<ul>
+<li>现网部署</li>
+<li>服务器运维</li>
+<li>私有文档</li>
+<li>内部调优</li>
+<li>私有端点和实际生产配置</li>
+</ul>
+<h4>9.2 开源线负责</h4>
+<ul>
+<li>可公开展示的项目能力</li>
+<li>可复现的最小工程结构</li>
+<li>示例配置与说明文档</li>
+<li>模型、知识库、运行资产接入方式</li>
+</ul>
+<p>这样做的好处是：</p>
+<ol>
+<li>不再把公开展示和私有运维混在同一仓库语境里</li>
+<li>部署线可以继续快速迭代</li>
+<li>开源线可以保持更清晰、可解释、可复现</li>
+</ol>
+<h3>10. 后续开发与维护建议</h3>
+<h4>10.1 开源线后续改动原则</h4>
+<p>以后如果继续更新开源仓库，建议始终遵守以下原则：</p>
+<ol>
+<li>不把私有维护文档推到开源仓库</li>
+<li>不把真实 key、真实证书、SSH、服务器路径写进开源仓库</li>
+<li>不把“只在自己机器可跑”的路径或脚本当作默认说明</li>
+<li>文档改动后要同步复查程序默认值</li>
+<li>推送前同时检查“当前树”和“历史提交”</li>
+</ol>
+<h4>10.2 开源线更值得继续补充的内容</h4>
+<p>后面如果继续完善开源版，优先级较高的方向有：</p>
+<ol>
+<li>增加“如何从原始法规/案例文本生成 dense 索引”的公开脚本或说明</li>
+<li>给知识库构建增加更多示例</li>
+<li>增加 issue / PR 模板</li>
+<li>增加更完整的开源部署示例</li>
+<li>增加一套最小 mock 运行方案，降低首次体验门槛</li>
+</ol>
+<h4>10.3 每次开源推送前建议执行的检查</h4>
+<p>建议形成固定动作：</p>
+<ol>
+<li>扫描当前树是否有敏感信息</li>
+<li>扫描即将推送的提交历史是否有敏感信息</li>
+<li>检查 README、<code>docs</code>、<code>.env.example</code>、默认配置是否一致</li>
+<li>跑一次前端构建与后端基本启动验证</li>
+<li>检查开源快照标签是否需要同步更新</li>
+</ol>
+<h3>11. 结论</h3>
+<p>本次 <code>SafetyRAISE</code> 从部署版整理为开源版，不是一次简单的“复制代码到新仓库”，而是完整做了下面几步：</p>
+<ol>
+<li>裁掉私有维护内容</li>
+<li>脱敏配置与默认值</li>
+<li>重写公开文档</li>
+<li>补齐运行资产说明与知识库样例</li>
+<li>校正文档与程序默认值的一致性</li>
+<li>推送到开源仓库</li>
+<li>发现并修复公开历史中的敏感信息残留</li>
+<li>重新确认开源主线与开源快照安全可用</li>
+</ol>
+<p>因此，这份开源版可以作为后续公开展示、继续演进和外部协作的基线；私有部署版则继续承担现网与内部迭代职责，两条线今后应继续分开维护。</p></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

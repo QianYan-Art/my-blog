@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JP日本 NAT 节点 CLIProxyAPI 维护记录 · 千颜</title>
+  <meta name="description" content="最后核对：20260517（按服务器本地时间核对）。 适用节点：natjp3h8e.aproxy.top 这份文档专门记录日本 NAT 节点上的 CLIProxyAPI / cliproxyapi 部署、前置代理、远程管">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>JP日本 NAT 节点 CLIProxyAPI 维护记录<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-17</span><span>12 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><p>&gt; 最后核对：2026-05-17（按服务器本地时间核对）。</p>
+<p>&gt; 适用节点：<code>nat-jp-3h8e.aproxy.top</code> 这份文档专门记录日本 NAT 节点上的 <code>CLIProxyAPI / cliproxyapi</code> 部署、前置代理、远程管理、图片链路修复和灾难恢复注意事项。</p>
+<h3>1. 当前结构</h3>
+<pre><code>suyuan.4071253.xyz
+  -&gt; NAT 外部映射
+  -&gt; cliproxyapi-edge-proxy.service (0.0.0.0:59999)
+  -&gt; cliproxyapi-filter.service (127.0.0.1:59997)    ← 2026-05-17 新增 SSE obfuscation 过滤器
+  -&gt; cliproxyapi.service (127.0.0.1:59998)</code></pre>
+<p>当前关键文件：</p>
+<ul>
+<li><code>/root/cliproxyapi/config.yaml</code></li>
+<li><code>/root/cliproxyapi-edge-proxy/cliproxyapi_edge_proxy.py</code></li>
+<li><code>/etc/systemd/system/cliproxyapi-edge-proxy.service</code></li>
+<li><code>/etc/systemd/system/cliproxyapi.service.d/edge-proxy.conf</code></li>
+<li><code>/root/update-cliproxyapi.sh</code></li>
+<li><code>/root/cliproxyapi/filter_proxy.py</code></li>
+<li><code>/etc/systemd/system/cliproxyapi-filter.service</code></li>
+</ul>
+<p>当前关键入口：</p>
+<ul>
+<li>OpenAI 兼容 API：<code>https://suyuan.4071253.xyz/v1</code></li>
+<li>管理页：<code>https://suyuan.4071253.xyz/management.html</code></li>
+<li>管理 API 示例：<code>https://suyuan.4071253.xyz/v0/management/config</code></li>
+</ul>
+<h3>1.1 当前路由策略</h3>
+<p><code>/root/cliproxyapi/config.yaml</code> 当前已启用：</p>
+<pre><code>routing:
+  strategy: &quot;fill-first&quot;
+  session-affinity: true
+  session-affinity-ttl: &quot;24h&quot;</code></pre>
+<p>目的：</p>
+<ul>
+<li><code>fill-first</code>：优先把请求压到同一批可用账号，尽量吃满单账号上游缓存。</li>
+<li><code>session-affinity: true</code>：同一会话尽量回到同一账号，减少会话在多账号之间漂移导致的缓存命中下降。</li>
+<li><code>session-affinity-ttl: &quot;24h&quot;</code>：把会话到账号的绑定保留更久，适合长对话、同一项目持续编码、同一线程反复追问等场景。</li>
+</ul>
+<p>副作用：</p>
+<ul>
+<li>账号利用率会更偏向前面的可用账号，不再像 <code>round-robin</code> 那样平均分散。</li>
+<li>如果最前面的账号频繁触发冷却，流量仍会自动落到后面的可用账号，不会卡死。</li>
+</ul>
+<h3>2. 服务职责</h3>
+<p><code>cliproxyapi.service</code>：</p>
+<ul>
+<li>真正的 <code>cli-proxy-api</code> 进程。</li>
+<li>当前监听 <code>127.0.0.1:59998</code>。</li>
+<li>不直接暴露公网。</li>
+</ul>
+<p><code>cliproxyapi-edge-proxy.service</code>：</p>
+<ul>
+<li>前置 HTTP 代理。</li>
+<li>当前监听 <code>0.0.0.0:59999</code>。</li>
+<li>负责把公网请求转发给 SSE filter <code>127.0.0.1:59997</code>（2026-05-17 之前直连 <code>127.0.0.1:59998</code>）。</li>
+<li>对长耗时图片请求做保活，对 chunked request body 做兼容。</li>
+</ul>
+<p><code>cliproxyapi-filter.service</code>（2026-05-17 新增）：</p>
+<ul>
+<li>SSE 流过滤器，监听 <code>127.0.0.1:59997</code>，转发到 <code>127.0.0.1:59998</code>。</li>
+<li>实时剥离 cliproxyapi OAuth 路由返回的 <code>&quot;obfuscation&quot;</code> 字段，避免 codex 严格 JSON 解析器报 <code>error decoding response body</code>。</li>
+<li>纯 TCP 转发，不干预 edge-proxy 的长请求保活逻辑。服务文件：<code>/root/cliproxyapi/filter_proxy.py</code>。</li>
+<p><code>/etc/systemd/system/cliproxyapi.service.d/edge-proxy.conf</code>：</p>
+</ul>
+<pre><code>[Unit]
+Wants=cliproxyapi-edge-proxy.service cliproxyapi-filter.service</code></pre>
+<p>用途：</p>
+<ul>
+<li>每次 <code>cliproxyapi.service</code> 被日更脚本重新 <code>start</code> 后，会顺带把 <code>cliproxyapi-edge-proxy.service</code> 一起拉起。</li>
+<li>避免 core 服务恢复后，前置代理仍然保持 <code>dead</code>。</li>
+</ul>
+<h3>3. 配置要点</h3>
+<p><code>/root/cliproxyapi/config.yaml</code> 当前关键字段：</p>
+<ul>
+<li><code>port: 59998</code></li>
+<li><code>host: &quot;127.0.0.1&quot;</code></li>
+<li><code>remote-management.allow-remote: true</code></li>
+<li><code>remote-management.secret-key: ...</code></li>
+<li><code>oauth-model-alias.vertex: ...</code></li>
+</ul>
+<p>结论：</p>
+<ul>
+<li><code>cliproxyapi</code> 只接受本机前置代理访问。</li>
+<li>公网不要额外映射 <code>59998</code>。</li>
+<li>远程管理功能依赖 <code>remote-management.secret-key</code>，<code>EasyCLI</code> Remote 模式填写的是这个管理密码，不是 API key。</li>
+<li>当前已对 <code>vertex</code> 来源模型加 <code>vtx/</code> 前缀别名，用于和其他来源区分。</li>
+</ul>
+<h4>3.1 2026-05-16 <code>vertex</code> 模型前缀区分</h4>
+<p>目的：</p>
+<ul>
+<li>在不拆多实例、不影响现有 <code>EasyCLI</code> 使用方式的前提下，先把 <code>vertex</code> 来源模型单独区分出来。</li>
+</ul>
+<p>实现：</p>
+<ul>
+<li>在 <code>/root/cliproxyapi/config.yaml</code> 的 <code>oauth-model-alias.vertex</code> 下增加别名映射。</li>
+<li>当前采用统一前缀：<code>vtx/</code></li>
+</ul>
+<p>当前已确认生效的 <code>vertex</code> 前缀模型：</p>
+<ul>
+<li><code>vtx/gemini-2.5-flash</code></li>
+<li><code>vtx/gemini-2.5-flash-image</code></li>
+<li><code>vtx/gemini-2.5-flash-lite</code></li>
+<li><code>vtx/gemini-2.5-pro</code></li>
+<li><code>vtx/gemini-3-flash-preview</code></li>
+<li><code>vtx/gemini-3-pro-image-preview</code></li>
+<li><code>vtx/gemini-3-pro-preview</code></li>
+<li><code>vtx/gemini-3.1-flash-image-preview</code></li>
+<li><code>vtx/gemini-3.1-flash-lite-preview</code></li>
+<li><code>vtx/gemini-3.1-pro-preview</code></li>
+<li><code>vtx/imagen-3.0-fast-generate-001</code></li>
+<li><code>vtx/imagen-3.0-generate-002</code></li>
+<li><code>vtx/imagen-4.0-fast-generate-001</code></li>
+<li><code>vtx/imagen-4.0-generate-001</code></li>
+<li><code>vtx/imagen-4.0-ultra-generate-001</code></li>
+</ul>
+<p>说明：</p>
+<ul>
+<li>这次只给 <code>vertex</code> 加前缀，其他来源暂时不动。</li>
+<li><code>GET /v1/models</code> 已确认能返回上述 <code>vtx/</code> 模型名。</li>
+<li>客户端调用这些模型时，直接使用带前缀的名字即可。</li>
+</ul>
+<h3>4. 图片链路修复记录</h3>
+<h4>4.1 2026-04-27 文生图 <code>524</code></h4>
+<p>现象：</p>
+<ul>
+<li><code>POST /v1/images/generations</code> 调用 <code>gpt-image-2</code> 时，公网请求可能在约 15 秒处被前置 <code>TencentEdgeOne</code> 断开，表现为 <code>524</code>。</li>
+</ul>
+<p>原因：</p>
+<ul>
+<li>实际生图耗时通常在 30 到 100 秒之间。</li>
+<li>前置 CDN 在首字节返回前就超时。</li>
+</ul>
+<p>修复：</p>
+<ul>
+<li>增加 <code>cliproxyapi-edge-proxy.service</code>。</li>
+<li>对长耗时图片请求先提交 <code>200</code> 并持续写空白 keepalive，等待上游真正完成。</li>
+</ul>
+<h4>4.2 2026-04-27 客户端 <code>prompt is required</code></h4>
+<p>现象：</p>
+<ul>
+<li>Android / RikkaHub 等客户端上传请求后，返回 <code>prompt is required</code>。</li>
+</ul>
+<p>原因：</p>
+<ul>
+<li>某些客户端使用 <code>Transfer-Encoding: chunked</code>。</li>
+<li>若前置层没正确读取 chunked body，会把请求转成空 body。</li>
+</ul>
+<p>修复：</p>
+<ul>
+<li>在前置代理中实现 chunked request body 读取。</li>
+</ul>
+<h4>4.3 2026-05-11 图生图 <code>failed to edit image: 524</code></h4>
+<p>现象：</p>
+<ul>
+<li><code>RikkaHub</code> 更新图生图能力后，上传图片和提示词返回 <code>failed to edit image: 524</code>。</li>
+</ul>
+<p>原因：</p>
+<ul>
+<li>新版 <code>RikkaHub</code> 图生图走的是 <code>POST /v1/images/edits</code>。</li>
+<li>旧版前置代理只给 <code>POST /v1/images/generations</code> 做保活。</li>
+</ul>
+<p>修复：</p>
+<ul>
+<li>前置代理现在对以下长耗时路径都做保活：</li>
+<p>- <code>POST /v1/images/generations</code> - <code>POST /v1/images/edits</code> - <code>POST /v1/images/variations</code></p>
+</ul>
+<h3>5. 验证结论</h3>
+<p>已确认以下链路正常：</p>
+<ul>
+<li><code>GET /v1/models</code> -&gt; <code>200</code></li>
+<li><code>POST /v1/chat/completions</code> -&gt; <code>200</code></li>
+<li><code>POST /v1/images/generations</code> -&gt; <code>200</code></li>
+<li><code>POST /v1/images/edits</code> -&gt; <code>200</code></li>
+<li><code>GET /management.html</code> -&gt; <code>200</code></li>
+<li><code>GET /v0/management/config</code> 未带 management key 时返回 <code>401 missing management key</code></li>
+<li><code>GET /v1/models</code> 已返回 <code>15</code> 个 <code>vtx/</code> 前缀模型</li>
+</ul>
+<p>说明：</p>
+<ul>
+<li>API 链路和远程管理链路都正常。</li>
+<li><code>EasyCLI</code> 如果报地址错误，先检查前置代理是否存活；如果地址能打开但登录失败，再检查 management key。</li>
+<li><code>vertex</code> 模型前缀区分已经在线生效。</li>
+</ul>
+<p>补充说明（2026-05-17 晚间）：</p>
+<ul>
+<li><code>Codex + suyuan</code> 实际链路已再次通过本机 <code>codex exec ... &quot;只输出pong&quot;</code> 验证成功。</li>
+<li>早前出现的 <code>401</code> 并非 VPS 主服务整体不可用，而是客户端曾把错误的 bearer 发到 <code>suyuan</code>，服务器错误日志中明确表现为 <code>Invalid API key</code>。</li>
+<li>之后已恢复为正确 bearer，请求重新返回 <code>200</code>。</li>
+</ul>
+<h4>5.1 代理层补丁（2026-05-17 晚间）</h4>
+<p>这次进一步确认并修复了两类代理层问题：</p>
+<ol>
+<li><code>filter_proxy.py</code></li>
+</ol>
+<ul>
+<li>旧逻辑会丢掉“上游响应首包中已经带出来的 body”</li>
+<li>结果是当上游返回短错误响应（如 <code>401 / 502</code>）时，下游经常只收到响应头，正文不完整，表现为连接提前关闭、<code>curl: (18)</code> 之类的错误</li>
+<li>现已修复为：拆分上游响应头/body，并把首包 body 一并转发</li>
+</ul>
+<ol>
+<li><code>cliproxyapi_edge_proxy.py</code></li>
+</ol>
+<ul>
+<li>已补 <code>IncompleteRead</code> 兜底</li>
+<li>避免边缘代理在读取流式 <code>responses</code> 时因上游读不完整直接抛 <code>502</code></li>
+</ul>
+<p>说明：</p>
+<ul>
+<li>这两处修复主要提升错误响应与流式转发的稳定性</li>
+<li>目前 <code>Codex + suyuan</code> 的真实使用路径可用</li>
+<li>但对“极简手写 curl 直打 <code>/v1/responses</code>”这类请求，core provider 选择逻辑仍可能返回 <code>unknown provider for model</code>，这不影响当前 Codex 使用</li>
+</ul>
+<h3>6. 与每日自动更新的关系</h3>
+<p><code>/root/update-cliproxyapi.sh</code> 当前已升级，除了原有逻辑，还会额外备份和恢复自定义代理层文件。</p>
+<p>原有逻辑：</p>
+<ul>
+<li>备份 <code>/root/cliproxyapi/config.yaml</code></li>
+<li>备份 <code>/root/cliproxyapi/auths/</code></li>
+<li>更新 <code>/root/cliproxyapi/</code> 目录下程序</li>
+<li>恢复 <code>config.yaml</code> 与 <code>auths/</code></li>
+</ul>
+<p>新增逻辑：</p>
+<ul>
+<li>备份 <code>/root/cliproxyapi-edge-proxy/</code></li>
+<li>备份 <code>/root/cliproxyapi/filter_proxy.py</code></li>
+<li>备份 <code>/etc/systemd/system/cliproxyapi-edge-proxy.service</code></li>
+<li>备份 <code>/etc/systemd/system/cliproxyapi-filter.service</code></li>
+<li>备份 <code>/etc/systemd/system/cliproxyapi.service.d/edge-proxy.conf</code></li>
+<li>更新后自动恢复上述文件</li>
+<li>更新后自动 <code>enable --now cliproxyapi-edge-proxy.service cliproxyapi-filter.service</code></li>
+</ul>
+<p>这意味着：</p>
+<ul>
+<li><code>port: 59998</code></li>
+<li><code>host: &quot;127.0.0.1&quot;</code></li>
+</ul>
+<p>会随着 <code>config.yaml</code> 恢复而保留。</p>
+<p>因此 <code>routing.strategy: &quot;fill-first&quot;</code>、<code>session-affinity: true</code>、<code>session-affinity-ttl: &quot;24h&quot;</code> 也会随着 <code>config.yaml</code> 恢复而保留。</p>
+<p>同理，<code>oauth-model-alias.vertex</code> 下的 <code>vtx/</code> 前缀映射也会随着 <code>config.yaml</code> 恢复而保留。</p>
+<p>前置代理相关文件位于 <code>/root/cliproxyapi/</code> 目录外：</p>
+<ul>
+<li><code>/root/cliproxyapi-edge-proxy/cliproxyapi_edge_proxy.py</code></li>
+<li><code>/etc/systemd/system/cliproxyapi-edge-proxy.service</code></li>
+<li><code>/etc/systemd/system/cliproxyapi.service.d/edge-proxy.conf</code></li>
+</ul>
+<p>现在结论变成：</p>
+<ul>
+<li>安装器本身仍不会主动维护这些文件</li>
+<li>但本机 <code>/root/update-cliproxyapi.sh</code> 已经会把它们一起备份并恢复</li>
+<li>只要继续通过这份更新脚本做日更，前置代理与 filter 层不会像之前那样容易在更新后丢失</li>
+</ul>
+<h3>7. 备份与灾难恢复</h3>
+<p>如果不用 <code>/root/update-cliproxyapi.sh</code>，而是手动更新或整机灾难恢复，仍然需要特别关注以下文件：</p>
+<ul>
+<li><code>/root/cliproxyapi-edge-proxy/cliproxyapi_edge_proxy.py</code></li>
+<li><code>/etc/systemd/system/cliproxyapi-edge-proxy.service</code></li>
+<li><code>/etc/systemd/system/cliproxyapi.service.d/edge-proxy.conf</code></li>
+<li><code>/root/cliproxyapi/filter_proxy.py</code>（2026-05-17 新增）</li>
+<li><code>/etc/systemd/system/cliproxyapi-filter.service</code>（2026-05-17 新增）</li>
+</ul>
+<p>所以如果发生：</p>
+<ul>
+<li>整机重装</li>
+<li>手动误删目录</li>
+<li>做整机级灾难恢复</li>
+</ul>
+<p>除了恢复 <code>/root/cliproxyapi/config.yaml</code> 与 <code>auths/</code>，还要单独恢复上述文件，然后执行：</p>
+<pre><code>systemctl daemon-reload
+systemctl enable --now cliproxyapi-edge-proxy.service cliproxyapi-filter.service
+systemctl restart cliproxyapi.service</code></pre>
+<h3>8. 常用检查命令</h3>
+<pre><code>systemctl status cliproxyapi.service cliproxyapi-edge-proxy.service cliproxyapi-filter.service --no-pager
+ss -ltnp | grep -E &#39;:(59997|59998|59999)\b&#39;
+journalctl -u cliproxyapi.service -n 120 --no-pager
+journalctl -u cliproxyapi-edge-proxy.service -n 120 --no-pager
+journalctl -u cliproxyapi-filter.service -n 20 --no-pager
+curl -I https://suyuan.4071253.xyz/management.html
+curl -sS https://suyuan.4071253.xyz/v1/models -H &#39;Authorization: Bearer &lt;API_KEY&gt;&#39;
+curl -sS https://suyuan.4071253.xyz/v1/models -H &#39;Authorization: Bearer &lt;API_KEY&gt;&#39; | grep &#39;vtx/&#39;</code></pre>
+<h3>9. 一句话原则</h3>
+<p>这台 JP 节点上的 <code>cliproxyapi</code> 现在是“core 只监听 localhost，公网只经过 edge-proxy → filter”的结构。端口 59997=filter, 59998=core, 59999=edge。以后不要再把内部端口直接暴露出去，也不要删掉 edge-proxy 和 filter 的文件而不留恢复记录。</p></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

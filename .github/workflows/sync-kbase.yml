@@ -1,0 +1,37 @@
+name: Sync KBase Articles
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "20 */6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout blog
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Sync articles from private KBase
+        env:
+          KBASE_SOURCE: github
+          KBASE_OWNER: QianYan-Art
+          KBASE_REPO: QianYan-KBase
+          KBASE_BRANCH: main
+          KBASE_PUBLIC_DIR: public
+          GITHUB_TOKEN: ${{ secrets.KBASE_READ_TOKEN }}
+        run: npm run sync:kbase
+
+      - name: Commit generated articles
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: sync kbase articles"
+          file_pattern: assets/data/articles.json posts/kbase/*.html

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DNS更改（mihomo） · 千颜</title>
+  <meta name="description" content="这篇文章来自千颜的私有知识库，已在同步阶段生成静态索引。">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>DNS更改（mihomo）<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2025-11-24</span><span>3 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><pre><code>原版：
+dns:
+
+  enable: true
+
+  listen: &#39;:53&#39;
+
+  enhanced-mode: &#39;fake-ip&#39;
+
+  fake-ip-range: &#39;198.18.0.1/16&#39;
+
+  fake-ip-filter-mode: &#39;blacklist&#39;
+
+  prefer-h3: false
+
+  respect-rules: false
+
+  use-hosts: false
+
+  use-system-hosts: false
+
+  ipv6: true
+
+  fake-ip-filter:
+
+    - &#39;*.lan&#39;
+
+    - &#39;*.local&#39;
+
+    - &#39;*.arpa&#39;
+
+    - &#39;time.*.com&#39;
+
+    - &#39;ntp.*.com&#39;
+
+    - &#39;time.*.com&#39;
+
+    - &#39;+.market.xiaomi.com&#39;
+
+    - &#39;localhost.ptlogin2.qq.com&#39;
+
+    - &#39;*.msftncsi.com&#39;
+
+    - &#39;www.msftconnecttest.com&#39;
+
+  default-nameserver:
+
+    - &#39;system&#39;
+
+    - &#39;223.6.6.6&#39;
+
+    - &#39;8.8.8.8&#39;
+
+    - &#39;2400:3200::1&#39;
+
+    - &#39;2001:4860:4860::8888&#39;
+
+  nameserver:
+
+    - &#39;8.8.8.8&#39;
+
+    - &#39;https://doh.pub/dns-query&#39;
+
+    - &#39;https://dns.alidns.com/dns-query&#39;
+
+  direct-nameserver-follow-policy: false
+
+  fallback-filter:
+
+    geoip: true
+
+    geoip-code: &#39;CN&#39;
+
+    ipcidr:
+
+      - &#39;240.0.0.0/4&#39;
+
+      - &#39;0.0.0.0/32&#39;
+
+    domain:
+
+      - &#39;+.google.com&#39;
+
+      - &#39;+.facebook.com&#39;
+
+      - &#39;+.youtube.com&#39;
+
+  fallback: []
+
+  proxy-server-nameserver:
+
+    - &#39;https://doh.pub/dns-query&#39;
+
+    - &#39;https://dns.alidns.com/dns-query&#39;
+
+    - &#39;tls://223.5.5.5&#39;
+
+  direct-nameserver: []</code></pre>
+<pre><code>改版：
+dns:
+  enable: true
+  ipv6: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - geosite:private
+    - geosite:category-ntp
+  use-hosts: false
+  use-system-hosts: false
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://223.6.6.6/dns-query
+  nameserver-policy:
+    geosite:cn:
+      - https://223.5.5.5/dns-query
+      - https://223.6.6.6/dns-query
+  respect-rules: true
+  direct-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://223.6.6.6/dns-query
+  direct-nameserver-follow-policy: true    #优先让nameserver-policy的设定生效</code></pre></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

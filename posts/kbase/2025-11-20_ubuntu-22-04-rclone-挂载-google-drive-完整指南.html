@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安装 Rclone · 千颜</title>
+  <meta name="description" content="适用环境：Ubuntu 22.04 / 10GB 内存 / 无桌面环境 (Headless) 目标用户：qianyan 挂载路径：/home/gdrive 第一步：安装 Rclone 与依赖 在服务器上执行以下命令安装 ">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>安装 Rclone<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2025-11-20</span><span>6 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><p>适用环境：Ubuntu 22.04 / 10GB 内存 / 无桌面环境 (Headless)</p>
+<p>目标用户：qianyan</p>
+<p>挂载路径：/home/gdrive</p>
+<h3>第一步：安装 Rclone 与依赖</h3>
+<p>在服务器上执行以下命令安装 Rclone 官方版本及 FUSE 3 文件系统支持：</p>
+<pre><code># 安装 Rclone
+sudo -v ; curl [https://rclone.org/install.sh](https://rclone.org/install.sh) | sudo bash
+
+# 安装 FUSE3 (Ubuntu 22.04 必须)
+sudo apt update
+sudo apt install fuse3 -y</code></pre>
+<h3>第二步：配置连接 (Remote)</h3>
+<p>由于服务器没有浏览器，我们需要配合<strong>本地电脑</strong>完成授权。</p>
+<ol>
+<li><strong>在服务器终端输入</strong>：</li>
+</ol>
+<pre><code>    rclone config</code></pre>
+<p>- 输入 <code>n</code> 新建。</p>
+<p>- <strong>name</strong>: 输入 <code>gdrive</code> (或者你喜欢的名字)。</p>
+<p>- <strong>Storage</strong>: 选择 Google Drive (通常是 <code>drive</code>)。</p>
+<p>- <strong>client_id / client_secret</strong>: 留空回车。</p>
+<p>- <strong>Scope</strong>: 选 <code>1</code> (Full access)。</p>
+<p>- <strong>service_account_file</strong>: 留空回车。</p>
+<p>- <strong>Edit advanced config</strong>: <code>n</code>。</p>
+<p>- <strong>Use auto config?</strong>: <strong>选 <code>n</code> (No)</strong> (关键步骤)。</p>
+<ol>
+<li><strong>在本地电脑上</strong>：</li>
+</ol>
+<p>- 下载并解压 Rclone (Windows/Mac)。</p>
+<p>- 在本地终端运行服务器给出的命令：<code>rclone authorize &quot;drive&quot; &quot;xxxxx...&quot;</code>。</p>
+<p>- 浏览器登录授权后，复制终端里生成的 Token 代码。</p>
+<ol>
+<li><strong>回到服务器终端</strong>：</li>
+</ol>
+<p>- 粘贴 Token 代码。</p>
+<p>- Team Drive 选 <code>n</code> (除非你是团队盘)。</p>
+<p>- 输入 <code>y</code> 确认配置，<code>q</code> 退出。</p>
+<h3>第三步：准备挂载目录与权限</h3>
+<p>为了避免 <code>fusermount: user has no write access</code> 错误，必须正确设置目录权限。</p>
+<pre><code># 1. 创建挂载点
+sudo mkdir -p /home/gdrive
+
+# 2. 修改目录所有权为当前用户 (qianyan)
+sudo chown qianyan:qianyan /home/gdrive
+
+# 3. 开启 FUSE 的 allow_other 权限
+sudo sed -i &#39;s/#user_allow_other/user_allow_other/g&#39; /etc/fuse.conf</code></pre>
+<h3>第四步：配置 Systemd 开机自启服务</h3>
+<p>创建后台服务，确保挂载稳定且开机自启。</p>
+<p><strong>1. 创建服务文件</strong></p>
+<pre><code>sudo nano /etc/systemd/system/rclone-gdrive.service</code></pre>
+<ol>
+<li>填入配置内容</li>
+</ol>
+<p>(针对 10GB 内存优化，高性能模式)</p>
+<pre><code>[Unit]
+Description=Rclone Google Drive Mount
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=notify
+User=qianyan
+Group=qianyan
+# 环境变量指向你的配置文件路径
+Environment=RCLONE_CONFIG=/home/qianyan/.config/rclone/rclone.conf
+
+KillMode=none
+Restart=on-failure
+RestartSec=5
+
+# --- 核心挂载命令 ---
+ExecStart=/usr/bin/rclone mount gdrive: /home/gdrive \
+--allow-other \
+--allow-non-empty \
+--vfs-cache-mode full \
+--vfs-cache-max-size 10G \
+--vfs-read-chunk-size 32M \
+--vfs-read-chunk-size-limit 1G \
+--buffer-size 256M \
+--umask 002 \
+--log-level INFO
+
+# --- 卸载命令 ---
+ExecStop=/bin/fusermount3 -u /home/gdrive
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<p>_&gt; 注意：如果后台有 Emby 等大量扫描任务导致内存吃紧，请将 <code>--buffer-size 256M</code> 改为 <code>64M</code>。_</p>
+<p><strong>3. 启动服务</strong></p>
+<pre><code># 重载配置
+sudo systemctl daemon-reload
+# 启动
+sudo systemctl start rclone-gdrive
+# 开机自启
+sudo systemctl enable rclone-gdrive
+# 检查状态 (应显示 active running)
+systemctl status rclone-gdrive</code></pre>
+<h3>第五步：Docker 挂载使用技巧</h3>
+<p>如果你需要在 Docker 容器（如 Emby, FileBrowser, QBittorrent）中使用这个挂载点，<strong>必须</strong>使用 <code>:rslave</code> 模式，否则宿主机重挂载后容器会断连。</p>
+<p><strong>Docker Compose 示例：</strong></p>
+<pre><code>volumes:
+  - /home/gdrive:/data:rslave</code></pre>
+<p><strong>Docker Run 示例：</strong></p>
+<pre><code>docker run -v /home/gdrive:/data:rslave ...</code></pre>
+<h3>附录：如何彻底删除/卸载</h3>
+<p>如果未来你想移除这个挂载并清理系统，请按顺序执行：</p>
+<ol>
+<li><strong>停止并禁用服务</strong>：</li>
+</ol>
+<pre><code>    sudo systemctl stop rclone-gdrive
+    sudo systemctl disable rclone-gdrive</code></pre>
+<ol>
+<li><strong>删除服务文件</strong>：</li>
+</ol>
+<pre><code>    sudo rm /etc/systemd/system/rclone-gdrive.service
+    sudo systemctl daemon-reload</code></pre>
+<ol>
+<li><strong>确保已卸载</strong>：</li>
+</ol>
+<pre><code>    fusermount3 -u /home/gdrive
+    # 如果提示未找到挂载点，说明已经卸载干净了</code></pre>
+<ol>
+<li><strong>删除配置文件和缓存</strong>：</li>
+</ol>
+<pre><code>    # 删除配置 (Token 等信息)
+    rm -rf /home/qianyan/.config/rclone
+    # 删除缓存数据
+    rm -rf /home/qianyan/.cache/rclone</code></pre>
+<ol>
+<li><strong>删除挂载目录 (可选)</strong>：</li>
+</ol>
+<pre><code>    # 只有确定里面全是空的或者是云端文件（已卸载状态）才删
+    sudo rmdir /home/gdrive</code></pre>
+<ol>
+<li><strong>卸载 Rclone 程序 (可选)</strong>：</li>
+</ol>
+<pre><code>    sudo rm /usr/bin/rclone
+    sudo rm /usr/local/share/man/man1/rclone.1</code></pre></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

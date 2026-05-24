@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>两台家宽基础设置及3x-ui面板更新配置 · 千颜</title>
+  <meta name="description" content="最后核对：20260427（按服务器本地时间核对）。 适用节点：natjp3h8e.aproxy.top 与 nat.qq.pw。 这份文档用于记录两台 NAT 家宽 VPS 的基础维护状态、3xui 面板更新方案、自签">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>两台家宽基础设置及3x-ui面板更新配置<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-11</span><span>16 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><p>&gt; 最后核对：2026-04-27（按服务器本地时间核对）。 &gt; &gt; 适用节点：<code>nat-jp-3h8e.aproxy.top</code> 与 <code>nat.qq.pw</code>。</p>
+<p>这份文档用于记录两台 NAT 家宽 VPS 的基础维护状态、3x-ui 面板更新方案、自签证书策略、定时任务和历史排障结论。</p>
+<p><code>cliproxyapi</code> 专题见：<code>JP日本 NAT 节点 CLIProxyAPI 维护记录.md</code>。</p>
+<p>两台机器现在采用同一套维护原则：</p>
+<ul>
+<li>3x-ui 更新统一使用服务器上的 <code>/root/update_x-ui.sh update</code>。</li>
+<li>面板证书统一使用自签证书，不依赖 Let&#39;s Encrypt，不需要 80 端口。</li>
+<li>证书自检统一安排在北京时间每月 1 日 03:34 左右执行。</li>
+<li>文档不记录面板用户名、密码、WebBasePath、SS 密码等敏感信息。</li>
+</ul>
+<h3>1. 当前机器清单</h3>
+<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>日本 NAT 节点</th><th>qq.pw NAT 节点</th></tr></thead><tbody><tr><td>外部域名</td><td><code>nat-jp-3h8e.aproxy.top</code></td><td><code>nat.qq.pw</code></td></tr><tr><td>SSH</td><td><code>root@nat-jp-3h8e.aproxy.top:27721</code></td><td><code>root@nat.qq.pw:35560</code></td></tr><tr><td>SSH key</td><td><code>C:\Users\lenovo\.ssh\60.157.94.240_ssh.key</code></td><td><code>C:\Users\lenovo\.ssh\141.239.74.52_ssh.key</code></td></tr><tr><td>服务器主机名</td><td><code>C202511281490067</code></td><td><code>btth.qianyan.me</code></td></tr><tr><td>服务器时区</td><td><code>Asia/Tokyo (JST)</code></td><td><code>Etc/UTC</code></td></tr><tr><td>3x-ui 版本记录</td><td><code>2.8.11</code>（上次维护记录，当前二进制无可用版本查询子命令）</td><td><code>2.8.11</code>（上次维护记录，当前二进制无可用版本查询子命令）</td></tr><tr><td>面板内网端口</td><td><code>31927</code></td><td><code>35561</code></td></tr><tr><td>面板外部映射端口</td><td><code>13131</code></td><td><code>35561</code></td></tr><tr><td>面板访问格式</td><td><code>https://nat-jp-3h8e.aproxy.top:13131/&lt;WebBasePath&gt;/</code></td><td><code>https://nat.qq.pw:35561/&lt;WebBasePath&gt;/</code></td></tr><tr><td>自签证书目录</td><td><code>/root/cert/nat-jp-3h8e.aproxy.top/</code></td><td><code>/root/cert/nat.qq.pw/</code></td></tr><tr><td><code>cliproxyapi</code> 公网入口</td><td><code>https://suyuan.4071253.xyz/v1</code></td><td><code>—</code></td></tr><tr><td><code>cliproxyapi</code> 前置代理</td><td><code>cliproxyapi-edge-proxy.service</code> -&gt; <code>0.0.0.0:59999</code></td><td><code>—</code></td></tr><tr><td><code>cliproxyapi</code> 本机上游</td><td><code>cliproxyapi.service</code> -&gt; <code>127.0.0.1:59998</code></td><td><code>—</code></td></tr><tr><td><code>cliproxyapi</code> 自愈拉起</td><td><code>/etc/systemd/system/cliproxyapi.service.d/edge-proxy.conf</code></td><td><code>—</code></td></tr></tbody></table></div>
+<p>浏览器访问自签证书面板时会提示证书不受信任，这是预期现象。只要确认访问的是自己的 NAT 映射地址，可以手动放行。</p>
+<h3>2. 统一更新命令</h3>
+<p>两台机器的日常操作保持一致。</p>
+<pre><code>/root/update_x-ui.sh status
+/root/update_x-ui.sh prepare-cert
+/root/update_x-ui.sh update</code></pre>
+<p>常用含义：</p>
+<ul>
+<li><code>status</code>：查看 3x-ui 服务、证书和面板访问状态。</li>
+<li><code>prepare-cert</code>：只检查或重建自签证书，不更新 3x-ui。</li>
+<li><code>update</code>：先备份，再检查证书，然后调用官方更新脚本，最后等待服务和本地 HTTPS 恢复。</li>
+</ul>
+<p>从本机直接发起更新：</p>
+<pre><code>ssh -i &quot;C:\Users\lenovo\.ssh\60.157.94.240_ssh.key&quot; -p 27721 root@nat-jp-3h8e.aproxy.top &quot;/root/update_x-ui.sh update&quot;
+ssh -i &quot;C:\Users\lenovo\.ssh\141.239.74.52_ssh.key&quot; -p 35560 root@nat.qq.pw &quot;/root/update_x-ui.sh update&quot;</code></pre>
+<h3>3. 3x-ui 更新脚本设计</h3>
+<p>两台机器都使用同样的脚本结构：</p>
+<pre><code>/root/update_x-ui.sh        # 主入口，设置 PANEL_HOSTNAME
+/root/update_x-ui.core.sh   # 通用逻辑，负责备份、证书、更新、健康检查</code></pre>
+<p>入口脚本只做主机名绑定。</p>
+<p>日本 NAT 节点：</p>
+<pre><code>#!/bin/bash
+export PANEL_HOSTNAME=&quot;nat-jp-3h8e.aproxy.top&quot;
+exec /root/update_x-ui.core.sh &quot;$@&quot;</code></pre>
+<p>qq.pw NAT 节点：</p>
+<pre><code>#!/bin/bash
+export PANEL_HOSTNAME=&quot;nat.qq.pw&quot;
+exec /root/update_x-ui.core.sh &quot;$@&quot;</code></pre>
+<p>核心脚本的行为：</p>
+<ul>
+<li>失败即退出，避免安装失败后继续打印“成功”。</li>
+<li>更新前备份 <code>/etc/x-ui</code>、<code>/usr/local/x-ui</code> 和 <code>x-ui.service</code>。</li>
+<li>备份目录为 <code>/root/x-ui-update-backups/</code>。</li>
+<li>自签证书默认放在 <code>/root/cert/${PANEL_HOSTNAME}/</code>。</li>
+<li>证书不存在、已经过期或 30 天内到期时，自动重建并重新绑定到 3x-ui。</li>
+<li>更新时调用官方 <code>update.sh</code>，不调用 <code>install.sh</code> 冒充更新。</li>
+<li>不申请 Let&#39;s Encrypt 证书，不碰 80 端口。</li>
+<li>不修改面板用户名、密码、端口和数据库字段。</li>
+<li>官方更新后如果出现短暂 SQLite 锁，会等待 systemd 自动拉起并轮询本地 HTTPS。</li>
+</ul>
+<p>这套脚本是为 NAT 机器准备的。核心原因是 NAT VPS 通常不能稳定控制公网 80 端口，因此不能把 3x-ui 更新流程绑定到 Let&#39;s Encrypt HTTP 验证上。</p>
+<h3>4. 证书策略</h3>
+<p>当前不是 Let&#39;s Encrypt 证书，而是面板专用自签证书。</p>
+<p>证书文件：</p>
+<pre><code>/root/cert/&lt;外部域名&gt;/fullchain.pem
+/root/cert/&lt;外部域名&gt;/privkey.pem</code></pre>
+<p>自签证书不会像 Let&#39;s Encrypt 那样自动续签。现在采用的是“月度自检”：</p>
+<ul>
+<li>每月自动执行一次 <code>/root/update_x-ui.sh prepare-cert</code>。</li>
+<li>如果证书还有超过 30 天有效期，就不做任何改动。</li>
+<li>如果证书 30 天内到期或已经失效，就自动生成新证书并重启 3x-ui。</li>
+</ul>
+<p>手动检查：</p>
+<pre><code>/root/update_x-ui.sh prepare-cert
+openssl x509 -in /root/cert/&lt;外部域名&gt;/fullchain.pem -noout -dates</code></pre>
+<h3>5. 定时任务</h3>
+<h4>5.1 日本 NAT 节点</h4>
+<p>服务器时区为 <code>Asia/Tokyo</code>，crontab 当前记录：</p>
+<pre><code>0 5 * * * /usr/bin/flock -n /tmp/update-cliproxyapi.lock /bin/bash /root/update-cliproxyapi.sh &gt;&gt; /var/log/cliproxyapi_update.log 2&gt;&amp;1
+53 23 * * * &quot;/root/.acme.sh&quot;/acme.sh --cron --home &quot;/root/.acme.sh&quot; &gt; /dev/null
+9 2 * * * bash -c &quot;curl -sS -O https://raw.githubusercontent.com/kejilion/sh/main/kejilion.sh &amp;&amp; chmod +x kejilion.sh&quot;
+34 4 * * * [ &quot;$(env TZ=Asia/Shanghai date +\%d)&quot; = &quot;01&quot; ] &amp;&amp; /root/update_x-ui.sh prepare-cert &gt;&gt; /var/log/update-x-ui-cert.log 2&gt;&amp;1 # codex-xui-cert-renew-bj</code></pre>
+<p>systemd timer 当前记录：</p>
+<pre><code>cleanup-root-backups.timer -&gt; 每天 05:40 JST</code></pre>
+<p>定时任务表：</p>
+<div class="post-table-wrap"><table><thead><tr><th>任务</th><th>触发方式</th><th>服务器时间</th><th>北京时间</th><th>说明</th></tr></thead><tbody><tr><td><code>kejilion.sh</code> 更新</td><td>cron</td><td>每天 02:09 JST</td><td>每天 01:09</td><td>下载并刷新 <code>kejilion.sh</code></td></tr><tr><td><code>3x-ui</code> 证书自检</td><td>cron</td><td>每月 1 日 04:34 JST</td><td>每月 1 日 03:34</td><td>执行 <code>/root/update_x-ui.sh prepare-cert</code></td></tr><tr><td><code>cliproxyapi</code> 更新</td><td>cron</td><td>每天 05:00 JST</td><td>每天 04:00</td><td>执行 <code>/root/update-cliproxyapi.sh</code></td></tr><tr><td><code>cleanup-root-backups</code> 备份清理</td><td>systemd timer</td><td>每天 05:40 JST</td><td>每天 04:40</td><td>保留最新 3 份更新备份</td></tr><tr><td><code>acme.sh</code> 定时任务</td><td>cron</td><td>每天 23:53 JST</td><td>每天 22:53</td><td>原有 ACME 任务</td></tr></tbody></table></div>
+<p>说明：</p>
+<ul>
+<li>没有修改整机时区，避免影响原有 cron 的语义。</li>
+<li>3x-ui 证书自检放在 <code>cliproxyapi</code> 前 26 分钟，任务很轻，通常几秒结束。</li>
+<li><code>acme.sh</code> 是原有任务，和当前 3x-ui 自签证书方案无直接关系。</li>
+<li>日本 NAT 节点当前的 <code>cliproxyapi</code> 不是直接对外暴露 <code>cli-proxy-api</code> 进程，而是前置 <code>cliproxyapi-edge-proxy.service</code> 监听 <code>59999</code>，后端 <code>cliproxyapi.service</code> 只监听 <code>127.0.0.1:59998</code>。</li>
+<li>每日 <code>05:00 JST</code> 的 <code>/root/update-cliproxyapi.sh</code> 仍只更新 <code>/root/cliproxyapi</code> 下的程序并恢复 <code>config.yaml</code> 与 <code>auths/</code>；前置代理脚本位于 <code>/root/cliproxyapi-edge-proxy/</code>，不在该升级覆盖范围内。</li>
+<li>为避免日更时 core 服务重启后 edge proxy 保持 dead，JP 节点已增加 <code>/etc/systemd/system/cliproxyapi.service.d/edge-proxy.conf</code>，内容为 <code>Wants=cliproxyapi-edge-proxy.service</code>，用于在 core 启动时一并拉起前置代理。</li>
+</ul>
+<h4>5.2 qq.pw NAT 节点</h4>
+<p>服务器时区为 <code>Etc/UTC</code>，crontab 当前记录：</p>
+<pre><code>23 2 * * * bash -c &#39;cd ~ &amp;&amp; tmp=$(mktemp ~/kejilion_tmp.XXXXXX) &amp;&amp; curl -sS --max-time 60 --fail -o &quot;$tmp&quot; https://raw.githubusercontent.com/kejilion/sh/main/kejilion.sh &amp;&amp; [ -s &quot;$tmp&quot; ] &amp;&amp; head -1 &quot;$tmp&quot; | grep -q &#39;^#!/bin/bash&#39; &amp;&amp; cp -f ~/kejilion.sh ~/kejilion.sh.bak 2&gt;/dev/null &amp;&amp; chmod +x &quot;$tmp&quot; &amp;&amp; mv -f &quot;$tmp&quot; ~/kejilion.sh &amp;&amp; grep -q &#39;permission_granted=&quot;true&quot;&#39; ~/kejilion.sh.bak 2&gt;/dev/null &amp;&amp; sed -i &#39;s/permission_granted=&quot;false&quot;/permission_granted=&quot;true&quot;/&#39; ~/kejilion.sh; grep -q &#39;ENABLE_STATS=&quot;false&quot;&#39; ~/kejilion.sh.bak 2&gt;/dev/null &amp;&amp; sed -i &#39;s/ENABLE_STATS=&quot;true&quot;/ENABLE_STATS=&quot;false&quot;/&#39; ~/kejilion.sh; cp -f ~/kejilion.sh /usr/local/bin/k 2&gt;/dev/null; ln -sf /usr/local/bin/k /usr/bin/k 2&gt;/dev/null || rm -f &quot;$tmp&quot; 2&gt;/dev/null&#39;
+34 19 * * * [ &quot;$(env TZ=Asia/Shanghai date +\%d)&quot; = &quot;01&quot; ] &amp;&amp; /root/update_x-ui.sh prepare-cert &gt;&gt; /var/log/update-x-ui-cert.log 2&gt;&amp;1 # codex-xui-cert-renew-bj</code></pre>
+<p>systemd timer 当前记录：</p>
+<pre><code>cleanup-root-backups.timer -&gt; 每天 02:50 UTC</code></pre>
+<p>定时任务表：</p>
+<div class="post-table-wrap"><table><thead><tr><th>任务</th><th>触发方式</th><th>服务器时间</th><th>北京时间</th><th>说明</th></tr></thead><tbody><tr><td><code>kejilion.sh</code> 更新</td><td>cron</td><td>每天 02:23 UTC</td><td>每天 10:23</td><td>安全下载并替换 <code>kejilion.sh</code></td></tr><tr><td><code>cleanup-root-backups</code> 备份清理</td><td>systemd timer</td><td>每天 02:50 UTC</td><td>每天 10:50</td><td>第二台当前只清理 3x-ui 备份</td></tr><tr><td><code>3x-ui</code> 证书自检</td><td>cron</td><td>每天 19:34 UTC，仅北京时间日期为 01 时执行</td><td>每月 1 日 03:34</td><td>命令内部按北京时间日期判断每月 1 日</td></tr></tbody></table></div>
+<p>说明：</p>
+<ul>
+<li><code>kejilion.sh</code> 任务会先下载到临时文件，确认内容像 bash 脚本后再替换，避免下载异常时覆盖原脚本。</li>
+<li><code>3x-ui</code> 证书自检通过 <code>env TZ=Asia/Shanghai date +%d</code> 判断北京时间日期，不需要修改服务器时区。</li>
+</ul>
+<h3>6. qq.pw 小内存机器状态</h3>
+<p><code>nat.qq.pw</code> 只有 256 MiB 级别内存，已经做过 swap，并按当前需要保留核心服务。</p>
+<p>保留：</p>
+<ul>
+<li><code>x-ui</code></li>
+<li><code>xray</code></li>
+<li><code>komari-agent</code></li>
+<li><code>ssh</code></li>
+<li><code>qemu-guest-agent</code></li>
+<li><code>serial-getty@ttyS0</code></li>
+</ul>
+<p>已停用：</p>
+<ul>
+<li><code>exim4</code></li>
+<li><code>getty@tty1</code></li>
+</ul>
+<p>保留 <code>qemu-guest-agent</code> 和 <code>serial-getty@ttyS0</code> 是为了宿主面板兼容和救援通道。它们占用不大，优先级低于可恢复性。</p>
+<p>后续不要随手关闭 <code>komari-agent</code> 和 <code>x-ui</code>。这两个服务是当前机器的核心用途。</p>
+<h3>7. 历史问题与保留结论</h3>
+<h4>7.1 3x-ui 更新卡在 SSL 流程</h4>
+<p>早期在 <code>nat.qq.pw</code> 上尝试安装或更新 3x-ui 时，遇到过 SSL 证书流程卡住的问题。当时原因是：</p>
+<ul>
+<li>NAT VPS 没有独立公网 80 端口。</li>
+<li>平台域名不可控，不适合做 Let&#39;s Encrypt HTTP 验证。</li>
+<li>官方安装或更新流程在没有证书时可能进入证书申请逻辑。</li>
+</ul>
+<p>当时曾临时退回过 <code>3x-ui v2.8.5</code>，这个结论现在已经过时。</p>
+<p>当前结论：</p>
+<ul>
+<li>两台机器都已使用 <code>3x-ui v2.8.11</code>。</li>
+<li>不再通过旧版安装脚本绕开 SSL。</li>
+<li>不再使用调用 <code>install.sh</code> 的自定义更新脚本。</li>
+<li>统一用自签证书 + 官方 <code>update.sh</code> 的方式更新。</li>
+</ul>
+<h4>7.2 APT 依赖异常</h4>
+<p><code>nat.qq.pw</code> 曾在 <code>kejilion</code> 脚本更新后出现 APT 依赖异常：</p>
+<ul>
+<li><code>cron</code> 装不上。</li>
+<li><code>linux-image-cloud-amd64</code> 依赖不完整。</li>
+<li><code>dpkg --configure -a</code> 报 <code>linux-image-6.1.0-44-cloud-amd64</code> 缺失。</li>
+</ul>
+<p>当时修复顺序：</p>
+<pre><code>dpkg --configure -a
+apt update
+apt --fix-broken install -y
+apt install -y cron ufw
+apt install -y curl wget tar socat</code></pre>
+<p>后续遇到类似问题，优先按这个顺序收敛，不要一上来强制卸包。</p>
+<h4>7.3 Shadowsocks 节点超时</h4>
+<p>曾出现过 Shadowsocks 入站创建后 Clash 一直超时的问题。排障顺序保留如下：</p>
+<ol>
+<li>确认 3x-ui 里 Xray 是否正在运行。</li>
+<li>确认 SS 入站监听端口是否存在。</li>
+<li>确认 NAT 平台外部端口是否正确映射到内网监听端口。</li>
+<li>确认 Clash 配置里填写的是公网映射端口，不是内网端口。</li>
+<li>如果作为链式代理落地节点使用，再确认前置入口节点是否可用。</li>
+</ol>
+<p>服务器检查命令：</p>
+<pre><code>ss -lntup | grep -E &#39;x-ui|xray|35561|31927&#39;
+journalctl -u x-ui -n 100 --no-pager</code></pre>
+<h4>7.4 JP 节点 <code>cliproxyapi</code> 结论</h4>
+<p>这里只保留总览结论，细节拆到：</p>
+<ul>
+<li><code>JP日本 NAT 节点 CLIProxyAPI 维护记录.md</code></li>
+</ul>
+<p>当前总览结论：</p>
+<ul>
+<li>公网入口：<code>https://suyuan.4071253.xyz/v1</code></li>
+<li>当前结构：<code>cliproxyapi-edge-proxy.service (59999)</code> -&gt; <code>cliproxyapi.service (127.0.0.1:59998)</code></li>
+<li>前置代理已覆盖 <code>generations</code>、<code>edits</code>、<code>variations</code> 三条长耗时图片路径</li>
+<li>日更后自动拉起 edge proxy，避免 core 恢复但前置代理保持 <code>dead</code></li>
+</ul>
+<h3>8. Clash 链式代理记录</h3>
+<p>原有 Clash / Clash Verge 设计仍有记录价值：</p>
+<ul>
+<li>本地 Clash 先走机场前置节点。</li>
+<li>前置节点连接 NAT VPS 的外部映射端口。</li>
+<li>NAT VPS 作为日本家宽落地出口访问目标站点。</li>
+</ul>
+<p>核心原则：</p>
+<ul>
+<li>Clash 中填写的端口必须是 NAT 平台外部端口。</li>
+<li>3x-ui 中监听的是内网端口。</li>
+<li>NAT 平台负责外部端口到内网端口的映射。</li>
+<li>如果节点作为链式落地使用，不要只测直连，还要测 relay 链路。</li>
+</ul>
+<h3>9. 防火墙与安全</h3>
+<p>NAT VPS 的主要边界是平台端口映射，不是传统公网防火墙。</p>
+<p>建议：</p>
+<ul>
+<li>不需要的公网映射端口直接在平台后台删除。</li>
+<li>SSH 映射端口只在维护时开放，维护完再关闭或限制。</li>
+<li>面板端口使用 HTTPS，即使是自签证书，也比纯 HTTP 更适合长期管理。</li>
+<li>文档不要明文写面板用户名、密码、WebBasePath 和 SS 密码。</li>
+<li>日本 NAT 节点的 <code>cliproxyapi</code> 上游已经收口到 <code>127.0.0.1:59998</code>；以后不要再额外对公网映射 <code>59998</code>，只保留前置代理使用的既有外部入口。</li>
+</ul>
+<h3>10. 备份与恢复</h3>
+<p>更新脚本会自动做基础备份。手动备份命令仍然保留：</p>
+<pre><code>tar czf /root/x-ui-backup-$(date +%F-%H%M%S).tar.gz /etc/x-ui /usr/local/x-ui /etc/systemd/system/x-ui.service 2&gt;/dev/null</code></pre>
+<p>手动查看脚本备份：</p>
+<pre><code>ls -lh /root/x-ui-update-backups/</code></pre>
+<p>补充说明：</p>
+<ul>
+<li>日本 NAT 节点的 <code>cliproxyapi</code> 额外恢复项与前置代理文件清单，统一放到 <code>JP日本 NAT 节点 CLIProxyAPI 维护记录.md</code>。</li>
+</ul>
+<h4>10.1 每日自动清理备份</h4>
+<p>2026-04-24 已在两台 NAT VPS 上部署每日自动清理任务：</p>
+<pre><code>/usr/local/sbin/cleanup-root-backups.sh
+/etc/systemd/system/cleanup-root-backups.service
+/etc/systemd/system/cleanup-root-backups.timer</code></pre>
+<p><code>cleanup-root-backups.service</code> 是 <code>oneshot</code> 服务，只负责执行一次清理；<code>cleanup-root-backups.timer</code> 才负责每日调度，已执行 <code>systemctl enable --now cleanup-root-backups.timer</code>。timer 配置了 <code>Persistent=true</code>，如果 VPS 在计划时间离线，恢复后会补跑一次。</p>
+<ul>
+<li>日本 NAT 节点：清理 <code>/root/cliproxyapi_backups/</code>、<code>/root/x-ui-update-backups/</code>，每个目录仅保留最新 3 份备份。</li>
+<li>qq.pw NAT 节点：当前只部署 3x-ui，清理 <code>/root/x-ui-update-backups/</code>，仅保留最新 3 份备份。</li>
+<li>兼容历史旧目录：脚本也会扫描 <code>/root/x-ui-backup-*</code>，最多保留最新 3 个。</li>
+<li>脚本只允许删除上述白名单路径，避免误删 <code>/root</code> 下的其他目录。</li>
+</ul>
+<p>手动验证：</p>
+<pre><code>systemctl start cleanup-root-backups.service
+systemctl status cleanup-root-backups.service --no-pager
+systemctl list-timers cleanup-root-backups.timer --no-pager
+journalctl -u cleanup-root-backups.service -n 80 --no-pager</code></pre>
+<p>如果更新后面板打不开，最短排障流程：</p>
+<pre><code>systemctl status x-ui --no-pager
+journalctl -u x-ui -n 120 --no-pager
+/root/update_x-ui.sh status
+/root/update_x-ui.sh prepare-cert</code></pre>
+<h3>11. 文档结构建议</h3>
+<p>当前先维持“总览 + 单机专题”的结构：</p>
+<ul>
+<li>本文继续作为两台 NAT VPS 的共同维护总览，集中记录共享脚本、定时任务、备份清理、证书策略和通用排障结论。</li>
+<li><code>JP日本 SoftBank 家宽 + Clash 链式代理搭建指南.md</code> 继续作为日本 NAT 节点的单机专题，记录 JP 节点的链式代理、端口映射和本机定时任务。</li>
+<li>如果后续 qq.pw 节点也积累了 Clash、端口映射或专项排障内容，再单独拆出 <code>qq.pw NAT 节点维护记录.md</code>，避免本文继续膨胀。</li>
+</ul>
+<p>不建议现在强行改成“一篇文档写一个 VPS”，因为 3x-ui 更新脚本、自签证书策略、备份清理任务在两台机器上高度一致，拆散后容易出现两边文档不同步。</p>
+<h3>12. 一句话原则</h3>
+<p>这两台 NAT 家宽机器后续维护时，不要再让 3x-ui 更新依赖 80 端口或 Let&#39;s Encrypt。统一使用自签证书、自检 cron 和 <code>/root/update_x-ui.sh update</code>。</p></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

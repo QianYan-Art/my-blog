@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>本机 Git 环境说明与后续操作准则 · 千颜</title>
+  <meta name="description" content="本机 Git 环境说明与后续操作准则 文档用途 这份文档用于给后续接手的大模型或人工维护者快速建立上下文，避免在不了解本机 Git 历史和现状的前提下误改环境。 适用场景： 终端或 IDE 出现 Git 版本、路径、LF">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">本地记录</p>
+      <h1>本机 Git 环境说明与后续操作准则<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-03-17</span><span>6 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>本机 Git 环境说明与后续操作准则</h2>
+<h3>文档用途</h3>
+<p>这份文档用于给后续接手的大模型或人工维护者快速建立上下文，避免在不了解本机 Git 历史和现状的前提下误改环境。</p>
+<p>适用场景：</p>
+<ul>
+<li>终端或 IDE 出现 Git 版本、路径、LFS、凭据相关问题</li>
+<li>需要升级 Git</li>
+<li>需要判断是否可以删除旧 Git</li>
+<li>需要排查某个项目为何仍然命中旧 Git 路径</li>
+</ul>
+<h3>关键信息结论</h3>
+<p>截至 <code>2026-03-16</code>，本机 Git 已完成从旧版手动安装 Git 向 <code>Scoop</code> 管理版 Git 的主路径切换。</p>
+<ul>
+<li>默认应使用的 Git：<code>C:\Users\lenovo\scoop\shims\git.exe</code></li>
+<li>默认目标版本：<code>2.53.0.windows.2</code></li>
+<li>旧 Git 路径：<code>D:\jetbrains\git\Git\cmd\git.exe</code></li>
+<li>旧 Git 来源：不是 JetBrains 自带，是用户早年手动下载官网安装包后放到 <code>D:\jetbrains\git</code>，期间可能用过 <code>choco</code> 做过一次更新</li>
+</ul>
+<p>核心原则：</p>
+<ul>
+<li>Git 仓库不绑定某个 <code>git.exe</code> 路径</li>
+<li>切换 Git 可执行文件通常不会破坏已有仓库</li>
+<li>真正需要关注的是终端 PATH、IDE 配置、脚本里是否写死旧路径</li>
+</ul>
+<h3>已完成的调整</h3>
+<h4>1. Scoop Git 已升级</h4>
+<p>已将 <code>Scoop</code> 管理的 Git 升级到：</p>
+<ul>
+<li><code>2.53.0.2</code></li>
+</ul>
+<p>后续标准升级方式：</p>
+<pre><code>scoop status
+scoop update git
+scoop cleanup git</code></pre>
+<h4>2. PowerShell 会话优先命中 Scoop Git</h4>
+<p>已修改 PowerShell 启动配置文件：</p>
+<ul>
+<li><code>C:\Users\lenovo\Documents\PowerShell\Microsoft.PowerShell_profile.ps1</code></li>
+</ul>
+<p>作用：</p>
+<ul>
+<li>每次启动 PowerShell 时，将 <code>C:\Users\lenovo\scoop\shims</code> 放到 PATH 最前面</li>
+<li>避免命中旧 Git</li>
+</ul>
+<h4>3. 系统级 Path 已处理过旧 Git 路径</h4>
+<p>管理员脚本用于移除系统级 PATH 中的旧 Git 路径：</p>
+<ul>
+<li><code>C:\Users\lenovo\git-path-backups\remove-old-git-from-system-path.ps1</code></li>
+</ul>
+<p>备份目录：</p>
+<ul>
+<li><code>C:\Users\lenovo\git-path-backups</code></li>
+</ul>
+<p>其中包含：</p>
+<ul>
+<li>系统 PATH 的文本备份</li>
+<li>系统环境注册表导出备份</li>
+</ul>
+<p>注意：</p>
+<ul>
+<li>旧 Git 文件夹是否还保留在磁盘上，不影响“默认 Git 已切换”的结论</li>
+<li>只要 PATH 和工具配置不再优先指向旧 Git，就可以继续保留旧目录作为临时回退点</li>
+</ul>
+<h3>当前推荐的事实判断方式</h3>
+<p>后续排查时，不要只看单一命令结果，要分层判断。</p>
+<h4>第一层：看当前终端实际命中哪个 Git</h4>
+<pre><code>where.exe git
+git --version</code></pre>
+<h4>第二层：看注册表中的真实 PATH</h4>
+<pre><code>reg.exe query &quot;HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment&quot; /v Path
+reg.exe query HKCU\Environment /v Path</code></pre>
+<h4>第三层：看 PowerShell 启动脚本是否覆盖了 PATH 顺序</h4>
+<p>检查文件：</p>
+<ul>
+<li><code>C:\Users\lenovo\Documents\PowerShell\Microsoft.PowerShell_profile.ps1</code></li>
+</ul>
+<h4>第四层：看 Git 配置来源</h4>
+<pre><code>git config --show-origin --list
+git config --show-origin --get credential.helper
+git lfs version</code></pre>
+<h3>已确认的 Git 配置情况</h3>
+<p>截至本次处理完成时，已确认：</p>
+<ul>
+<li><code>git lfs version</code> 正常</li>
+<li>全局 <code>.gitconfig</code> 未写死旧 Git 路径</li>
+<li>凭据助手来自 Scoop Git 的系统配置</li>
+<li>默认命令行 Git 已切到新版</li>
+</ul>
+<p>全局配置文件位置：</p>
+<ul>
+<li><code>C:\Users\lenovo\.gitconfig</code></li>
+</ul>
+<p>该文件重点内容：</p>
+<ul>
+<li><code>user.name</code></li>
+<li><code>user.email</code></li>
+<li><code>filter.lfs.*</code></li>
+<li><code>safe.directory=*</code></li>
+</ul>
+<h3>对后续模型的操作准则</h3>
+<p>如果未来要继续处理本机 Git，请按下面顺序做，不要跳步。</p>
+<h4>准则 1：先确认问题属于哪一层</h4>
+<p>优先区分下面几类问题：</p>
+<ul>
+<li>只是终端 PATH 顺序问题</li>
+<li>某个 IDE 单独配置了旧 Git 路径</li>
+<li>某个脚本写死了旧路径</li>
+<li>Git LFS / 凭据 / SSH / GPG 的兼容问题</li>
+<li>真实的仓库损坏问题</li>
+</ul>
+<p>不要一上来就删除 Git 或重装 Git。</p>
+<h4>准则 2：不要把“仓库问题”和“Git 安装路径问题”混为一谈</h4>
+<p>项目仓库通常不会因为 <code>git.exe</code> 路径切换而损坏。</p>
+<p>真正会受影响的是：</p>
+<ul>
+<li>JetBrains 系列 IDE 中的 Git 可执行文件路径</li>
+<li>VS Code / 其他编辑器的手动 Git 路径配置</li>
+<li>bat / ps1 / cmd / 自定义工具中的硬编码路径</li>
+</ul>
+<h4>准则 3：默认优先维护 Scoop 这套 Git</h4>
+<p>后续如果需要升级 Git，默认应优先使用：</p>
+<pre><code>scoop update git</code></pre>
+<p>不要优先回到 <code>D:\jetbrains\git\Git\cmd\git.exe</code> 那套手动 Git。</p>
+<h4>准则 4：删除旧 Git 前先完成三项验证</h4>
+<p>如果以后要彻底删除旧 Git 目录，先确认：</p>
+<ol>
+<li>新终端中 <code>git --version</code> 稳定返回 Scoop 新版</li>
+<li>常用仓库内的 <code>git status</code>、<code>git pull</code>、<code>git push</code>、<code>git lfs</code> 正常</li>
+<li>JetBrains / VS Code 等常用 IDE 提交、拉取、比较、历史查看正常</li>
+</ol>
+<p>如果三项没做完，不要直接删除旧目录。</p>
+<h4>准则 5：如果发现结果互相矛盾，优先相信“新开终端 + 注册表 + 配置文件”</h4>
+<p>某些长驻进程、旧终端、集成终端可能持有过期环境变量。</p>
+<p>如果出现下面这种情况：</p>
+<ul>
+<li><code>reg query</code> 看起来已经移除了旧路径</li>
+<li>但某个当前会话里 <code>where.exe git</code> 仍能看到旧路径</li>
+</ul>
+<p>先不要急着回滚，优先：</p>
+<ol>
+<li>关闭并重新打开终端</li>
+<li>重启 IDE</li>
+<li>再重新执行 <code>where.exe git</code> 和 <code>git --version</code></li>
+</ol>
+<h3>IDE 与脚本排查建议</h3>
+<p>如果未来仍有项目或工具命中旧 Git，优先排查这些位置：</p>
+<ul>
+<li>JetBrains 设置中的 <code>Path to Git executable</code></li>
+<li>VS Code 用户设置中的 <code>git.path</code></li>
+<li>项目内 <code>.bat</code> / <code>.cmd</code> / <code>.ps1</code> / CI 脚本</li>
+<li>用户自己的工具启动脚本或快捷方式</li>
+</ul>
+<p>JetBrains 推荐配置：</p>
+<ul>
+<li>直接填 <code>C:\Users\lenovo\scoop\shims\git.exe</code></li>
+<li>或者填 <code>git</code>，前提是 IDE 启动时继承的是正确 PATH</li>
+</ul>
+<h3>推荐的最小排障命令集</h3>
+<pre><code>where.exe git
+git --version
+git lfs version
+git config --show-origin --list
+git config --show-origin --get credential.helper
+reg.exe query &quot;HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment&quot; /v Path
+reg.exe query HKCU\Environment /v Path</code></pre>
+<p>如果是项目内排查，再补：</p>
+<pre><code>git status
+git remote -v
+git branch -vv</code></pre>
+<h3>不建议的危险操作</h3>
+<p>后续若无充分证据，不建议直接做下面这些事：</p>
+<ul>
+<li>直接删除 <code>D:\jetbrains\git\Git</code></li>
+<li>直接覆盖 <code>.git</code> 目录</li>
+<li>盲目执行 <code>git gc --prune=now</code></li>
+<li>在不了解来源的情况下改写 <code>.gitconfig</code></li>
+<li>未做备份就修改系统级 PATH</li>
+</ul>
+<h3>本次处理后的目标状态</h3>
+<p>理想状态应长期保持为：</p>
+<ul>
+<li>终端默认 Git 指向 <code>C:\Users\lenovo\scoop\shims\git.exe</code></li>
+<li>Git 升级通过 <code>Scoop</code> 完成</li>
+<li>旧 Git 不再参与 PATH 优先级</li>
+<li>各 IDE 如需显式配置 Git 路径，统一指向 Scoop Git</li>
+</ul>
+<h3>给后续模型的简短指令</h3>
+<p>如果你是后续接手的大模型，请先接受以下前提：</p>
+<ul>
+<li>不要把仓库问题误判为 Git 安装路径问题</li>
+<li>不要默认删除旧 Git</li>
+<li>先验证 PATH、注册表、PowerShell profile、IDE 配置</li>
+<li>默认维护 <code>Scoop</code> 这套 Git</li>
+<li>做系统级修改前先备份</li>
+</ul></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

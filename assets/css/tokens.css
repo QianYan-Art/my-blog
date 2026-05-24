@@ -1,0 +1,75 @@
+/* ============================================================
+   tokens.css — Design Tokens for 诗千颜 (QianYan·Shi)
+   Single source of truth: colors, type, spacing, motion, layout
+   ============================================================ */
+
+:root {
+  /* ── Colors ─────────────────────────────────────────── */
+  --ink: #11100D;
+  --ink-soft: #231D18;
+  --lead: #615B52;
+  --mist: #9B9489;
+  --hair: #CBC3B6;
+  --verm: #BF3328;
+  --verm-deep: #8F251E;
+  --forest: #27634A;
+  --paper: #F6F0E3;
+  --paper-deep: #E9DFC9;
+  --paper-glow: #FBF7EE;
+  --wash-blue: #DADFF2;
+  --wash-violet: #E9DFF1;
+
+  /* ── Line Opacities ─────────────────────────────────── */
+  --line-strong: rgba(17, 16, 13, 0.13);
+  --line-soft: rgba(17, 16, 13, 0.07);
+
+  /* ── Typography ─────────────────────────────────────── */
+  --font-ui: "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  --font-display: "Newsreader", Georgia, serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  /* ── Layout ─────────────────────────────────────────── */
+  --page-max: 100%;
+  --page-pad-x: clamp(30px, 7.8vw, 150px);
+  --split-left: 63%;
+  --split-right: 37%;
+
+  /* ── Spacing Scale ──────────────────────────────────── */
+  --space-1: 6px;
+  --space-2: 12px;
+  --space-3: 18px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+  --space-8: 96px;
+
+  /* ── Type Scale ─────────────────────────────────────── */
+  --text-micro: clamp(9px, 0.78vw, 11px);
+  --text-meta:  clamp(11px, 0.95vw, 13px);
+  --text-body:  clamp(14px, 1.1vw, 16px);
+  --text-lede:  clamp(16px, 1.35vw, 20px);
+  --text-title: clamp(52px, 5.65vw, 102px);
+  --text-quote: clamp(20px, 2vw, 30px);
+
+  /* ── Easing ─────────────────────────────────────────── */
+  --ease-brush: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-ink:   cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-stamp: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Animation Delays — Staged Entrance ─────────────── */
+  --t-rule-top: 0ms;
+  --t-brand:    180ms;
+  --t-nav:      260ms;
+  --t-label:    420ms;
+  --t-hero-1:   520ms;
+  --t-plate:    660ms;
+  --t-hero-2:   760ms;
+  --t-hero-3:   920ms;
+  --t-projects: 1120ms;
+  --t-status:   1300ms;
+  --t-caret:    1480ms;
+  --t-brush:    1580ms;
+  --t-seal:     1700ms;
+  --t-corners:  1820ms;
+}

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JP日本 SoftBank 家宽 + Clash 链式代理搭建指南 · 千颜</title>
+  <meta name="description" content="核心目标：通过建立一条“高隐匿、高信任度”的隧道，解决 ChatGPT 降智问题。 方案架构：本地 Clash 机场节点 (跳板) AAITR NAT VPS (落地) OpenAI 当前维护总览见：两台家宽基础设置及3">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>JP日本 SoftBank 家宽 + Clash 链式代理搭建指南<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-16</span><span>15 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><p>&gt; 核心目标：通过建立一条“高隐匿、高信任度”的隧道，解决 ChatGPT 降智问题。 &gt; &gt; 方案架构：本地 Clash -&gt; 机场节点 (跳板) -&gt; AAITR NAT VPS (落地) -&gt; OpenAI</p>
+<p>&gt; 当前维护总览见：<code>两台家宽基础设置及3x-ui面板更新配置.md</code>。 &gt; &gt; <code>cliproxyapi</code> 专题见：<code>JP日本 NAT 节点 CLIProxyAPI 维护记录.md</code>。</p>
+<h3>当前维护状态（2026-05-16 核对）</h3>
+<p>这台机器当前作为日本家宽 NAT 落地节点使用，3x-ui 面板已经切换为自签证书维护方案，后续更新不再依赖公网 <code>80</code> 端口。2026-05-16 已确认 <code>cliproxyapi</code> 公网聊天、远程管理、生图链路与 <code>vertex</code> 模型前缀区分都正常。</p>
+<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>当前值</th></tr></thead><tbody><tr><td>外部域名</td><td><code>nat-jp-3h8e.aproxy.top</code></td></tr><tr><td>SSH</td><td><code>root@nat-jp-3h8e.aproxy.top:27721</code></td></tr><tr><td>SSH key</td><td><code>C:\Users\lenovo\.ssh\60.157.94.240_ssh.key</code></td></tr><tr><td>服务器主机名</td><td><code>C202511281490067</code></td></tr><tr><td>服务器时区</td><td><code>Asia/Tokyo (JST)</code></td></tr><tr><td>3x-ui 版本记录</td><td><code>2.8.11</code>（上次维护记录，当前二进制无可用版本查询子命令）</td></tr><tr><td>面板内网端口</td><td><code>31927</code></td></tr><tr><td>面板外部映射端口</td><td><code>13131</code></td></tr><tr><td>面板访问格式</td><td><code>https://nat-jp-3h8e.aproxy.top:13131/&lt;WebBasePath&gt;/</code></td></tr><tr><td>自签证书目录</td><td><code>/root/cert/nat-jp-3h8e.aproxy.top/</code></td></tr><tr><td><code>cliproxyapi</code> 公网入口</td><td><code>https://suyuan.4071253.xyz/v1</code></td></tr><tr><td><code>cliproxyapi</code> 前置代理</td><td><code>cliproxyapi-edge-proxy.service</code> -&gt; <code>0.0.0.0:59999</code></td></tr><tr><td><code>cliproxyapi</code> 本机上游</td><td><code>cliproxyapi.service</code> -&gt; <code>127.0.0.1:59998</code></td></tr></tbody></table></div>
+<p>面板使用自签证书，浏览器提示“不受信任”是预期现象。确认域名和端口是自己的 NAT 映射后，可以手动放行。</p>
+<h4>3x-ui 更新方式</h4>
+<p>服务器上已经放置统一更新入口：</p>
+<pre><code>/root/update_x-ui.sh status
+/root/update_x-ui.sh prepare-cert
+/root/update_x-ui.sh update</code></pre>
+<p>入口脚本内容：</p>
+<pre><code>#!/bin/bash
+export PANEL_HOSTNAME=&quot;nat-jp-3h8e.aproxy.top&quot;
+exec /root/update_x-ui.core.sh &quot;$@&quot;</code></pre>
+<p>核心逻辑在 <code>/root/update_x-ui.core.sh</code>：</p>
+<ul>
+<li>更新前自动备份 3x-ui 配置和服务文件到 <code>/root/x-ui-update-backups/</code>。</li>
+<li>使用 <code>/root/cert/nat-jp-3h8e.aproxy.top/</code> 下的自签证书。</li>
+<li>证书不存在、过期或 30 天内到期时自动重建。</li>
+<li>更新时调用官方 <code>update.sh</code>，不调用 <code>install.sh</code> 冒充更新。</li>
+<li>不申请 Let&#39;s Encrypt 证书，不使用公网 <code>80</code> 端口。</li>
+<li>更新后等待 <code>x-ui</code> 和本地 HTTPS 恢复，避免把短暂 SQLite 锁误判为失败。</li>
+</ul>
+<p>从本机直接更新：</p>
+<pre><code>ssh -i &quot;C:\Users\lenovo\.ssh\60.157.94.240_ssh.key&quot; -p 27721 root@nat-jp-3h8e.aproxy.top &quot;/root/update_x-ui.sh update&quot;</code></pre>
+<h4>当前定时任务</h4>
+<p>服务器 crontab：</p>
+<pre><code>0 5 * * * /usr/bin/flock -n /tmp/update-cliproxyapi.lock /bin/bash /root/update-cliproxyapi.sh &gt;&gt; /var/log/cliproxyapi_update.log 2&gt;&amp;1
+53 23 * * * &quot;/root/.acme.sh&quot;/acme.sh --cron --home &quot;/root/.acme.sh&quot; &gt; /dev/null
+9 2 * * * bash -c &quot;curl -sS -O https://raw.githubusercontent.com/kejilion/sh/main/kejilion.sh &amp;&amp; chmod +x kejilion.sh&quot;
+34 4 * * * [ &quot;$(env TZ=Asia/Shanghai date +\%d)&quot; = &quot;01&quot; ] &amp;&amp; /root/update_x-ui.sh prepare-cert &gt;&gt; /var/log/update-x-ui-cert.log 2&gt;&amp;1 # codex-xui-cert-renew-bj</code></pre>
+<p>systemd timer：</p>
+<pre><code>cleanup-root-backups.timer -&gt; 每天 05:40 JST</code></pre>
+<p>定时任务表：</p>
+<div class="post-table-wrap"><table><thead><tr><th>任务</th><th>触发方式</th><th>服务器时间</th><th>北京时间</th><th>说明</th></tr></thead><tbody><tr><td><code>kejilion.sh</code> 更新</td><td>cron</td><td>每天 02:09 JST</td><td>每天 01:09</td><td>下载并刷新 <code>kejilion.sh</code></td></tr><tr><td><code>3x-ui</code> 证书自检</td><td>cron</td><td>每月 1 日 04:34 JST</td><td>每月 1 日 03:34</td><td>执行 <code>/root/update_x-ui.sh prepare-cert</code></td></tr><tr><td><code>cliproxyapi</code> 更新</td><td>cron</td><td>每天 05:00 JST</td><td>每天 04:00</td><td>执行 <code>/root/update-cliproxyapi.sh</code></td></tr><tr><td><code>cleanup-root-backups</code> 备份清理</td><td>systemd timer</td><td>每天 05:40 JST</td><td>每天 04:40</td><td>保留最新 3 份更新备份</td></tr><tr><td><code>acme.sh</code> 定时任务</td><td>cron</td><td>每天 23:53 JST</td><td>每天 22:53</td><td>原有 ACME 任务</td></tr></tbody></table></div>
+<p>没有修改整机时区，避免影响原有 cron 的触发语义。</p>
+<h4><code>cliproxyapi</code> 维护摘要</h4>
+<p><code>cliproxyapi</code> 相关细节已经拆到：</p>
+<ul>
+<li><code>JP日本 NAT 节点 CLIProxyAPI 维护记录.md</code></li>
+</ul>
+<p>这里仅保留摘要：</p>
+<ul>
+<li>公网入口：<code>https://suyuan.4071253.xyz/v1</code></li>
+<li>结构：<code>cliproxyapi-edge-proxy.service (59999)</code> -&gt; <code>cliproxyapi.service (127.0.0.1:59998)</code></li>
+<li>路由策略：<code>fill-first + session-affinity(24h)</code></li>
+<li><code>vertex</code> 来源模型当前已统一加 <code>vtx/</code> 前缀，便于和其他来源区分</li>
+<li>日更脚本 <code>/root/update-cliproxyapi.sh</code> 仍只恢复 <code>config.yaml</code> 与 <code>auths/</code></li>
+<li>前置代理、自愈 drop-in、灾难恢复额外文件清单，统一见专题文档</li>
+</ul>
+<p>当前已确认的 <code>vertex</code> 前缀模型包括：</p>
+<ul>
+<li><code>vtx/gemini-2.5-flash</code></li>
+<li><code>vtx/gemini-2.5-pro</code></li>
+<li><code>vtx/gemini-3.1-pro-preview</code></li>
+<li><code>vtx/imagen-4.0-generate-001</code></li>
+</ul>
+<p>说明：</p>
+<ul>
+<li>这批 <code>vtx/</code> 模型来自 <code>vertex</code> 路径，不是 <code>gemini-cli</code> 或 <code>antigravity</code>。</li>
+<li>相关映射写在 <code>/root/cliproxyapi/config.yaml</code>，会随日更脚本备份与恢复一起保留。</li>
+</ul>
+<h4>备份自动清理</h4>
+<p>2026-04-24 已部署每日自动清理任务，用于控制 <code>cliproxyapi</code> 和 <code>3x-ui</code> 更新脚本留下的备份数量：</p>
+<pre><code>/usr/local/sbin/cleanup-root-backups.sh
+/etc/systemd/system/cleanup-root-backups.service
+/etc/systemd/system/cleanup-root-backups.timer</code></pre>
+<p><code>cleanup-root-backups.service</code> 是 <code>oneshot</code> 服务，只负责执行一次清理；<code>cleanup-root-backups.timer</code> 负责每日 <code>05:40 JST</code> 调度，已启用为 <code>timers.target</code> 下的 systemd timer。timer 配置了 <code>Persistent=true</code>，如果 VPS 在计划时间离线，恢复后会补跑一次。清理策略：</p>
+<ul>
+<li><code>/root/cliproxyapi_backups/</code>：仅保留最新 3 份。</li>
+<li><code>/root/x-ui-update-backups/</code>：仅保留最新 3 份。</li>
+<li><code>/root/x-ui-backup-*</code>：兼容历史旧备份目录，最多保留最新 3 个。</li>
+<li>脚本只对白名单路径执行删除，运行日志写入 <code>journalctl -u cleanup-root-backups.service</code>。</li>
+</ul>
+<p>手动检查：</p>
+<pre><code>systemctl start cleanup-root-backups.service
+systemctl status cleanup-root-backups.service --no-pager
+systemctl list-timers cleanup-root-backups.timer --no-pager
+journalctl -u cleanup-root-backups.service -n 80 --no-pager</code></pre>
+<h3>🛠️ 第一部分：服务端搭建 (VPS)</h3>
+<h4>1. 原理：NAT VPS 与端口转发</h4>
+<p>你购买的是一台 <strong>NAT VPS</strong>。与普通 VPS 不同，它没有独立的公网 IP，而是和几十个邻居共享一个公网 IP。</p>
+<ul>
+<li><strong>入站 (你连它)</strong>：必须通过商家提供的<strong>端口映射</strong>（转发）。例如：公网 <code>48005</code> -&gt; 内网 <code>10010</code>。</li>
+</ul>
+<ul>
+<li><strong>出站 (它连网)</strong>：它通过动态 IP（SoftBank 家宽）访问互联网，这正是 GPT 认为你是真人的关键。</li>
+</ul>
+<h4>2. 操作步骤</h4>
+<ol>
+<li><strong>系统选择</strong>：Debian 11 (轻量稳定)。</li>
+</ol>
+<ol>
+<li><strong>初装面板</strong>：使用 <code>3x-ui</code> 一键脚本安装轻量化代理管理面板。后续维护不要反复跑安装脚本，更新统一使用本文前面的 <code>/root/update_x-ui.sh update</code>。</li>
+</ol>
+<pre><code>    bash &lt;(curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh)</code></pre>
+<ol>
+<li><strong>节点配置 (Shadowsocks)</strong>：</li>
+</ol>
+<p>- <strong>协议</strong>：<code>Shadowsocks</code> (简单、抗干扰强)。</p>
+<p>- <strong>加密</strong>：<code>aes-256-gcm</code> (<strong>关键点</strong>：之前用 Chacha20 导致 Xray 启动失败，改用这个最稳)。</p>
+<p>- <strong>端口</strong>：内网监听 <code>36734</code> (示例)。</p>
+<p>- <strong>密码</strong>：强密码 (如 <code>@Suyuan...</code>)。</p>
+<ol>
+<li><strong>端口映射 (对齐)</strong>：</li>
+</ol>
+<p>- 在 AAITR 后台，将公网端口（如 <code>48005</code>）转发到内网端口（<code>36734</code>）。</p>
+<p>- <strong>铁律</strong>：<strong>脚本填的 Port = AAITR 公网 Port</strong>；<strong>AAITR 转发目标 = 面板监听 Port</strong>。</p>
+<h3>💻 第二部分：客户端配置 (Clash Verge)</h3>
+<h4>1. 原理：链式代理 (Relay)</h4>
+<p>Clash 的 <code>Relay</code> 模式允许流量“跳”两次。</p>
+<ul>
+<li><strong>第一跳 (前置入口)</strong>：使用机场节点翻墙，连接到 AAITR 的入口服务器（因为 AAITR屏蔽了国内直连）。</li>
+</ul>
+<ul>
+<li><strong>第二跳 (落地目标)</strong>：流量到达 AAITR 后，解密并从日本家宽出口发出。</li>
+</ul>
+<h4>2. 脚本逻辑解析 (JavaScript)</h4>
+<p>我们需要通过脚本（Script）动态修改 Clash 的配置文件，实现复杂的分组逻辑。</p>
+<p>#### 核心功能模块：</p>
+<ol>
+<li><strong>垃圾过滤</strong>：自动剔除机场订阅中包含 &quot;流量&quot;、&quot;官网&quot;、&quot;Emby&quot; 等无效节点，防止自动测速被干扰。</li>
+</ol>
+<ol>
+<li><strong>自动优选 (⚡)</strong>：创建一个 <code>url-test</code> 组，每 300秒 自动测试所有机场节点，选出延迟最低的作为前置跳板。</li>
+</ol>
+<ol>
+<li><strong>全能链式 (🔗)</strong>：将 <code>[前置入口组]</code> 和 <code>[落地目标组]</code> 串联起来。</li>
+</ol>
+<ol>
+<li><strong>UI 排序控制</strong>：通过数组重排，将最重要的组（主组、链式组）置顶显示。</li>
+</ol>
+<h3>🛡️ 第三部分：安全防护策略</h3>
+<p>对于这种暴露公网端口的机器，安全至关重要。我们采用了最彻底的<strong>“物理断网法”</strong>。</p>
+<h4>1. SSH 防护 (22端口)</h4>
+<ul>
+<li><strong>平时状态</strong>：在 AAITR 后台<strong>删除或暂停</strong>对内网 22 端口的转发规则。</li>
+</ul>
+<p>- _原理_：黑客扫描公网 IP 时，根本找不到 SSH 入口，物理隔绝暴力破解。</p>
+<ul>
+<li><strong>维护状态</strong>：需要管理时，临时加回转发规则，用完即删。</li>
+</ul>
+<h4>2. 代理防护</h4>
+<ul>
+<li>使用 Shadowsocks + 强密码。</li>
+</ul>
+<ul>
+<li>由于面板本身并不暴露在公网（只暴露了 SS 端口），所以非常安全。</li>
+</ul>
+<ul>
+<li><strong>Fail2Ban</strong>：已卸载。因为采用了上述“关端口”策略，不再需要软件层面的防护占用内存。</li>
+</ul>
+<h3>📝 最终版 Clash Verge 脚本 (存档)</h3>
+<p>这是为你调试好的最终代码，集成了<strong>自动优选</strong>、<strong>垃圾过滤</strong>、<strong>自定义排序</strong>和<strong>双重节点支持</strong>。</p>
+<pre><code>function main(config, profileName) {
+  config.proxies = config.proxies || [];
+  config[&quot;proxy-groups&quot;] = config[&quot;proxy-groups&quot;] || [];
+
+  // =======================================================
+  // 1. 定义落地节点 (你的家宽 + 旧节点)
+  // =======================================================
+  var aaitrNode = {
+    name: &quot;🏠 AAITR-日本家宽&quot;,
+    type: &quot;ss&quot;,
+    server: &quot;nat-jp-3h8e.aproxy.top&quot;, // 公网入口域名
+    port: 48005,                        // 公网入口端口 (需与转发规则一致)
+    cipher: &quot;aes-256-gcm&quot;,              // 加密方式 (需与面板一致)
+    password: &quot;&quot;,         // 密码
+    udp: true
+  };
+
+  var myOldNodes = [
+    { name: &quot;♻️ US-Socks-1&quot;, type: &quot;socks5&quot;, server: &quot;38.79.47.229&quot;, port: 443, username: &quot;&quot;, password: &quot;&quot;, &quot;skip-cert-verify&quot;: true, udp: true },
+    { name: &quot;♻️ JP-Socks-1&quot;, type: &quot;socks5&quot;, server: &quot;43.251.186.102&quot;, port: 443, username: &quot;&quot;, password: &quot;&quot;, &quot;skip-cert-verify&quot;: true, udp: true },
+    { name: &quot;♻️ US-Socks-2&quot;, type: &quot;socks5&quot;, server: &quot;168.158.125.70&quot;, port: 12324, username: &quot;&quot;, password: &quot;&quot;, &quot;skip-cert-verify&quot;: true, udp: true }
+  ];
+
+  // 加入节点到代理池
+  var allTargets = [aaitrNode, ...myOldNodes];
+  allTargets.forEach(node =&gt; {
+    if (!config.proxies.find(p =&gt; p.name === node.name)) {
+      config.proxies.push(node);
+    }
+  });
+
+  // =======================================================
+  // 2. 策略组构建
+  // =======================================================
+  
+  // 2.1 垃圾词过滤与机场节点提取
+  var excludeKeywords = [&quot;剩余流量&quot;, &quot;到期&quot;, &quot;过期&quot;, &quot;官网&quot;, &quot;产品&quot;, &quot;频道&quot;, &quot;群&quot;, &quot;重置&quot;, &quot;防丢&quot;, &quot;Emby&quot;, &quot;Traffic&quot;, &quot;Expire&quot;];
+  var targetNames = allTargets.map(n =&gt; n.name);
+  
+  var airportNodeNames = config.proxies
+    .filter(p =&gt; {
+      if (targetNames.includes(p.name)) return false; // 排除落地节点
+      for (var k of excludeKeywords) {
+        if (p.name.includes(k)) return false; // 排除垃圾关键词
+      }
+      return true;
+    })
+    .map(p =&gt; p.name);
+
+  // 2.2 组建：前置自动优选 (⚡)
+  var autoEntranceName = &quot;⚡ 链式-前置自动&quot;;
+  var autoEntranceGroup = {
+    name: autoEntranceName,
+    type: &quot;url-test&quot;,
+    url: &quot;[http://www.gstatic.com/generate_204](http://www.gstatic.com/generate_204)&quot;,
+    interval: 300,
+    tolerance: 50,
+    proxies: airportNodeNames
+  };
+
+  // 2.3 组建：手动入口选择 (🚀) - 包含自动组
+  var entranceGroupName = &quot;🚀 链式-前置入口&quot;;
+  var entranceGroup = {
+    name: entranceGroupName,
+    type: &quot;select&quot;,
+    proxies: [autoEntranceName, ...airportNodeNames]
+  };
+  
+  // 2.4 组建：落地目标选择 (🎯)
+  var targetGroupName = &quot;🎯 链式-落地目标&quot;;
+  var targetGroup = {
+    name: targetGroupName,
+    type: &quot;select&quot;,
+    proxies: targetNames
+  };
+
+  // 2.5 组建：全能链式代理 (🔗) - 核心管道
+  var relayGroupName = &quot;🔗 全能链式代理&quot;;
+  var relayGroup = {
+    name: relayGroupName,
+    type: &quot;relay&quot;,
+    proxies: [entranceGroupName, targetGroupName]
+  };
+
+  // =======================================================
+  // 3. 界面排序控制
+  // =======================================================
+  
+  var originalGroups = config[&quot;proxy-groups&quot;];
+  
+  // 自动寻找订阅的主组 (通常含 ISP 或订阅名)
+  var mainGroupIndex = originalGroups.findIndex(g =&gt; g.name.includes(&quot;HK-BEUP&quot;) || g.name.includes(&quot;ISP&quot;));
+  if (mainGroupIndex === -1) mainGroupIndex = 0;
+  var mainGroup = originalGroups[mainGroupIndex];
+  
+  var otherGroups = originalGroups.filter((g, index) =&gt; index !== mainGroupIndex);
+
+  // 重组顺序：主组 -&gt; 入口 -&gt; 落地 -&gt; 链式 -&gt; 自动 -&gt; 其他
+  config[&quot;proxy-groups&quot;] = [
+    mainGroup,          
+    entranceGroup,      
+    targetGroup,        
+    relayGroup,         
+    autoEntranceGroup,  
+    ...otherGroups      
+  ];
+
+  // =======================================================
+  // 4. 将链式组注入到选择列表中
+  // =======================================================
+  var groups = config[&quot;proxy-groups&quot;];
+  for (var j = 0; j &lt; groups.length; j++) {
+    var g = groups[j];
+    if (g.type === &quot;select&quot; || g.type === &quot;selector&quot;) {
+      // 排除我们自己的组，防止死循环
+      if ([entranceGroupName, targetGroupName, relayGroupName, autoEntranceName].includes(g.name)) {
+        continue;
+      }
+      g.proxies = g.proxies || [];
+      // 将链式代理置顶
+      if (!g.proxies.includes(relayGroupName)) {
+        g.proxies.unshift(relayGroupName);
+      }
+    }
+  }
+
+  return config;
+}</code></pre></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

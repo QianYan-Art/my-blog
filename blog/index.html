@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文章 · 千颜</title>
+  <meta name="description" content="千颜的文章展示页，整理想法、项目复盘与知识库笔记。">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <div class="corner-mark cm-tl"></div>
+  <div class="corner-mark cm-tr"></div>
+  <div class="corner-mark cm-bl"></div>
+  <div class="corner-mark cm-br"></div>
+  <canvas id="grid-overlay"></canvas>
+
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/">
+      <span class="site-nav__mark" aria-hidden="true"></span>
+      <span class="site-nav__title">千颜</span>
+    </a>
+    <span class="site-nav__meta">QianYan · KBase · Notes</span>
+    <nav class="site-nav__links">
+      <a href="/blog/" aria-current="page">文章</a>
+      <a href="/projects/">项目</a>
+      <a href="/about/">关于</a>
+    </nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">
+      GitHub
+      <svg width="10" height="9" viewBox="0 0 10 9" fill="none" aria-hidden="true"><path d="M0.5 4.5H8M5 1.5L8 4.5L5 7.5" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </header>
+  <div class="site-nav__rule reveal reveal--rule" style="--reveal-delay: var(--t-rule-top)"></div>
+
+  <main class="page-main page-main--articles">
+    <section class="articles-hero">
+      <div class="articles-hero__copy">
+        <p class="hero-eyebrow reveal reveal--fade" style="--reveal-delay: var(--t-label)">§ Knowledge Base</p>
+        <h1 class="articles-title">
+          <span class="reveal reveal--write" style="--reveal-delay: var(--t-hero-1)">文章陈列室，</span>
+          <span class="reveal reveal--write" style="--reveal-delay: var(--t-hero-2)">把思考按主题</span>
+          <span class="reveal reveal--write" style="--reveal-delay: var(--t-hero-3)">重新装订<span class="hero-title__cursor" aria-hidden="true"></span></span>
+        </h1>
+        <p class="articles-lede reveal reveal--fade" style="--reveal-delay: var(--t-projects)">
+          每一篇笔记都是一次回看：本地实验、服务器维护、项目复盘，最后都归档成可以再次出发的路标。
+        </p>
+      </div>
+
+      <aside class="articles-ledger reveal reveal--rise" style="--reveal-delay: var(--t-plate)" aria-label="文章状态">
+        <div class="articles-ledger__head">
+          <span>QY. Archive</span>
+          <span id="articleCount">-- entries</span>
+        </div>
+        <p class="articles-ledger__title">Notes in Public · Work in Progress</p>
+        <p class="articles-ledger__body">
+          “我们阅读，是为了知道自己并不孤单。”这里收起那些被问题、修复、部署与灵感照亮的日常。
+        </p>
+        <div class="articles-ledger__rule"></div>
+        <p class="articles-ledger__meta">Local notes · Server notes</p>
+      </aside>
+    </section>
+
+    <section class="article-board reveal reveal--fade" style="--reveal-delay: var(--t-status)" aria-labelledby="articles-heading">
+      <div class="article-board__toolbar">
+        <div>
+          <p class="article-board__kicker">Index</p>
+          <h2 id="articles-heading">全部文章</h2>
+        </div>
+        <div class="article-board__controls">
+          <label class="article-search" for="articleSearch">
+            <span class="article-search__label">搜索</span>
+            <span class="article-search__field">
+              <input id="articleSearch" type="search" placeholder="搜索标题、摘要、标签..." autocomplete="off">
+              <button class="article-search__clear" id="articleSearchClear" type="button" aria-label="清空搜索" hidden>×</button>
+            </span>
+          </label>
+          <div class="article-filters" id="articleFilters" aria-label="文章分类筛选">
+            <button class="article-filter is-active" type="button" data-filter="all">全部</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="article-grid" id="articleGrid" aria-live="polite">
+        <article class="article-empty">
+          <p>正在读取文章索引……</p>
+        </article>
+      </div>
+      <div class="article-load-status" id="articleLoadStatus" aria-live="polite"></div>
+      <div class="article-sentinel" id="articleSentinel" aria-hidden="true"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__rule reveal reveal--rule" style="--reveal-delay: var(--t-status)"></div>
+    <div class="status-bar reveal reveal--fade" style="--reveal-delay: var(--t-status)">
+      <div class="status-item"><span class="status-key">Source</span><span class="status-dot"></span><span class="status-val">QianYan-KBase</span></div>
+      <div class="status-item"><span class="status-key">Mode</span><span class="status-val">Static · Safe</span></div>
+      <div class="status-spacer"></div>
+      <div class="status-item"><span class="status-key">Email</span><span class="status-val">suyuan4071253@163.com</span></div>
+      <div class="status-item"><span class="status-key">Updated</span><span class="status-val" id="footDate">23 May 2026</span></div>
+    </div>
+  </footer>
+
+  <script src="/assets/js/home.js"></script>
+  <script src="/assets/js/articles.js"></script>
+</body>
+</html>

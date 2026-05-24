@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>阿里云ECS流量监控自动化部署完整文档 · 千颜</title>
+  <meta name="description" content="阿里云ECS流量监控自动化部署完整文档 📋 目录 1. 环境要求 2. 部署步骤 3. 日志管理配置 4. 验证与测试 5. 故障排查 6. 注意事项 🎯 环境要求 操作系统：Ubuntu 22.04+ / Debi">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>阿里云ECS流量监控自动化部署完整文档<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-01-18</span><span>13 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>阿里云ECS流量监控自动化部署完整文档</h2>
+<h3>📋 目录</h3>
+<ol>
+<li><a href="#环境要求" target="_blank" rel="noopener">环境要求</a></li>
+<li><a href="#部署步骤" target="_blank" rel="noopener">部署步骤</a></li>
+<li><a href="#日志管理配置" target="_blank" rel="noopener">日志管理配置</a></li>
+<li><a href="#验证与测试" target="_blank" rel="noopener">验证与测试</a></li>
+<li><a href="#故障排查" target="_blank" rel="noopener">故障排查</a></li>
+<li><a href="#注意事项" target="_blank" rel="noopener">注意事项</a></li>
+</ol>
+<p>---</p>
+<h3>🎯 环境要求</h3>
+<ul>
+<li>操作系统：Ubuntu 22.04+ / Debian 11+</li>
+<li>Python版本：3.10+</li>
+<li>权限：root用户或sudo权限</li>
+<li>阿里云账号：拥有ECS管理权限的AccessKey</li>
+</ul>
+<p>---</p>
+<h3>🚀 部署步骤</h3>
+<h4>步骤一：解决虚拟环境问题</h4>
+<p>如果提示<code>ensurepip is not available</code>，需先安装venv组件：</p>
+<pre><code>sudo apt update
+sudo apt install -y python3.12-venv</code></pre>
+<h4>步骤二：创建Python虚拟环境</h4>
+<pre><code># 删除可能存在的残留目录
+rm -rf /root/aliyun-env
+
+# 创建虚拟环境
+python3 -m venv /root/aliyun-env</code></pre>
+<h4>步骤三：安装阿里云SDK依赖</h4>
+<pre><code># 在虚拟环境中安装
+/root/aliyun-env/bin/pip install aliyun-python-sdk-core aliyun-python-sdk-ecs</code></pre>
+<h4>步骤四：创建监控脚本</h4>
+<p>在<code>/root/</code>目录下创建<code>traffic_monitor.py</code>文件：</p>
+<pre><code>cat &gt; /root/traffic_monitor.py &lt;&lt; &#39;EOF&#39;
+#!/root/aliyun-env/bin/python
+# -*- coding: utf-8 -*-
+from aliyunsdkcore.client import AcsClient
+from aliyunsdkcore.request import CommonRequest
+from aliyunsdkecs.request.v20140526 import StartInstancesRequest, StopInstancesRequest, DescribeInstancesRequest
+import json
+import sys
+import logging
+
+# ================== 配置区域 ==================
+ACCESS_KEY_ID = &#39;LTAIxxxxxxx&#39;      # ⚠️ 替换为您的AccessKey ID
+ACCESS_KEY_SECRET = &#39;xxxxxxxxxx&#39;   # ⚠️ 替换为您的AccessKey Secret
+REGION_ID = &#39;cn-hongkong&#39;          # 区域ID
+ECS_INSTANCE_ID = &#39;i-xxxxxxxxx&#39;    # ⚠️ 替换为您的ECS实例ID
+TRAFFIC_THRESHOLD_GB = 180        # 流量阈值(GB)
+
+# ================== 日志配置 ==================
+logging.basicConfig(
+    level=logging.WARNING,         # 日志级别：WARNING/INFO/DEBUG
+    format=&quot;%(asctime)s - %(levelname)s - %(message)s&quot;,
+    stream=sys.stdout
+)
+logger = logging.getLogger(__name__)
+
+# ================== 初始化客户端 ==================
+try:
+    client = AcsClient(ACCESS_KEY_ID, ACCESS_KEY_SECRET, REGION_ID)
+    logger.warning(&quot;AcsClient初始化成功&quot;)
+except Exception as e:
+    logger.error(f&quot;AcsClient初始化失败: {e}&quot;)
+    sys.exit(1)
+
+# ================== 功能函数 ==================
+def get_total_traffic_gb(client):
+    &quot;&quot;&quot;查询当前总互联网流量&quot;&quot;&quot;
+    request = CommonRequest()
+    request.set_domain(&#39;cdt.aliyuncs.com&#39;)
+    request.set_version(&#39;2021-08-13&#39;)
+    request.set_action_name(&#39;ListCdtInternetTraffic&#39;)
+    request.set_method(&#39;POST&#39;)
+    try:
+        response = client.do_action_with_exception(request)
+        response_json = json.loads(response.decode(&#39;utf-8&#39;))
+        total_bytes = sum(d.get(&#39;Traffic&#39;, 0) for d in response_json.get(&#39;TrafficDetails&#39;, []))
+        total_gb = total_bytes / (1024 ** 3)
+        logger.warning(f&quot;当前总互联网流量: {total_gb:.2f} GB&quot;)
+        return total_gb
+    except Exception as e:
+        logger.error(f&quot;获取CDT流量失败: {e}&quot;)
+        sys.exit(1)
+
+def get_ecs_status(client, instance_id):
+    &quot;&quot;&quot;查询ECS实例状态&quot;&quot;&quot;
+    try:
+        request = DescribeInstancesRequest.DescribeInstancesRequest()
+        request.set_InstanceIds([instance_id])
+        response = client.do_action_with_exception(request)
+        response_json = json.loads(response.decode(&#39;utf-8&#39;))
+        instances = response_json.get(&quot;Instances&quot;, {}).get(&quot;Instance&quot;, [])
+        if not instances:
+            logger.error(&quot;未找到该ECS实例信息&quot;)
+            return None
+        status = instances[0].get(&quot;Status&quot;)
+        logger.warning(f&quot;ECS实例 {instance_id} 当前状态: {status}&quot;)
+        return status
+    except Exception as e:
+        logger.error(f&quot;获取ECS实例状态失败: {e}&quot;)
+        return None
+
+def ecs_start(client, instance_id):
+    &quot;&quot;&quot;启动ECS实例&quot;&quot;&quot;
+    status = get_ecs_status(client, instance_id)
+    if status == &quot;Running&quot;:
+        logger.warning(f&quot;ECS实例 {instance_id} 已经是运行状态&quot;)
+        return
+    try:
+        request = StartInstancesRequest.StartInstancesRequest()
+        request.set_InstanceIds([instance_id])
+        request.set_accept_format(&#39;json&#39;)
+        response = client.do_action_with_exception(request)
+        logger.warning(f&quot;ECS启动响应: {response.decode(&#39;utf-8&#39;)}&quot;)
+    except Exception as e:
+        logger.error(f&quot;启动ECS实例失败: {e}&quot;)
+
+def ecs_stop(client, instance_id):
+    &quot;&quot;&quot;停止ECS实例&quot;&quot;&quot;
+    status = get_ecs_status(client, instance_id)
+    if status == &quot;Stopped&quot;:
+        logger.warning(f&quot;ECS实例 {instance_id} 已经是停止状态&quot;)
+        return
+    try:
+        request = StopInstancesRequest.StopInstancesRequest()
+        request.set_InstanceIds([instance_id])
+        request.set_ForceStop(False)
+        request.set_accept_format(&#39;json&#39;)
+        response = client.do_action_with_exception(request)
+        logger.warning(f&quot;ECS停止响应: {response.decode(&#39;utf-8&#39;)}&quot;)
+    except Exception as e:
+        logger.error(f&quot;停止ECS实例失败: {e}&quot;)
+
+def main():
+    &quot;&quot;&quot;主流程&quot;&quot;&quot;
+    total_gb = get_total_traffic_gb(client)
+    if total_gb &lt; TRAFFIC_THRESHOLD_GB:
+        logger.warning(f&quot;流量 {total_gb:.2f} GB &lt; 阈值 {TRAFFIC_THRESHOLD_GB} GB，启动ECS&quot;)
+        ecs_start(client, ECS_INSTANCE_ID)
+    else:
+        logger.warning(f&quot;流量 {total_gb:.2f} GB ≥ 阈值 {TRAFFIC_THRESHOLD_GB} GB，停止ECS&quot;)
+    logger.warning(&quot;脚本执行完毕&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    main()
+EOF</code></pre>
+<p><strong>⚠️ 重要：务必修改脚本中的以下参数：</strong></p>
+<ul>
+<li><code>ACCESS_KEY_ID</code></li>
+<li><code>ACCESS_KEY_SECRET</code></li>
+<li><code>ECS_INSTANCE_ID</code></li>
+<li><code>TRAFFIC_THRESHOLD_GB</code>（按需调整）</li>
+</ul>
+<h4>步骤五：配置定时任务（每分钟执行）</h4>
+<pre><code># 添加crontab任务
+(crontab -l 2&gt;/dev/null; echo &quot;* * * * * /root/aliyun-env/bin/python /root/traffic_monitor.py &gt;&gt; /root/traffic_monitor.log 2&gt;&amp;1&quot;) | crontab -
+
+# 查看已配置的定时任务
+crontab -l</code></pre>
+<p>---</p>
+<h3>📊 日志管理配置</h3>
+<h4>方案：使用logrotate自动管理日志</h4>
+<p>#### 1. 安装logrotate</p>
+<pre><code>sudo apt update
+sudo apt install -y logrotate</code></pre>
+<p>#### 2. 创建logrotate配置文件</p>
+<pre><code>sudo tee /etc/logrotate.d/traffic_monitor &gt; /dev/null &lt;&lt; &#39;EOF&#39;
+/root/traffic_monitor.log {
+    daily                    # 每天轮转一次
+    rotate 7                 # 保留7个旧日志
+    compress                 # 压缩旧日志
+    delaycompress            # 延迟压缩，保留一个未压缩
+    missingok                # 日志不存在时不报错
+    notifempty               # 日志为空时不轮转
+    create 644 root root     # 创建新日志的权限
+}
+EOF</code></pre>
+<p>#### 3. 调整日志级别（减少日志量）</p>
+<pre><code># 将日志级别从INFO改为WARNING
+sed -i &#39;s/level=logging.INFO/level=logging.WARNING/&#39; /root/traffic_monitor.py</code></pre>
+<p>#### 4. 重启cron服务</p>
+<pre><code>systemctl restart cron</code></pre>
+<p>---</p>
+<h3>✅ 验证与测试</h3>
+<h4>1. 手动测试脚本</h4>
+<pre><code># 执行一次测试
+/root/aliyun-env/bin/python /root/traffic_monitor.py
+
+# 查看日志输出
+cat /root/traffic_monitor.log</code></pre>
+<h4>2. 验证定时任务</h4>
+<pre><code># 等待2-3分钟后查看日志（应该有多个时间点的记录）
+tail -n 20 /root/traffic_monitor.log
+
+# 实时观察日志更新
+tail -f /root/traffic_monitor.log</code></pre>
+<h4>3. 验证日志轮转</h4>
+<pre><code># 强制立即执行一次轮转测试
+logrotate -fv /etc/logrotate.d/traffic_monitor
+
+# 查看轮转后的日志文件
+ls -lh /root/traffic_monitor.log*</code></pre>
+<h4>4. 检查系统状态</h4>
+<pre><code># 检查cron服务状态
+systemctl status cron
+
+# 查看系统cron日志
+grep CRON /var/log/syslog | tail -n 10
+
+# 查看脚本文件
+ls -lh /root/traffic_monitor.py
+ls -lh /root/traffic_monitor.log</code></pre>
+<p>---</p>
+<h3>🔧 故障排查</h3>
+<h4>问题1：虚拟环境创建失败</h4>
+<p><strong>现象</strong>：<code>ensurepip is not available</code> <strong>解决</strong>：</p>
+<pre><code>sudo apt install -y python3.12-venv
+rm -rf /root/aliyun-env
+python3 -m venv /root/aliyun-env</code></pre>
+<h4>问题2：脚本执行无输出</h4>
+<p><strong>检查项</strong>：</p>
+<pre><code># 检查脚本权限
+ls -l /root/traffic_monitor.py
+
+# 检查虚拟环境Python路径
+ls -l /root/aliyun-env/bin/python
+
+# 手动执行测试
+/root/aliyun-env/bin/python /root/traffic_monitor.py</code></pre>
+<h4>问题3：定时任务未执行</h4>
+<p><strong>检查项</strong>：</p>
+<pre><code># 查看cron服务状态
+systemctl status cron
+
+# 查看cron日志
+grep CRON /var/log/syslog
+
+# 检查crontab配置
+crontab -l</code></pre>
+<h4>问题4：日志文件过大</h4>
+<p><strong>解决</strong>：</p>
+<pre><code># 立即清理日志
+truncate -s 0 /root/traffic_monitor.log
+
+# 手动执行logrotate
+logrotate -fv /etc/logrotate.d/traffic_monitor</code></pre>
+<p>---</p>
+<h3>⚠️ 注意事项</h3>
+<ol>
+<li><strong>安全凭证管理</strong></li>
+<p>- 建议将AccessKey存储在环境变量或配置文件中，而非硬编码 - 示例：<code>export ALIYUN_ACCESS_KEY_ID=&quot;your_key&quot;</code>，然后在脚本中读取 - 定期轮换AccessKey，避免泄露风险</p>
+</ol>
+<ol>
+<li><strong>日志级别选择</strong></li>
+<p>- <code>logging.WARNING</code>：生产环境推荐，日志量少 - <code>logging.INFO</code>：调试阶段使用，可查看详细流程 - <code>logging.DEBUG</code>：开发环境使用，输出最详细信息</p>
+</ol>
+<ol>
+<li><strong>流量阈值设置</strong></li>
+<p>- 建议设置低于阿里云CDT套餐阈值（如套餐200GB，设置180GB） - 给脚本留出足够的反应时间（每分钟检查一次）</p>
+</ol>
+<ol>
+<li><strong>ECS实例状态</strong></li>
+<p>- 脚本会自动判断实例当前状态，避免重复操作 - 停止实例使用<code>ForceStop=False</code>，允许优雅关机</p>
+</ol>
+<ol>
+<li><strong>监控与告警</strong></li>
+<p>- 建议添加钉钉/邮件告警功能，当触发启停时通知 - 示例：在<code>ecs_start</code>和<code>ecs_stop</code>函数中调用Webhook</p>
+</ol>
+<ol>
+<li><strong>成本优化</strong></li>
+<p>- 停止ECS实例后，仅收取磁盘费用 - 检查ECS是否使用按量付费模式</p>
+</ol>
+<ol>
+<li><strong>日志文件路径</strong></li>
+<p>- 所有文件使用绝对路径，避免cron环境变量问题 - 确保<code>/root/</code>目录有足够磁盘空间</p>
+</ol>
+<ol>
+<li><strong>权限管理</strong></li>
+<p>- 当前使用root用户部署，生产环境建议创建专用用户 - 确保AccessKey权限最小化原则（仅授权ECS和CDT只读权限）</p>
+</ol>
+<p>---</p>
+<h3>📌 快速命令参考</h3>
+<pre><code># 一键部署（按顺序执行）
+sudo apt install -y python3.12-venv
+python3 -m venv /root/aliyun-env
+/root/aliyun-env/bin/pip install aliyun-python-sdk-core aliyun-python-sdk-ecs
+# → 创建并编辑 /root/traffic_monitor.py
+(crontab -l 2&gt;/dev/null; echo &quot;* * * * * /root/aliyun-env/bin/python /root/traffic_monitor.py &gt;&gt; /root/traffic_monitor.log 2&gt;&amp;1&quot;) | crontab -
+sudo apt install -y logrotate
+# → 创建 /etc/logrotate.d/traffic_monitor
+sed -i &#39;s/level=logging.INFO/level=logging.WARNING/&#39; /root/traffic_monitor.py
+systemctl restart cron
+
+# 验证
+/root/aliyun-env/bin/python /root/traffic_monitor.py
+crontab -l
+tail -f /root/traffic_monitor.log</code></pre>
+<p>---</p>
+<p><strong>文档版本</strong>：v1.0 <strong>最后更新</strong>：2026-01-18 <strong>适用范围</strong>：Ubuntu 22.04+/Debian 11+</p></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MuMuAINovel 本次更新与故障处理记录（RackNerd VPS）_补充版 · 千颜</title>
+  <meta name="description" content="目的：记录 今晚一次较大更新引发的数据库兼容问题、修复步骤、当前 VPS 部署现状，以及后续排障/回滚/更新的“操作手册”。 1. 当前部署概览（关键事实） 1.1 主目录 项目目录：/root/MuMuAINovel ">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>MuMuAINovel 本次更新与故障处理记录（RackNerd VPS）_补充版<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2025-12-26</span><span>11 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><p>&gt; 目的：记录 <strong>今晚一次较大更新</strong>引发的数据库兼容问题、修复步骤、当前 VPS 部署现状，以及后续排障/回滚/更新的“操作手册”。</p>
+<p>---</p>
+<h3>1. 当前部署概览（关键事实）</h3>
+<h4>1.1 主目录</h4>
+<ul>
+<li>项目目录：<code>/root/MuMuAINovel</code></li>
+<li>备份目录：<code>/root/backup_mumu</code></li>
+<li>运维脚本目录：<code>/root/mumu_ops</code></li>
+</ul>
+<h4>1.2 运行中的容器（关键容器名固定）</h4>
+<ul>
+<li>应用：<code>mumuainovel</code>（镜像：<code>mumujie/mumuainovel:latest</code>）</li>
+<li>数据库：<code>mumuainovel-postgres</code>（镜像：<code>postgres:18-alpine</code>）</li>
+<li>自动更新：<code>watchtower</code>（镜像：<code>containrrr/watchtower</code>）</li>
+</ul>
+<h4>1.3 端口暴露策略</h4>
+<ul>
+<li>应用：<code>127.0.0.1:8000-&gt;8000/tcp</code>（应用仅本机回环暴露，通常由反代/边缘服务对外）</li>
+<li>Postgres：已调整为 <strong>仅回环暴露</strong>（目标效果：<code>127.0.0.1:5432-&gt;5432/tcp</code>）</li>
+</ul>
+<h4>1.4 应用健康检查</h4>
+<ul>
+<li>轻量健康检查：<code>curl -fsS http://127.0.0.1:8000/health</code></li>
+</ul>
+<p>---</p>
+<h3>2. 今晚发生了什么（问题描述）</h3>
+<h4>2.1 报错现象</h4>
+<p>应用日志出现数据库列不存在错误：</p>
+<ul>
+<li><code>column characters.main_career_id does not exist</code></li>
+<li>触发位置：访问项目角色/人物相关接口时（如 <code>GET /api/...</code> 读取 characters 表）</li>
+</ul>
+<h4>2.2 直接原因</h4>
+<ul>
+<li>镜像/代码更新后，后端 ORM/SQL 已开始读取 <code>characters.main_career_id</code></li>
+<li>但 <strong>现有数据库结构未同步更新</strong>（缺少该列）</li>
+</ul>
+<h4>2.3 额外观察</h4>
+<p>在数据库容器内检查初始化脚本目录：</p>
+<ul>
+<li><code>/docker-entrypoint-initdb.d</code> 下只有 <code>init.sql</code></li>
+<li>手动执行 <code>/docker-entrypoint-initdb.d/init_postgres.sql</code> 报错：文件不存在</li>
+</ul>
+<p>&gt; 备注：Postgres 官方镜像的 <code>docker-entrypoint-initdb.d</code> 脚本通常只在“首次初始化数据卷”时自动执行；数据库已经有数据卷时，新增脚本不会自动再跑。</p>
+<p>---</p>
+<h3>3. 今晚实际做过的操作（按时间线）</h3>
+<h4>3.1 确认容器状态</h4>
+<pre><code>docker compose ps</code></pre>
+<p>看到：</p>
+<ul>
+<li><code>mumuainovel</code> 健康</li>
+<li><code>mumuainovel-postgres</code> 健康</li>
+</ul>
+<h4>3.2 尝试执行数据库脚本（失败）</h4>
+<pre><code>docker exec -it mumuainovel-postgres sh -lc &#39;ls -lah /docker-entrypoint-initdb.d&#39;
+
+docker exec -i mumuainovel-postgres sh -lc &#39;psql -U &quot;$POSTGRES_USER&quot; -d &quot;$POSTGRES_DB&quot; -f /docker-entrypoint-initdb.d/init_postgres.sql&#39;</code></pre>
+<p>结果：<code>init_postgres.sql</code> 不存在。</p>
+<h4>3.3 发现实际报错</h4>
+<pre><code>docker logs -n 200 mumuainovel</code></pre>
+<p>定位到：<code>characters.main_career_id</code> 列缺失。</p>
+<h4>3.4 停止应用，避免修表时并发读写</h4>
+<pre><code>docker compose stop mumuainovel</code></pre>
+<h4>3.5 备份数据库（强烈建议每次改表前都做）</h4>
+<pre><code>mkdir -p /root/backup_mumu
+
+docker exec -t mumuainovel-postgres sh -lc &#39;pg_dump -U &quot;$POSTGRES_USER&quot; -d &quot;$POSTGRES_DB&quot;&#39; \
+&gt; /root/backup_mumu/pg_$(date +%F_%H%M).sql</code></pre>
+<h4>3.6 手动补齐缺失字段（修复核心）</h4>
+<pre><code>cat &lt;&lt;&#39;SQL&#39; | docker exec -i mumuainovel-postgres sh -lc &#39;psql -U &quot;$POSTGRES_USER&quot; -d &quot;$POSTGRES_DB&quot;&#39;
+ALTER TABLE characters
+  ADD COLUMN IF NOT EXISTS main_career_id VARCHAR;
+SQL</code></pre>
+<h4>3.7 重启应用</h4>
+<pre><code>docker compose up -d mumuainovel</code></pre>
+<p>之后再次观察日志，应用能够正常启动并出现：</p>
+<ul>
+<li>“初始化数据库表结构…成功”</li>
+</ul>
+<p>---</p>
+<h3>4. Postgres 端口改为本地回环（安全加固）</h3>
+<p>目标：避免 Postgres 直接对公网暴露。</p>
+<h4>4.1 修改方式（docker-compose.yml）</h4>
+<p>在 <code>postgres</code> service 的 <code>ports:</code> 配置中：</p>
+<ul>
+<li>从：<code>&quot;5432:5432&quot;</code></li>
+<li>改为：<code>&quot;127.0.0.1:5432:5432&quot;</code></li>
+</ul>
+<h4>4.2 应用更改</h4>
+<pre><code>cd /root/MuMuAINovel
+docker compose up -d --force-recreate postgres</code></pre>
+<p>验证：</p>
+<pre><code>docker compose ps</code></pre>
+<p>应该看到 Postgres 的端口绑定只在 <code>127.0.0.1</code>。</p>
+<p>---</p>
+<h3>5. Watchtower 自动更新现状与本次调整</h3>
+<h4>5.1 Watchtower 当前配置（从 inspect 得到）</h4>
+<ul>
+<li>容器：<code>watchtower</code></li>
+<li>计划：<code>--schedule &quot;0 0 4 <em> </em> *&quot;</code>（每天 04:00 触发，具体以 watchtower 容器内 TZ 为准）</li>
+<li>参数：<code>--cleanup</code>（更新后清旧镜像）</li>
+<li>restart：<code>always</code></li>
+<li>挂载：<code>/var/run/docker.sock:/var/run/docker.sock</code></li>
+</ul>
+<h4>5.2 本次改动：给 Postgres 打上“跳过更新”标签</h4>
+<p>在 <code>docker-compose.yml</code> 的 <code>postgres</code> service 内增加：</p>
+<pre><code>labels:
+  - &quot;com.centurylinklabs.watchtower.enable=false&quot;</code></pre>
+<p>应用：</p>
+<pre><code>cd /root/MuMuAINovel
+docker compose up -d --force-recreate postgres</code></pre>
+<p>验证：</p>
+<pre><code>docker inspect mumuainovel-postgres --format &#39;{{json .Config.Labels}}&#39; | grep -i watchtower</code></pre>
+<p>&gt; 备注：不同 watchtower 运行模式对 label 规则生效方式略有差异。为了确认“数据库不会被更新”，最可靠的做法是：观察 watchtower 日志是否跳过该容器。</p>
+<p>检查 watchtower 最近日志：</p>
+<pre><code>docker logs -n 200 watchtower</code></pre>
+<p>（可选）临时手动触发一次检查：</p>
+<pre><code>docker exec watchtower /watchtower --debug --run-once</code></pre>
+<p>---</p>
+<h3>6. 运维脚本（mumu_ops）</h3>
+<h4>6.1 建议存在的脚本</h4>
+<ul>
+<li><code>/root/mumu_ops/mumu-db-backup.sh</code>：数据库备份（可配合 cron）</li>
+<li><code>/root/mumu_ops/mumu-db-restore.sh</code>：一键恢复数据库（默认恢复 latest / 指定文件）</li>
+<li><code>/root/mumu_ops/mumu-full-update.sh</code>：全量更新（停应用→备份→拉更新→启动→健康检查）</li>
+<li><code>/root/mumu_ops/mumu-check.sh</code>：一键体检（检查后直接打印“建议执行的命令清单”）</li>
+</ul>
+<p>&gt; 如果后续模型接手排障，优先让它查看 <code>/root/mumu_ops/</code> 下脚本内容，按脚本的输出执行。</p>
+<p>---</p>
+<h3>7. 后续再出问题：最短“排障-回滚-再更新”流程</h3>
+<h4>7.1 先体检（推荐）</h4>
+<pre><code>/root/mumu_ops/mumu-check.sh</code></pre>
+<p>脚本会在末尾打印一段 <strong>可直接复制执行的命令</strong>。</p>
+<h4>7.2 仅快速确认“活没活”</h4>
+<pre><code>docker compose ps
+curl -fsS http://127.0.0.1:8000/health &amp;&amp; echo OK</code></pre>
+<h4>7.3 如果出现类似数据库结构错误（UndefinedColumn / relation does not exist）</h4>
+<p>1) 先看日志定位缺什么：</p>
+<pre><code>docker logs -n 300 mumuainovel</code></pre>
+<p>2) 优先一键回滚数据库（回到可用状态）：</p>
+<pre><code>/root/mumu_ops/mumu-db-restore.sh</code></pre>
+<p>3) 再考虑修迁移（补字段/补表，或执行仓库提供的迁移脚本）</p>
+<p>4) 修好后再跑全量更新：</p>
+<pre><code>/root/mumu_ops/mumu-full-update.sh</code></pre>
+<p>---</p>
+<h3>8. 今晚额外插曲：apt/dpkg lock</h3>
+<p>曾尝试安装 <code>mailutils</code>，但出现 dpkg 锁被占用：</p>
+<ul>
+<li><code>/var/lib/dpkg/lock-frontend</code> 被某个 <code>apt</code> 进程持有</li>
+</ul>
+<p>处理原则：</p>
+<ul>
+<li>先查占用进程 PID → 若确认挂住再终止 → 然后执行：</li>
+</ul>
+<pre><code>sudo dpkg --configure -a
+sudo apt -f install -y</code></pre>
+<p>最终决定：<strong>暂不做邮件通知</strong>，改为“手动登录后一键体检”。</p>
+<p>---</p>
+<h3>9. 已知提醒/注意事项</h3>
+<ul>
+<li>应用日志曾提示 OAuth 回调地址使用 <code>localhost</code>：</li>
+<p>- <code>生产环境检测到使用 localhost 作为回调地址 ... 可能导致OAuth回调失败</code> - 若未来要启用 OAuth 登录，需要把回调改成真实域名/IP。</p>
+</ul>
+<ul>
+<li>自动更新（watchtower）对“需要数据库迁移”的版本可能造成夜间故障：</li>
+<p>- 建议至少保证：<strong>备份可用 + 回滚脚本可用 + 体检脚本可用</strong>。</p>
+</ul>
+<p>---</p>
+<h3>10. 你可以把这份文档当作“交接单”</h3>
+<p>当你或模型需要快速接手时，按这个顺序： 1) 先运行：<code>/root/mumu_ops/mumu-check.sh</code> 2) 根据它打印的“命令清单”执行 3) 如果涉及数据库结构，优先：<code>/root/mumu_ops/mumu-db-restore.sh</code> 4) 再考虑：<code>/root/mumu_ops/mumu-full-update.sh</code> ---</p>
+<h3>11. v1.2.0 大版本升级（Alembic 迁移体系）与“重建数据库”处理</h3>
+<h4>11.1 背景与决策</h4>
+<p>作者发布新版本（v1.2.0）后，数据库初始化/迁移机制发生较大变化（引入 Alembic）。对于“首次升级到该大版本”，作者建议按文档进行 <strong>重新初始化数据库</strong>。</p>
+<p>本次决策：<strong>不保留历史数据</strong>，采用“清库重建”的升级路径（更干净、后续迁移更省心）。</p>
+<p>&gt; ⚠️ 注意：清库重建会删除 Postgres 的数据卷（命名卷 <code>postgres_data</code>），不可逆。执行前建议仍保留一份备份文件以便救援/回溯。</p>
+<h4>11.2 升级步骤（清库重建）</h4>
+<p>建议在项目目录执行：</p>
+<p>1）临时停用 watchtower，避免更新过程中被自动更新打断：</p>
+<pre><code>docker stop watchtower</code></pre>
+<p>2）备份数据库（即使不打算保留数据，也建议留档）：</p>
+<pre><code>mkdir -p /root/backup_mumu
+
+docker exec -t mumuainovel-postgres sh -lc &#39;pg_dump -U &quot;$POSTGRES_USER&quot; -d &quot;$POSTGRES_DB&quot;&#39; &gt; /root/backup_mumu/pg_$(date +%F_%H%M).sql</code></pre>
+<p>3）拉取最新镜像：</p>
+<pre><code>cd /root/MuMuAINovel
+docker compose pull</code></pre>
+<p>4）清库重建（删除数据卷）：</p>
+<pre><code>docker compose down -v</code></pre>
+<p>5）重新启动服务：</p>
+<pre><code>docker compose up -d</code></pre>
+<p>6）验证服务可用（健康检查 + 日志）：</p>
+<pre><code>docker compose ps
+curl -fsS http://127.0.0.1:8000/health &amp;&amp; echo OK
+docker logs -n 200 mumuainovel</code></pre>
+<p>7）恢复 watchtower：</p>
+<pre><code>docker start watchtower</code></pre>
+<h4>11.3 升级后状态确认要点</h4>
+<ul>
+<li><code>docker compose ps</code> 显示应用与数据库为 <code>Up/healthy</code></li>
+<li><code>/health</code> 返回 200</li>
+<li>应用日志不再出现 <code>UndefinedColumn / does not exist / relation ... does not exist</code> 等数据库结构类错误</li>
+</ul>
+<p>---</p>
+<h3>12. mumu_ops 运维脚本：现状、用途与“什么时候用哪个”</h3>
+<h4>12.1 当前脚本清单（建议固定路径）</h4>
+<ul>
+<li>体检：<code>/root/mumu_ops/mumu-check.sh</code></li>
+<li>备份：<code>/root/mumu_ops/mumu-db-backup.sh</code></li>
+<li>恢复：<code>/root/mumu_ops/mumu-db-restore.sh</code></li>
+<li>日常全量更新（不清库）：<code>/root/mumu_ops/mumu-full-update.sh</code></li>
+<li>大版本重建库升级（清库）：<code>/root/mumu_ops/mumu-resetdb-upgrade.sh</code></li>
+</ul>
+<h4>12.2 什么时候用哪个（最短记忆版）</h4>
+<p>1）<strong>登录先检查 / 怀疑出问题</strong></p>
+<pre><code>/root/mumu_ops/mumu-check.sh</code></pre>
+<ul>
+<li>作用：检查容器状态、健康检查、日志关键字，并在末尾打印“建议你直接复制执行的命令”。</li>
+</ul>
+<p>2）<strong>日常更新（绝大多数情况）</strong></p>
+<pre><code>/root/mumu_ops/mumu-full-update.sh</code></pre>
+<ul>
+<li>适用：小更新、普通版本升级、watchtower 更新后你想手动再跑一次确保一致。</li>
+<li>特点：会先备份、拉更新、重启、health 检查，并<strong>在更新期间临时 stop watchtower，完成后再恢复</strong>，避免撞车。</li>
+</ul>
+<p>3）<strong>作者明确说“需要重新初始化数据库 / down -v” 或你愿意清库</strong></p>
+<pre><code>/root/mumu_ops/mumu-resetdb-upgrade.sh</code></pre>
+<ul>
+<li>适用：类似 v1.2.0 这种“数据库体系大改”的版本。</li>
+<li>特点：包含锁与退出保护（脚本失败也会尽量把 watchtower 恢复），核心动作是 <code>docker compose down -v</code>（清库）。</li>
+</ul>
+<p>4）<strong>回滚（数据库恢复）</strong></p>
+<pre><code>/root/mumu_ops/mumu-db-restore.sh</code></pre>
+<ul>
+<li>适用：恢复某个备份 dump。</li>
+<li>⚠️ 注意：如果恢复的是“旧版本数据库”，通常需要<strong>同时回滚应用版本</strong>，否则可能出现新代码不兼容旧库。</li>
+</ul>
+<p>---</p>
+<h3>13. 连接 VPS 后如何快速判断“有没有出问题”（无邮件通知版本）</h3>
+<h4>13.1 30 秒速查</h4>
+<pre><code>cd /root/MuMuAINovel
+docker compose ps
+curl -fsS http://127.0.0.1:8000/health &amp;&amp; echo OK
+docker logs -n 120 mumuainovel | tail -n 80</code></pre>
+<h4>13.2 一键体检（推荐）</h4>
+<pre><code>/root/mumu_ops/mumu-check.sh</code></pre>
+<ul>
+<li>看它最后输出的“建议命令”，直接复制执行即可。</li>
+</ul>
+<h4>13.3 典型异常与对应动作</h4>
+<ul>
+<li><strong>/health 失败 / 应用不断重启</strong></li>
+<p>- 先看 <code>docker logs -n 300 mumuainovel</code> - 再跑：<code>/root/mumu_ops/mumu-full-update.sh</code></p>
+</ul>
+<ul>
+<li><strong>数据库结构类错误（UndefinedColumn / relation does not exist）</strong></li>
+<p>- 如果你不在乎数据：直接跑 <code>mumu-resetdb-upgrade.sh</code> - 如果你要保数据：先跑 <code>mumu-db-backup.sh</code>，再考虑迁移/修复方案</p>
+</ul>
+<p>---</p>
+<h3>14. 本次“手动补字段”与“清库重建”的关系说明（避免以后混淆）</h3>
+<ul>
+<li>“手动补字段（ALTER TABLE … ADD COLUMN）”是对 <strong>某次更新引发的单字段不兼容</strong> 的快速修复手段。</li>
+<li>“清库重建（down -v）”是对 <strong>数据库体系大改（如 v1.2.0 引入 Alembic）</strong> 的一次性升级手段。</li>
+<li>后续如果版本都在 Alembic 体系内，理论上应该更多依赖应用自带迁移，而不是继续手动补字段。</li>
+</ul></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

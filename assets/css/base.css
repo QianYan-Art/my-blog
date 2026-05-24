@@ -1,0 +1,143 @@
+/* ============================================================
+   base.css — Global Reset, Background, Fonts & Shared Chrome
+   ============================================================ */
+
+/* ── Font Faces ──────────────────────────────────────── */
+/* Google Fonts CDN — loaded via @import for CSS delivery */
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,700;1,6..72,400&family=Noto+Sans+SC:wght@400;500;700&family=Geist+Mono:wght@400;500&display=swap");
+/* ── Reset ───────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Root Elements ───────────────────────────────────── */
+html {
+  height: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  height: 100%;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-body);
+  line-height: 1.7;
+  overflow-x: hidden;
+
+  background: radial-gradient(ellipse 90% 70% at 50% 50%,
+    #FAF6EC 0%, #F8F4EA 40%, #EDE6D2 100%);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  animation: paper-soak 0.55s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ── Paper Noise — SVG Turbulence Overlay ────────────── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.42;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.0' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.07 0 0 0 0 0.04 0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* ── Ink Bloom — Pointer-tracked Ink Bloom & Paper metaphor ────────── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 2;
+  background:
+    radial-gradient(circle at var(--mx, 30%) var(--my, 70%),
+      rgba(181, 57, 45, 0.06) 0%,
+      rgba(181, 57, 45, 0.012) 30%,
+      transparent 55%),
+    radial-gradient(circle at 78% 22%, rgba(60, 40, 20, 0.045) 0%, transparent 45%),
+    radial-gradient(circle at 88% 84%, rgba(181, 57, 45, 0.035) 0%, transparent 38%);
+  transition: background 0.4s ease;
+}
+
+/* ── Binding Gutter — Fixed Left Shadow Bar ──────────── */
+.binding {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: clamp(14px, 1.8vw, 28px);
+  z-index: 10;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(17, 16, 13, 0.09) 0%,
+    rgba(17, 16, 13, 0.035) 30%,
+    transparent 70%
+  );
+}
+
+/* ── Anchor Defaults ─────────────────────────────────── */
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--verm);
+}
+
+/* ── Image Defaults ──────────────────────────────────── */
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── Selection ───────────────────────────────────────── */
+::selection {
+  background: rgba(181, 57, 45, 0.20);
+  color: var(--ink);
+}
+
+::-moz-selection {
+  background: rgba(181, 57, 45, 0.20);
+  color: var(--ink);
+}
+
+/* ── Reduced Motion ──────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  body::after {
+    display: none;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ── Grid Overlay Canvas ────────────────────────── */
+#grid-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}

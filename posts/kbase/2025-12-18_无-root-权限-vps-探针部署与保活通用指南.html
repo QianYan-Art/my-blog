@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>================= 配置区域 (修改这里) ================= · 千颜</title>
+  <meta name="description" content="适用场景： 只有普通用户权限的 NAT VPS 共享主机或容器环境（LXC/OpenVZ） 管理员禁止使用 systemctl 的环境 核心原理： 1. 运行：使用 nohup 后台运行二进制文件。 2. 保活：利用 c">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>================= 配置区域 (修改这里) =================<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2025-12-18</span><span>5 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><p><strong>适用场景</strong>：</p>
+<ul>
+<li>只有普通用户权限的 NAT VPS</li>
+</ul>
+<ul>
+<li>共享主机或容器环境（LXC/OpenVZ）</li>
+</ul>
+<ul>
+<li>管理员禁止使用 <code>systemctl</code> 的环境</li>
+</ul>
+<p><strong>核心原理</strong>：</p>
+<ol>
+<li><strong>运行</strong>：使用 <code>nohup</code> 后台运行二进制文件。</li>
+</ol>
+<ol>
+<li><strong>保活</strong>：利用 <code>crontab</code> 每分钟检查进程，挂了自动重启。</li>
+</ol>
+<ol>
+<li><strong>日志</strong>：配置自动轮转，防止日志写满磁盘。</li>
+</ol>
+<h3>一、 极速部署脚本（推荐）</h3>
+<p>为了避免使用 <code>vi/nano</code> 编辑器导致的格式错误，请直接修改下方的<strong>变量区域</strong>，然后复制整段代码到终端执行。</p>
+<h4>1. 准备配置参数</h4>
+<p>请根据你的实际情况，修改下面前三行内容：</p>
+<pre><code># ================= 配置区域 (修改这里) =================
+# 探针下载地址
+DOWNLOAD_URL=&quot;[https://github.com/komari-monitor/komari-agent/releases/latest/download/komari-agent-linux-amd64](https://github.com/komari-monitor/komari-agent/releases/latest/download/komari-agent-linux-amd64)&quot;
+# 你的面板地址和 Token (注意保留引号)
+START_ARGS=&quot;-e [https://komari.starryocean.qzz.io](https://komari.starryocean.qzz.io) -t AQhDXdx50jMUgkqQ1SipPw&quot;
+# 进程名称 (用于检测是否存活，通常是二进制文件的名字)
+PROCESS_NAME=&quot;komari-agent&quot;
+# ======================================================
+
+# ================= 下面不要动，直接复制 =================
+# 1. 准备目录
+WORK_DIR=&quot;$HOME/$PROCESS_NAME&quot;
+mkdir -p &quot;$WORK_DIR&quot;
+cd &quot;$WORK_DIR&quot;
+
+# 2. 下载并授权
+echo &quot;正在下载探针...&quot;
+curl -L -o &quot;$PROCESS_NAME&quot; &quot;$DOWNLOAD_URL&quot;
+chmod +x &quot;$PROCESS_NAME&quot;
+
+# 3. 生成保活脚本 (使用 EOF 写入，避免编辑器问题)
+cat &gt; &quot;$WORK_DIR/keepalive.sh&quot; &lt;&lt; EOF
+#!/bin/bash
+if ! pgrep -f &quot;$PROCESS_NAME&quot; &gt; /dev/null; then
+    cd &quot;$WORK_DIR&quot;
+    nohup ./$PROCESS_NAME $START_ARGS &gt; nohup.out 2&gt;&amp;1 &amp;
+    echo &quot;Restarted at \$(date)&quot; &gt;&gt; &quot;$WORK_DIR/restart.log&quot;
+fi
+EOF
+chmod +x &quot;$WORK_DIR/keepalive.sh&quot;
+
+# 4. 生成日志轮转配置 (防止磁盘爆满)
+mkdir -p $HOME/.config/logrotate
+cat &gt; $HOME/.config/logrotate/$PROCESS_NAME &lt;&lt; EOF
+$WORK_DIR/nohup.out {
+    daily
+    rotate 3
+    compress
+    missingok
+    notifempty
+    copytruncate
+    maxsize 5M
+}
+EOF
+
+# 5. 写入 Crontab 定时任务 (暴力覆盖模式，确保成功)
+# 注意：这会覆盖当前用户的其他定时任务。如有其他任务请手动添加。
+echo &quot;0 2 * * * /usr/sbin/logrotate -s $HOME/.config/logrotate/status $HOME/.config/logrotate/$PROCESS_NAME
+* * * * * $WORK_DIR/keepalive.sh&quot; | crontab -
+
+# 6. 立即启动
+$WORK_DIR/keepalive.sh
+
+echo &quot;----------------------------------------&quot;
+echo &quot;部署完成！&quot;
+echo &quot;请等待 1 分钟后检查面板状态。&quot;
+echo &quot;检查命令: ps aux | grep $PROCESS_NAME&quot;
+echo &quot;----------------------------------------&quot;</code></pre>
+<h3>二、 常用维护命令</h3>
+<h4>1. 检查探针是否在运行</h4>
+<pre><code>ps aux | grep komari-agent</code></pre>
+<p>_如果有输出说明正常。_</p>
+<h4>2. 查看当前定时任务</h4>
+<pre><code>crontab -l</code></pre>
+<p>_必须看到 <code><em> </em> <em> </em> * ... keepalive.sh</code> 这一行才算拥有“复活甲”。_</p>
+<h4>3. 查看崩溃/重启记录</h4>
+<pre><code>cat ~/komari-agent/restart.log</code></pre>
+<p>_如果文件不存在或为空，说明非常稳定。如果有很多时间点，说明经常崩溃（但被自动救回来了）。_</p>
+<h4>4. 彻底卸载</h4>
+<p>如果这台机器不想要了，执行以下命令清理干净：</p>
+<pre><code># 1. 清空定时任务
+crontab -r
+
+# 2. 杀掉进程
+pkill -f komari-agent
+
+# 3. 删除文件
+rm -rf ~/komari-agent
+rm -rf ~/.config/logrotate/komari-agent</code></pre>
+<h3>三、 常见问题 (FAQ)</h3>
+<h4>Q1: 为什么我用 <code>crontab -e</code> 修改后保存不了？</h4>
+<p>原因：默认编辑器通常是 vi，操作反直觉。</p>
+<p>解决：</p>
+<ol>
+<li>尽量使用本文提供的“全自动脚本”直接覆盖，不打开编辑器。</li>
+</ol>
+<ol>
+<li>如果必须编辑，先执行 <code>export EDITOR=nano</code>，将编辑器切换为类似记事本的 nano 模式。</li>
+</ol>
+<h4>Q2: 脚本里的 <code>2&gt;&amp;1</code> 是什么意思？</h4>
+<p>这是将“错误输出”和“标准输出”合并。确保不管是正常的日志还是报错信息，都写入到 <code>nohup.out</code> 里，方便排查问题。</p>
+<h4>Q3: 这种方式会占用很多资源吗？</h4>
+<p>不会。<code>crontab</code> 是系统自带服务，<code>keepalive.sh</code> 脚本极其轻量，每分钟运行一次只消耗几乎可忽略的 CPU。</p>
+<h4>Q4: 适用于其他探针吗？</h4>
+<p>适用。比如哪吒探针（Nezha Agent），只需要将脚本开头的 <code>DOWNLOAD_URL</code> 换成哪吒的下载链接，<code>START_ARGS</code> 换成 <code>-s 你的地址 -p 你的密钥</code> 即可。</p></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

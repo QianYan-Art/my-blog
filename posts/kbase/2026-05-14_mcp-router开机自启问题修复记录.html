@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP Router 开机自启问题修复记录 - 2026-05-14 · 千颜</title>
+  <meta name="description" content="MCP Router 开机自启问题修复记录 20260514 一、问题现象 本机安装 MCP Router 后，每次启动程序都会自动把自己加入 Windows 开机启动项。 即使在任务管理器中手动禁用启动项，只要再次打开">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">本地记录</p>
+      <h1>MCP Router 开机自启问题修复记录 - 2026-05-14<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-14</span><span>4 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>MCP Router 开机自启问题修复记录 - 2026-05-14</h2>
+<h3>一、问题现象</h3>
+<ul>
+<li>本机安装 <code>MCP Router</code> 后，每次启动程序都会自动把自己加入 Windows 开机启动项。</li>
+<li>即使在任务管理器中手动禁用启动项，只要再次打开 <code>MCP Router</code>，启动项又会被重新写回。</li>
+<li>之前曾临时放置过一个“删除自启项”的脚本，但该脚本只能在登录时补删一次，无法阻止程序再次写回自启。</li>
+</ul>
+<h3>二、根因结论</h3>
+<p>排查 <code>MCP Router</code> 本地安装包后，确认问题不在 Windows 本身，而在 <code>MCP Router</code> 程序逻辑：</p>
+<ul>
+<li>程序主进程中存在 <code>setLoginItemSettings / openAtLogin</code> 相关逻辑。</li>
+<li><code>showWindowOnStartup</code> 配置项实际只影响“开机时是否显示主窗口”。</li>
+<li>程序在启动过程中会把 <code>openAtLogin</code> 固定设为 <code>true</code>，导致手动禁用启动项后仍会被再次写回。</li>
+</ul>
+<p>结论：</p>
+<ul>
+<li>这是 <code>MCP Router</code> 的应用逻辑问题，不是普通启动项残留问题。</li>
+<li>单纯删除注册表启动项，只能治标，不能治本。</li>
+</ul>
+<h3>三、处理过程</h3>
+<h4>1. 已验证的无效方案</h4>
+<ul>
+<li>启动文件夹脚本：</li>
+<p>- 登录时删除 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code> 中的 <code>com.squirrel.MCP-Router.MCPRouter</code> - 该方案只能在登录时执行一次 - 用户后续手动打开 <code>MCP Router</code> 后，启动项仍会被重新写回</p>
+</ul>
+<h4>2. 中途尝试但已回滚的方案</h4>
+<ul>
+<li>曾尝试直接修改 <code>MCP Router</code> 安装包内的 <code>app.asar</code></li>
+<li>该方案导致程序无法正常打开</li>
+<li>已将安装包恢复到原始可运行状态</li>
+<li>后续未继续采用安装包篡改方式</li>
+</ul>
+<h4>3. 最终采用方案</h4>
+<p>采用“外部监视压制”方案，不再修改 <code>MCP Router</code> 安装包：</p>
+<ul>
+<li>创建后台监视脚本，持续监视 <code>MCP Router</code> 的开机自启注册表项</li>
+<li>一旦检测到 <code>com.squirrel.MCP-Router.MCPRouter</code> 被重新写回：</li>
+<p>- 立即删除 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code> 中的对应值 - 同时删除 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run</code> 中的对应值</p>
+<li>对于带 <code>--hidden</code> 或 <code>--minimized</code> 参数启动的隐藏自启进程，脚本会自动结束该进程</li>
+<li>用户手动正常打开的 <code>MCP Router</code> 主进程不会被误杀</li>
+</ul>
+<h3>四、当前保留文件</h3>
+<h4>1. 后台监视脚本</h4>
+<p>路径：</p>
+<p><code>C:\Users\lenovo\AppData\Local\MCP-Router\watch-mcp-router-autostart.ps1</code></p>
+<p>作用：</p>
+<ul>
+<li>每 2 秒轮询一次</li>
+<li>自动删除 <code>MCP Router</code> 写回的自启注册表项</li>
+<li>自动结束隐藏启动的 <code>MCP Router.exe</code></li>
+</ul>
+<h4>2. 登录启动器</h4>
+<p>路径：</p>
+<p><code>C:\Users\lenovo\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\watch-mcp-router-autostart.vbs</code></p>
+<p>作用：</p>
+<ul>
+<li>在用户登录 Windows 后，静默拉起上述 PowerShell 监视脚本</li>
+</ul>
+<h3>五、当前状态</h3>
+<p>截至 2026-05-14，已确认以下状态：</p>
+<ul>
+<li><code>MCP Router</code> 可正常打开</li>
+<li><code>mcp-router</code> 工具链可正常工作</li>
+<li><code>Tavily</code> 已在当前 Codex 会话中成功调用</li>
+<li><code>MCP Router</code> 启动项会被后台监视器自动清除</li>
+<li>用户手动打开 <code>MCP Router</code> 后，任务管理器中的启动项可在短时间内自动消失</li>
+</ul>
+<h3>六、已删除内容</h3>
+<p>以下临时排障残留已删除：</p>
+<ul>
+<li>早期登录补刀脚本 <code>disable-mcp-router-autostart.cmd</code></li>
+<li>本地补刀脚本 <code>disable-autostart.cmd</code></li>
+<li>修改安装包时留下的备份文件 <code>app.asar.bak</code></li>
+<li>修改安装包时留下的备份文件 <code>index.js.bak</code></li>
+</ul>
+<h3>七、后续注意事项</h3>
+<h4>1. 不要手动删除以下两个文件</h4>
+<ul>
+<li><code>C:\Users\lenovo\AppData\Local\MCP-Router\watch-mcp-router-autostart.ps1</code></li>
+<li><code>C:\Users\lenovo\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\watch-mcp-router-autostart.vbs</code></li>
+</ul>
+<p>如果删除，<code>MCP Router</code> 的开机自启问题大概率会再次出现。</p>
+<h4>2. 后续如 <code>MCP Router</code> 升级</h4>
+<p>当前方案属于外部压制，不依赖旧版安装包，因此软件升级后大概率仍然有效。</p>
+<p>但如果升级后：</p>
+<ul>
+<li>启动参数改变</li>
+<li>进程名改变</li>
+<li>自启注册表键名改变</li>
+</ul>
+<p>则需要重新检查监视脚本中的判断逻辑。</p>
+<h4>3. 如果后续准备彻底卸载该方案</h4>
+<p>需要同时删除：</p>
+<ul>
+<li><code>C:\Users\lenovo\AppData\Local\MCP-Router\watch-mcp-router-autostart.ps1</code></li>
+<li><code>C:\Users\lenovo\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\watch-mcp-router-autostart.vbs</code></li>
+</ul>
+<p>然后重新观察 <code>MCP Router</code> 是否再次写回开机启动项。</p>
+<h3>八、建议</h3>
+<ul>
+<li>当前无需继续清理</li>
+<li>维持现状即可</li>
+<li>若后续 <code>MCP Router</code> 官方修复该问题，再考虑移除本地监视脚本</li>
+</ul></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

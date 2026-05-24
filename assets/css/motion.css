@@ -1,0 +1,197 @@
+/* ===================================
+   Motion — keyframes, reveals, timeline
+   =================================== */
+
+/* ---- Keyframes ---- */
+
+@keyframes reveal-rule {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes reveal-write {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes reveal-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes reveal-fade {
+  to { opacity: 1; }
+}
+
+@keyframes caret-blink {
+  0%, 70%     { opacity: 1; }
+  70.01%, 100% { opacity: 0; }
+}
+
+@keyframes stamp-diamond {
+  0%   { opacity: 0; transform: rotate(45deg) scale(0.6); filter: blur(2px); }
+  55%  { opacity: 1; transform: rotate(45deg) scale(1.18); filter: blur(0) drop-shadow(0 0 4px rgba(181,57,45,0.45)); }
+  100% { opacity: 1; transform: rotate(45deg) scale(1); filter: blur(0); }
+}
+
+@keyframes paper-soak {
+  from { background: #FFFFFF; }
+  to   { background: radial-gradient(ellipse 90% 70% at 50% 50%, #FAF6EC 0%, #F8F4EA 40%, #EDE6D2 100%); }
+}
+
+@keyframes divider-draw {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes corner-fade {
+  from { opacity: 0; }
+  to   { opacity: 0.5; }
+}
+
+@keyframes status-pulse {
+  0%   { opacity: 0.5; transform: scale(0.6); }
+  70%  { opacity: 0;   transform: scale(1.4); }
+  100% { opacity: 0;   transform: scale(1.4); }
+}
+
+
+/* ---- Reveal utility classes ---- */
+
+.reveal--rule {
+  transform-origin: left;
+  animation: reveal-rule 380ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal--write {
+  clip-path: inset(0 100% 0 0);
+  animation: reveal-write 680ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal--rise {
+  opacity: 0;
+  animation: reveal-rise 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal--fade {
+  opacity: 0;
+  animation: reveal-fade 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+
+/* ---- Entrance timeline assignments ---- */
+
+.site-nav__rule {
+  --reveal-delay: var(--t-rule-top);
+}
+
+.site-nav__brand {
+  --reveal-delay: var(--t-brand);
+}
+
+.site-nav__meta,
+.site-nav__links a,
+.site-nav__github {
+  --reveal-delay: var(--t-nav);
+}
+
+.hero-eyebrow {
+  --reveal-delay: var(--t-label);
+}
+
+.hero-title__line:nth-child(1) {
+  --reveal-delay: var(--t-hero-1);
+}
+
+.plate-pane {
+  --reveal-delay: var(--t-plate);
+}
+
+.hero-title__line:nth-child(2) {
+  --reveal-delay: var(--t-hero-2);
+}
+
+.hero-title__line:nth-child(3) {
+  --reveal-delay: var(--t-hero-3);
+}
+
+.project-rail {
+  --reveal-delay: var(--t-projects);
+}
+
+.status-bar {
+  --reveal-delay: var(--t-status);
+}
+
+.hero-title__caret {
+  --reveal-delay: var(--t-caret);
+  animation: caret-blink 1s step-end infinite;
+  animation-delay: var(--reveal-delay);
+}
+
+.site-nav__mark {
+  --reveal-delay: var(--t-seal);
+  animation: stamp-diamond 820ms var(--ease-brush) both;
+  animation-delay: var(--reveal-delay);
+}
+
+.corner-mark {
+  --reveal-delay: var(--t-corners);
+  animation: corner-fade 680ms var(--ease-ink) both;
+  animation-delay: var(--reveal-delay);
+}
+
+
+/* ---- Reduced motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal--write,
+  .reveal--rise,
+  .reveal--fade,
+  .reveal--rule {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+
+  .hero-title__caret {
+    animation: none;
+    opacity: 0;
+  }
+
+  .site-nav__mark {
+    animation: none;
+  }
+
+  body::after {
+    display: none;
+  }
+}
+
+
+/* ---- Cross-document view transitions ---- */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: fade-out 0.2s ease both;
+}
+
+::view-transition-new(root) {
+  animation: fade-in 0.2s ease both;
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}

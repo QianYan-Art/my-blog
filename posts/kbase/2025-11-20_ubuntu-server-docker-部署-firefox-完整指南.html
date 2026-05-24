@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>停止 · 千颜</title>
+  <meta name="description" content="本指南用于在 Ubuntu 服务器（或其他 Linux 发行版）中通过 Docker 部署一个带有 Web 界面（NoVNC）的可操作 Firefox 浏览器。（jlesage/firefox镜像） 适用场景：远程办公、">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>停止<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2025-11-20</span><span>4 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><p>本指南用于在 Ubuntu 服务器（或其他 Linux 发行版）中通过 Docker 部署一个带有 Web 界面（NoVNC）的可操作 Firefox 浏览器。（jlesage/firefox镜像）</p>
+<p><strong>适用场景</strong>：远程办公、网络调试、挂机脚本、通过服务器访问内网资源。</p>
+<h3>1. 前置准备</h3>
+<p>确保服务器已安装 Docker。如果你的用户没有 Docker 组权限，请在所有命令前加上 <code>sudo</code>。</p>
+<h4>创建数据持久化目录</h4>
+<p>为了防止重启容器后书签、历史记录和登录状态丢失，我们需要在宿主机创建一个配置文件夹。</p>
+<pre><code>sudo mkdir -p /opt/docker/firefox/config</code></pre>
+<h3>2. 启动容器 (最佳实践命令)</h3>
+<p>此命令已包含以下优化：</p>
+<ul>
+<li><strong>高性能</strong>：分配 4GB 共享内存，防止浏览器崩溃。</li>
+</ul>
+<ul>
+<li><strong>中文支持</strong>：启动时自动安装 <code>font-noto-cjk</code>（思源黑体）。</li>
+</ul>
+<ul>
+<li><strong>高清画质</strong>：默认分辨率设为 1920x1080。</li>
+</ul>
+<ul>
+<li><strong>安全加固</strong>：设置访问密码。</li>
+</ul>
+<p>请修改下方命令中的 <code>你的访问密码</code> 后执行：</p>
+<pre><code>sudo docker run -d \
+    --name=firefox \
+    -p 5800:5800 \
+    -v /opt/docker/firefox/config:/config:rw \
+    --shm-size 4g \
+    -e DISPLAY_WIDTH=1920 \
+    -e DISPLAY_HEIGHT=1080 \
+    -e INSTALL_DEPENDENCIES=font-noto-cjk \
+    -e VNC_PASSWORD=你的访问密码 \
+    --restart always \
+    jlesage/firefox</code></pre>
+<h4>参数详解</h4>
+<ul>
+<li><code>-p 5800:5800</code>: Web 访问端口。</li>
+</ul>
+<ul>
+<li><code>--shm-size 4g</code>: <strong>关键参数</strong>，解决现代浏览器内存不足崩溃的问题。</li>
+</ul>
+<ul>
+<li><code>-e INSTALL_DEPENDENCIES=font-noto-cjk</code>: 自动安装中文字体包，解决方块乱码。</li>
+</ul>
+<ul>
+<li><code>-v ...</code>: 将容器内的配置映射到服务器硬盘，保证数据不丢。</li>
+</ul>
+<p>&gt; <strong>⚠️ 注意</strong>：运行命令后，请等待 <strong>1-2 分钟</strong>，容器需要时间在后台下载并安装字体包。</p>
+<h3>3. 防火墙设置</h3>
+<p>如果无法访问，请检查防火墙：</p>
+<ol>
+<li><strong>云厂商安全组</strong>（阿里云/腾讯云/AWS）：在控制台放行 <strong>TCP 5800</strong> 端口。</li>
+</ol>
+<ol>
+<li><strong>面板防火墙</strong>（1Panel/宝塔）：在防火墙设置中放行 <strong>5800</strong> 端口。</li>
+</ol>
+<ol>
+<li><strong>UFW (Ubuntu原生)</strong>: <code>sudo ufw allow 5800/tcp</code></li>
+</ol>
+<h3>4. 浏览器初始化设置</h3>
+<p>访问地址：<code>http://你的服务器IP:5800</code></p>
+<h4>A. 优化字体显示 (必做)</h4>
+<p>为了获得最佳的中文阅读体验：</p>
+<ol>
+<li>打开 Firefox <strong>Settings (设置)</strong> -&gt; 搜索 <strong>Fonts</strong>。</li>
+</ol>
+<ol>
+<li>点击 <strong>Advanced (高级)</strong>。</li>
+</ol>
+<ol>
+<li><strong>Proportional (比例字体)</strong>: 修改为 <strong>Sans-serif</strong> (无衬线体)。</li>
+</ol>
+<ol>
+<li><strong>Sans-serif</strong>: 选择 <strong>Noto Sans CJK SC</strong>。</li>
+</ol>
+<ol>
+<li><strong>Monospace</strong>: 选择 <strong>Noto Sans Mono CJK SC</strong>。</li>
+</ol>
+<h4>B. 开启无痕/隐私模式 (可选)</h4>
+<p>如果你不希望浏览器记录历史网址：</p>
+<ol>
+<li>Settings -&gt; Privacy &amp; Security -&gt; History。</li>
+</ol>
+<ol>
+<li>选择 <strong>Never remember history</strong>。</li>
+</ol>
+<ol>
+<li>按提示重启浏览器（Restart Firefox）。</li>
+</ol>
+<h4>C. 侧边栏工具使用</h4>
+<p>点击浏览器左侧的小箭头打开 NoVNC 控制栏：</p>
+<ul>
+<li><strong>Clipboard</strong>: 用于本机与服务器之间的文字复制粘贴中转。</li>
+</ul>
+<ul>
+<li><strong>Quality</strong>: 建议拉满（最右侧），获得最清晰画质。</li>
+</ul>
+<ul>
+<li><strong>Scaling Mode</strong>: 建议选 <strong>Local Scaling</strong>，让画面适应你的浏览器窗口。</li>
+</ul>
+<h3>5. 维护与管理</h3>
+<h4>停止与启动</h4>
+<pre><code># 停止
+sudo docker stop firefox
+
+# 启动
+sudo docker start firefox
+
+# 重启 (如果感觉卡顿)
+sudo docker restart firefox</code></pre>
+<h4>彻底删除 (卸载)</h4>
+<p>如果你不想用了，想要彻底清除环境：</p>
+<p><strong>步骤 1：删除容器</strong></p>
+<pre><code>sudo docker rm -f firefox</code></pre>
+<p><strong>步骤 2：删除镜像 (释放 400MB+ 空间)</strong></p>
+<pre><code>sudo docker rmi jlesage/firefox</code></pre>
+<p>步骤 3：删除配置文件 (慎用！会丢失所有书签和数据)</p>
+<p>只有在你确定连数据都不要了的时候才执行：</p>
+<pre><code>sudo rm -rf /opt/docker/firefox</code></pre>
+<h3>6. 常见问题排查</h3>
+<ul>
+<li><strong>Q: 打开全是方块字乱码？</strong></li>
+</ul>
+<p>- A: 可能是自动下载字体失败。执行手动修复命令：</p>
+<pre><code>        sudo docker exec firefox apk update
+        sudo docker exec firefox apk add font-noto-cjk
+        sudo docker restart firefox</code></pre></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

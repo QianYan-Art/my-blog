@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>uv 缓存清理与环境依赖记录 · 千颜</title>
+  <meta name="description" content="uv 缓存清理与环境依赖记录 更新时间：20260515 目的 本次记录用于说明本机 uv 缓存清理前的核查结果、已补充的依赖记录文件，以及后续环境恢复方式。 本次只处理： C:\Users\lenovo\AppData">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">本地记录</p>
+      <h1>uv 缓存清理与环境依赖记录<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-15</span><span>5 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>uv 缓存清理与环境依赖记录</h2>
+<p>更新时间：2026-05-15</p>
+<h3>目的</h3>
+<p>本次记录用于说明本机 <code>uv</code> 缓存清理前的核查结果、已补充的依赖记录文件，以及后续环境恢复方式。</p>
+<p>本次只处理：</p>
+<ul>
+<li><code>C:\Users\lenovo\AppData\Local\uv\cache</code></li>
+</ul>
+<p>本次不处理：</p>
+<ul>
+<li><code>C:\Users\lenovo\AppData\Local\Docker</code></li>
+<li><code>C:\Users\lenovo\.conda</code></li>
+<li><code>C:\Users\lenovo\.ollama</code></li>
+<li><code>C:\Users\lenovo\.lmstudio</code></li>
+</ul>
+<h3>结论</h3>
+<p>可以清理 <code>uv cache</code>。</p>
+<p>原因：</p>
+<ol>
+<li>已核对的 10 套本地 Python 环境都还能正常启动。</li>
+<li>对缺少项目依赖清单的目录，已补充 <code>requirements.freeze.txt</code>。</li>
+<li>清理 <code>uv cache</code> 不会删除现有 <code>.venv</code> / <code>venv</code> 环境本体，只会删除下载缓存与构建缓存。</li>
+</ol>
+<h3>已核对的环境</h3>
+<p>以下环境均已验证 <code>python.exe -V</code> 可正常执行：</p>
+<ol>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\汇报\7.31\yolo_analysis_service\venv</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\汇报\dataset\Elysia\.venv</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\汇报\dataset\ts_guide\new\.venv</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\汇报\py\.venv</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\文档\大三上\竞赛统计\py\.venv</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\文档\大三上\信息技术大作业\.venv</code></li>
+<li><code>C:\Users\lenovo\Documents\ComfyUI\.venv</code></li>
+<li><code>D:\MCP_Server\TS_analysis_report\.venv</code></li>
+<li><code>D:\MCP_Server\TS_generated_report\distill\.venv-distill</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\文档\大三下\交通大数据\.venv</code></li>
+</ol>
+<h3>已补充的依赖记录文件</h3>
+<p>以下目录新增了 <code>requirements.freeze.txt</code>：</p>
+<ol>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\汇报\7.31\yolo_analysis_service\requirements.freeze.txt</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\汇报\dataset\Elysia\requirements.freeze.txt</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\汇报\dataset\ts_guide\new\requirements.freeze.txt</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\汇报\py\requirements.freeze.txt</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\文档\大三上\竞赛统计\py\requirements.freeze.txt</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\文档\大三上\信息技术大作业\requirements.freeze.txt</code></li>
+<li><code>C:\Users\lenovo\Documents\ComfyUI\requirements.freeze.txt</code></li>
+<li><code>D:\MCP_Server\TS_analysis_report\requirements.freeze.txt</code></li>
+<li><code>D:\MCP_Server\TS_generated_report\distill\requirements.freeze.txt</code></li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\文档\大三下\交通大数据\requirements.freeze.txt</code></li>
+</ol>
+<p>说明：</p>
+<ul>
+<li>这些文件是从对应环境当前已安装包导出的冻结清单。</li>
+<li>它们不一定等同于项目最初设计时的最小依赖集合，但足以作为后续重建依据。</li>
+<li><code>C:\Users\lenovo\Desktop\ACE-099\汇报\dataset\Elysia\requirements.freeze.txt</code> 当前为空，说明该环境内几乎没有可导出的第三方包记录，后续如果要重建，应结合项目源码再判断实际需要的依赖。</li>
+</ul>
+<h3>后续如何恢复环境</h3>
+<h4>情况 1：项目根目录已有 <code>pyproject.toml</code> / <code>uv.lock</code></h4>
+<p>优先使用项目自己的声明文件恢复：</p>
+<pre><code>uv sync</code></pre>
+<p>如果项目使用 <code>requirements.txt</code>：</p>
+<pre><code>uv venv
+uv pip install -r requirements.txt</code></pre>
+<h4>情况 2：项目只有环境，没有正式依赖清单</h4>
+<p>使用本次补的 <code>requirements.freeze.txt</code>：</p>
+<pre><code>uv venv
+uv pip install -r requirements.freeze.txt</code></pre>
+<p>如果不用 <code>uv</code>，也可以用标准 <code>venv + pip</code>：</p>
+<pre><code>python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.freeze.txt</code></pre>
+<h3>关于 uv cache</h3>
+<p>本次清理对象主要包括：</p>
+<ul>
+<li><code>archive-v0</code></li>
+<li><code>sdists-v9</code></li>
+<li><code>simple-v15</code></li>
+<li><code>simple-v16</code></li>
+<li><code>simple-v18</code></li>
+<li><code>builds-v0</code></li>
+<li><code>interpreter-v4</code></li>
+<li><code>wheels-v5</code></li>
+<li><code>environments-v2</code></li>
+</ul>
+<p>这些目录属于：</p>
+<ul>
+<li>包下载缓存</li>
+<li>源码包缓存</li>
+<li>索引缓存</li>
+<li>构建缓存</li>
+</ul>
+<p>清理后影响：</p>
+<ol>
+<li>已经存在的本地虚拟环境一般仍可继续使用。</li>
+<li>以后重新创建环境或补装依赖时，需要重新下载包。</li>
+<li>离线安装能力会下降。</li>
+</ol>
+<h3>当前建议</h3>
+<ol>
+<li><code>uv cache</code> 可以清理。</li>
+<li><code>Docker</code> 的 WSL 数据盘暂时不要动，除非确认不再需要本地 Docker 数据。</li>
+<li>以后新建项目，尽量补齐以下至少一种依赖声明：</li>
+<p>- <code>uv.lock</code> - <code>pyproject.toml</code> - <code>requirements.txt</code></p>
+</ol>
+<h3>本次未改动项</h3>
+<ul>
+<li>未删除任何现有 <code>.venv</code> / <code>venv</code></li>
+<li>未删除任何项目源码</li>
+<li>未处理 Docker 数据</li>
+<li>未处理 Conda、Ollama、LM Studio 模型或环境</li>
+</ul></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

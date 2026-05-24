@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实时聊天项目清理修复与推送记录 · 千颜</title>
+  <meta name="description" content="20260522 实时聊天项目清理修复与推送记录 1. 目标 对 D:\Answer\realtimeapp 做一次完整收尾，确认项目当前状态，并把真正影响后续维护的遗留问题处理掉。目标包括： 回顾此前对项目的修复与推送">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">本地记录</p>
+      <h1>实时聊天项目清理修复与推送记录<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-22</span><span>9 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>2026-05-22 实时聊天项目清理修复与推送记录</h2>
+<h3>1. 目标</h3>
+<p>对 <code>D:\Answer\real-time-app</code> 做一次完整收尾，确认项目当前状态，并把真正影响后续维护的遗留问题处理掉。目标包括：</p>
+<ul>
+<li>回顾此前对项目的修复与推送上下文</li>
+<li>检查仓库是否干净、是否还有未推送内容</li>
+<li>验证当前代码、配置、README 与实际运行方式是否一致</li>
+<li>清理不应纳入版本控制的运行产物与敏感文件</li>
+<li>修复残留死代码或文档/实现不一致项</li>
+<li>完成推送，并为后续开发或排障整理方向</li>
+</ul>
+<h3>2. 项目与仓库信息</h3>
+<ul>
+<li>项目目录：<code>D:\Answer\real-time-app</code></li>
+<li>远端仓库：<code>https://github.com/QianYan-Art/realtime-chat-app.git</code></li>
+<li>当前主分支：<code>main</code></li>
+</ul>
+<p>项目当前技术结构：</p>
+<ul>
+<li>前端：HTML / CSS / 原生 JavaScript / Express 静态服务</li>
+<li>后端：Spring Boot 3.2.3 / Spring Security / Spring WebSocket / JWT / H2</li>
+<li>通讯：HTTP + WebSocket（STOMP）</li>
+<li>实时能力：聊天室消息 + WebRTC 信令</li>
+</ul>
+<h3>3. 本次回顾到的历史工作结果</h3>
+<p>结合上下文，项目此前已经完成过一轮大修，核心成果包括：</p>
+<ol>
+<li>独立初始化 <code>real-time-app</code> 子目录 git 仓库，避免把上级目录一并推送。</li>
+<li>增加 <code>.gitignore</code>，覆盖：</li>
+<p>- <code>.env</code> - <code>logs/</code> - <code>backend/logs/</code> - <code>backend/target/</code> - <code>backend/data/</code> - <code>data/</code> - <code>node_modules/</code> - <code>frontend/dist/</code> - <code>*.pid</code></p>
+<li>清理 README、配置文件、环境变量模板中的敏感值与错误说明。</li>
+<li>新增认证与安全相关后端代码：</li>
+<p>- <code>SecurityConfig.java</code> - <code>JwtAuthenticationFilter.java</code> - <code>WebSocketAuthInterceptor.java</code> - <code>AuthController.java</code></p>
+<li>新增聊天与 WebRTC 信令相关代码：</li>
+<p>- <code>ChatController.java</code> - <code>ChatMessage.java</code> - <code>WebRTCSignalingController.java</code></p>
+<li>前端改为原生 WebSocket + 手写 STOMP 帧，不再依赖 SockJS 客户端。</li>
+<li>修复登录、登出、聊天、消息订阅、WebRTC 信令的主流程问题。</li>
+<li>已多次推送到 GitHub，并在此前完成过工作区清理。</li>
+</ol>
+<h3>4. 本次实际执行的检查与修复</h3>
+<h4>4.1 核对仓库状态与提交历史</h4>
+<p>先检查：</p>
+<ul>
+<li><code>git status</code></li>
+<li><code>git log --oneline</code></li>
+</ul>
+<p>确认主仓库在 <code>main</code> 分支，且此前 README 更新、清理提交都已存在于提交历史中。</p>
+<h3>4.2 审查 README、配置与实际实现是否一致</h3>
+<p>本次重点重新核对了：</p>
+<ul>
+<li><code>README.md</code></li>
+<li><code>.gitignore</code></li>
+<li><code>.env.example</code></li>
+<li><code>backend/src/main/resources/application.properties</code></li>
+<li><code>frontend/js/config.js</code></li>
+<li><code>frontend/server.js</code></li>
+</ul>
+<p>结论：</p>
+<ol>
+<li>README 基本已经跟当前实现对齐。</li>
+<li><code>.gitignore</code> 已经写对，但<strong>仅写 ignore 还不够</strong>，因为部分运行产物此前已经被 git 追踪。</li>
+<li><code>frontend/js/config.js</code> 中，本地 WebSocket 实际走的是：</li>
+<p>- <code>ws://localhost:8083/ws</code></p>
+<li><code>frontend/server.js</code> 中却还留着 <code>/ws</code> 代理：</li>
+<p>- 这是<strong>无效残留</strong>，因为当前前端本地并不通过该代理走 WebSocket。</p>
+</ol>
+<h4>4.3 识别出真正的残留问题</h4>
+<p>本次最关键的发现不是业务代码，而是仓库卫生问题：</p>
+<p>#### 问题 1：<code>backend/target/</code> 仍被 git 追踪</p>
+<p>后果：</p>
+<ul>
+<li>每次运行或编译后端，工作区都会被 class 文件、jar、maven-status 等产物污染。</li>
+<li>这类文件已经被 <code>.gitignore</code> 覆盖，但因为曾被纳入版本库，所以 ignore 不会自动生效。</li>
+</ul>
+<p>#### 问题 2：<code>backend/logs/</code> 仍被 git 追踪</p>
+<p>后果：</p>
+<ul>
+<li>每次运行后端，日志文件都会改动，导致 <code>git status</code> 变脏。</li>
+<li>这类日志本应是纯运行产物，不应参与版本管理。</li>
+</ul>
+<p>#### 问题 3：<code>frontend/server.js</code> 保留未使用的 <code>/ws</code> 代理</p>
+<p>后果：</p>
+<ul>
+<li>不影响当前运行，但会误导后续维护者。</li>
+<li>容易让人误以为本地 WebSocket 还需要走 Express 代理。</li>
+</ul>
+<h3>5. 本次已执行的修复动作</h3>
+<h4>5.1 删除 <code>frontend/server.js</code> 中未使用的 <code>/ws</code> 代理</h4>
+<p>处理内容：</p>
+<ul>
+<li>删除 Express 中针对 <code>/ws</code> 的 <code>createProxyMiddleware</code> 配置块。</li>
+</ul>
+<p>处理理由：</p>
+<ul>
+<li>当前前端本地 <code>config.js</code> 已明确直连 <code>ws://localhost:8083/ws</code>。</li>
+<li>保留无用代理只会增加误导与未来排错成本。</li>
+</ul>
+<h4>5.2 清理 git 中已被追踪的运行产物</h4>
+<p>执行去追踪处理：</p>
+<ul>
+<li><code>git rm -r --cached backend/logs backend/target</code></li>
+</ul>
+<p>这一步的意义不是删除本地文件，而是：</p>
+<ul>
+<li>让 git 停止继续跟踪这些目录下的运行产物</li>
+<li>保留本地实际文件供运行使用</li>
+<li>让 <code>.gitignore</code> 真正生效</li>
+</ul>
+<h4>5.3 再次确认工作区是否恢复干净</h4>
+<p>在停止占用进程并恢复运行产物后，再次检查状态，确保：</p>
+<ul>
+<li>只有真正源代码修改会出现在 <code>git status</code></li>
+<li>运行后端不会再把日志和 target 自动刷进待提交列表</li>
+</ul>
+<h3>6. 本次做过的验证</h3>
+<p>本次至少做了以下验证：</p>
+<h4>6.1 后端编译验证</h4>
+<p>执行：</p>
+<ul>
+<li><code>cd backend &amp;&amp; mvn compile -q</code></li>
+</ul>
+<p>结果：</p>
+<ul>
+<li>编译通过</li>
+</ul>
+<h4>6.2 前端关键脚本语法验证</h4>
+<p>执行：</p>
+<ul>
+<li><code>cd frontend &amp;&amp; node -c js/app.js</code></li>
+<li><code>cd frontend &amp;&amp; node -c js/websocket.js</code></li>
+<li><code>cd frontend &amp;&amp; node -c js/webrtc.js</code></li>
+<li><code>cd frontend &amp;&amp; node -c server.js</code></li>
+</ul>
+<p>结果：</p>
+<ul>
+<li>语法全部通过</li>
+</ul>
+<h4>6.3 运行态问题复核</h4>
+<p>中途还排查过一次端口占用情况，发现：</p>
+<ul>
+<li><code>3000</code> 端口已有旧前端进程占用</li>
+<li><code>8083</code> 端口已有旧后端进程占用</li>
+</ul>
+<p>随后已终止旧进程，避免后续误判“启动失败”。</p>
+<h3>7. README 与仓库清理相关处理</h3>
+<p>在本次收尾前后，README 与仓库卫生已完成以下调整：</p>
+<ol>
+<li>README 已更新为当前真实架构：</li>
+<p>- 原生 WebSocket + STOMP - 非 SockJS 客户端 - 前端本地 API 走代理、WebSocket 直连后端</p>
+<li><code>.env</code> 已从 git 追踪中移除</li>
+<li><code>logs/</code> 已从 git 追踪中移除</li>
+<li><code>backend/logs/</code> 与 <code>backend/target/</code> 已从 git 追踪中移除</li>
+<li><code>setupProxy.js</code> 这类旧残留文件已被删除</li>
+</ol>
+<h3>8. 本次最终推送结果</h3>
+<p>最终提交并推送了清理与修复，最新关键提交包括：</p>
+<ul>
+<li><code>33235b8 chore: stop tracking runtime artifacts and remove unused ws proxy</code></li>
+<li><code>51baf65 docs: update README and remove tracked sensitive files</code></li>
+</ul>
+<p>最终确认状态：</p>
+<ul>
+<li><code>git status</code> 为干净</li>
+<li><code>main</code> 已推送到远端</li>
+</ul>
+<h3>9. 当前项目结论</h3>
+<p>截至本次记录结束，项目处于：</p>
+<ul>
+<li>代码已推送</li>
+<li>工作区干净</li>
+<li>README 已与当前实现基本对齐</li>
+<li>本地运行产物已不再污染 git 状态</li>
+<li>前端 / 后端最小编译与语法检查通过</li>
+</ul>
+<p>也就是说，<strong>当前最主要的“清理和推送”工作已经完成</strong>。</p>
+<h3>10. 后续开发方向</h3>
+<p>后续更值得做的，不再是仓库卫生，而是业务层补强：</p>
+<h4>10.1 优先方向：补做真实 WebRTC 双端验证</h4>
+<p>当前虽然已经有：</p>
+<ul>
+<li><code>call</code></li>
+<li><code>answer</code></li>
+<li><code>ice-candidate</code></li>
+<li><code>hangup</code></li>
+</ul>
+<p>这些信令流程代码，但此前更明确验证过的是“聊天链路”。</p>
+<p>后续建议：</p>
+<ol>
+<li>打开两个浏览器会话/两个账号。</li>
+<li>分别登录不同用户。</li>
+<li>验证：</li>
+<p>- 发起通话是否能触发对端收到 call - answer 是否正确回传 - ICE 候选是否双向发送 - hangup 是否让双方 UI 同步恢复</p>
+<li>重点记录浏览器 console、Network、WebSocket 帧内容。</li>
+</ol>
+<h4>10.2 优先方向：补做持久化用户体系</h4>
+<p>目前 <code>AuthController</code> 仍是演示型账号体系，存在明显上限：</p>
+<ul>
+<li>默认账号是硬编码测试账号</li>
+<li>注册逻辑不是完整数据库用户系统</li>
+<li>没有密码哈希存储</li>
+</ul>
+<p>建议后续步骤：</p>
+<ol>
+<li>增加用户实体、仓储、服务层。</li>
+<li>密码改为 BCrypt 等哈希存储。</li>
+<li>登录改成查库校验，而不是演示账号硬编码判断。</li>
+<li>再补充注册冲突校验、用户唯一约束。</li>
+</ol>
+<h4>10.3 优先方向：补自动化测试</h4>
+<p>当前项目的验证主要还是人工与编译级验证，后续建议补：</p>
+<ol>
+<li><code>/api/auth/login</code> 成功 / 失败测试</li>
+<li><code>/api/auth/register</code> 参数校验测试</li>
+<li>JWT 保护接口未认证访问测试</li>
+<li>WebSocket STOMP 基础消息流测试</li>
+<li><code>ChatController</code> 消息分发测试</li>
+<li>WebRTC 信令控制器基本路由测试</li>
+</ol>
+<h4>10.4 优先方向：再做一轮配置瘦身</h4>
+<p>虽然主要清理已完成，但后续仍可考虑：</p>
+<ol>
+<li>复查 <code>frontend/package.json</code> 中是否还有低频依赖可删。</li>
+<li>检查 <code>backend/pom.xml</code> 是否存在未实际使用依赖。</li>
+<li>明确生产配置和开发配置边界，减少默认 DEBUG 级别噪音。</li>
+</ol>
+<h3>11. 后续排 bug 建议步骤</h3>
+<p>如果后续再出现“项目似乎没问题，但运行又不对”的情况，建议按下面顺序排：</p>
+<h4>第一步：先看 git 状态</h4>
+<p>执行：</p>
+<ul>
+<li><code>git status</code></li>
+</ul>
+<p>确认是不是又把不该追踪的文件带回版本库，或者是否真的只是运行产物变化。</p>
+<h4>第二步：查端口占用</h4>
+<p>执行：</p>
+<ul>
+<li><code>netstat -ano | findstr &quot;:3000&quot;</code></li>
+<li><code>netstat -ano | findstr &quot;:8083&quot;</code></li>
+</ul>
+<p>避免把旧进程占端口误判成“代码启动失败”。</p>
+<h4>第三步：最小编译/语法验证</h4>
+<p>执行：</p>
+<ul>
+<li><code>cd backend &amp;&amp; mvn compile -q</code></li>
+<li><code>cd frontend &amp;&amp; node -c js/app.js &amp;&amp; node -c js/websocket.js &amp;&amp; node -c js/webrtc.js &amp;&amp; node -c server.js</code></li>
+</ul>
+<p>先分清是编译/语法问题，还是运行期问题。</p>
+<h4>第四步：检查前端 WebSocket 配置</h4>
+<p>重点核对：</p>
+<ul>
+<li><code>frontend/js/config.js</code></li>
+<li>WebSocket 本地应仍是 <code>ws://localhost:8083/ws</code></li>
+</ul>
+<p>不要误改回通过 Express <code>/ws</code> 代理的老思路。</p>
+<h4>第五步：检查认证链路</h4>
+<p>重点核对：</p>
+<ul>
+<li>HTTP 是否带 <code>Authorization: Bearer &lt;token&gt;</code></li>
+<li>WebSocket CONNECT 帧是否也带 token</li>
+<li>登录失败时是否清理旧 token</li>
+<li>登出后是否断开 WebSocket 并清除本地状态</li>
+</ul>
+<h4>第六步：再做浏览器级联调</h4>
+<p>如果编译都过了但功能仍异常，再进入浏览器联调：</p>
+<ol>
+<li>看 Console 报错</li>
+<li>看 Network 中 <code>/api/auth/login</code> 返回</li>
+<li>看 WebSocket 是否成功 CONNECT</li>
+<li>看 STOMP SUBSCRIBE / SEND 帧是否发出</li>
+<li>看消息 DOM 是否真实更新，而不是只看页面表象</li>
+</ol>
+<h3>12. 本次操作的核心经验</h3>
+<p>这次真正需要记住的不是某个单点 bug，而是两个维护原则：</p>
+<ol>
+<li><strong><code>.gitignore</code> 写了，不代表历史上被追踪过的文件会自动消失。</strong></li>
+<p>- 需要 <code>git rm --cached</code> 才能真正停止追踪。</p>
+<li><strong>文档、代理、配置一旦与实际实现脱节，就会制造后续排障成本。</strong></li>
+<p>- 特别是 WebSocket 是否走代理、是否还依赖 SockJS 这类信息，必须与代码一致。</p>
+</ol>
+<h3>13. 当前最终状态摘要</h3>
+<p>截至本次文档写入时：</p>
+<ul>
+<li><code>real-time-app</code> 仓库已经完成清理</li>
+<li>清理后的提交已经推送</li>
+<li>当前工作区干净</li>
+<li>运行产物不会再反复污染版本库</li>
+<li>后续更应该投入的是：</li>
+<p>- WebRTC 双端真实验证 - 用户体系持久化 - 自动化测试补全 - 配置与依赖进一步收紧</p>
+</ul></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

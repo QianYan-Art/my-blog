@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>服务器目录规范、日志与备份策略 · 千颜</title>
+  <meta name="description" content="20260508 服务器目录规范、日志与备份策略 1. 背景 这台服务器后续会承载多个站点。 当前磁盘结构只有一个主要根分区： /dev/vda4 / 因此本次没有做“物理分区重切”，而是改成更适合现阶段的： 统一目录规">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>服务器目录规范、日志与备份策略<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-08</span><span>5 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>2026-05-08 服务器目录规范、日志与备份策略</h2>
+<h3>1. 背景</h3>
+<p>这台服务器后续会承载多个站点。 当前磁盘结构只有一个主要根分区：</p>
+<ul>
+<li><code>/dev/vda4 -&gt; /</code></li>
+</ul>
+<p>因此本次没有做“物理分区重切”，而是改成更适合现阶段的：</p>
+<ul>
+<li>统一目录规范</li>
+<li>日志统一收口</li>
+<li>自动轮转与自动备份</li>
+</ul>
+<p>这套方案的优点是：</p>
+<ul>
+<li>不需要停机重分区</li>
+<li>对新站点扩展友好</li>
+<li>维护成本低</li>
+<li>后期如果确实需要再迁移到独立盘或对象存储也方便</li>
+</ul>
+<h3>2. 目录规范</h3>
+<h4>2.1 应用编排目录</h4>
+<ul>
+<li><code>/srv/apps</code></li>
+</ul>
+<p>用途：</p>
+<ul>
+<li>存放 Docker Compose 文件</li>
+<li>存放应用 <code>.env</code></li>
+<li>存放站点说明文件</li>
+</ul>
+<p>当前已有：</p>
+<ul>
+<li><code>/srv/apps/zipline</code></li>
+<li><code>/srv/apps/SITES.md</code></li>
+</ul>
+<h4>2.2 业务数据目录</h4>
+<ul>
+<li><code>/srv/data</code></li>
+</ul>
+<p>用途：</p>
+<ul>
+<li>存放上传文件</li>
+<li>存放应用持久化数据</li>
+<li>存放数据库数据卷</li>
+</ul>
+<p>当前已有：</p>
+<ul>
+<li><code>/srv/data/zipline</code></li>
+</ul>
+<h4>2.3 日志目录</h4>
+<ul>
+<li><code>/srv/logs</code></li>
+<li><code>/srv/logs/nginx</code></li>
+</ul>
+<p>用途：</p>
+<ul>
+<li>统一管理 Nginx 站点访问日志和错误日志</li>
+</ul>
+<h4>2.4 备份目录</h4>
+<ul>
+<li><code>/srv/backups</code></li>
+</ul>
+<p>用途：</p>
+<ul>
+<li>存放每日自动备份产物</li>
+</ul>
+<h3>3. Nginx 日志统一收口</h3>
+<h4>3.1 当前站点日志</h4>
+<p>Komari：</p>
+<ul>
+<li><code>/srv/logs/nginx/qianyan.access.log</code></li>
+<li><code>/srv/logs/nginx/qianyan.error.log</code></li>
+</ul>
+<p>Zipline 图床：</p>
+<ul>
+<li><code>/srv/logs/nginx/img.access.log</code></li>
+<li><code>/srv/logs/nginx/img.error.log</code></li>
+</ul>
+<h4>3.2 站点日志轮转</h4>
+<p>新增 <code>logrotate</code> 配置：</p>
+<ul>
+<li><code>/etc/logrotate.d/srv-nginx-sites</code></li>
+</ul>
+<p>策略：</p>
+<ul>
+<li>每天轮转</li>
+<li>保留 <code>14</code> 份</li>
+<li>自动压缩</li>
+<li>使用 <code>USR1</code> 通知 Nginx 平滑切日志</li>
+</ul>
+<h3>4. journald 限额</h3>
+<p>新增配置文件：</p>
+<ul>
+<li><code>/etc/systemd/journald.conf.d/99-qianyan-limits.conf</code></li>
+</ul>
+<p>内容：</p>
+<ul>
+<li><code>SystemMaxUse=500M</code></li>
+<li><code>RuntimeMaxUse=100M</code></li>
+<li><code>MaxRetentionSec=14day</code></li>
+<li><code>Compress=yes</code></li>
+</ul>
+<p>作用：</p>
+<ul>
+<li>防止系统日志无限增长</li>
+<li>保持近 14 天可查</li>
+</ul>
+<h3>5. Docker 日志轮转</h3>
+<p>Docker 守护进程配置：</p>
+<ul>
+<li><code>/etc/docker/daemon.json</code></li>
+</ul>
+<p>当前策略：</p>
+<pre><code>{
+  &quot;live-restore&quot;: true,
+  &quot;log-driver&quot;: &quot;json-file&quot;,
+  &quot;log-opts&quot;: {
+    &quot;max-size&quot;: &quot;20m&quot;,
+    &quot;max-file&quot;: &quot;5&quot;
+  }
+}</code></pre>
+<p>作用：</p>
+<ul>
+<li>每个容器日志最多约 <code>100MB</code></li>
+<li>防止容器 stdout/stderr 把磁盘吃满</li>
+</ul>
+<h3>6. 自动备份</h3>
+<h4>6.1 备份脚本</h4>
+<ul>
+<li><code>/usr/local/bin/qianyan-backup.sh</code></li>
+</ul>
+<h4>6.2 systemd 服务与定时器</h4>
+<ul>
+<li><code>/etc/systemd/system/qianyan-backup.service</code></li>
+<li><code>/etc/systemd/system/qianyan-backup.timer</code></li>
+</ul>
+<h4>6.3 执行时间</h4>
+<ul>
+<li>每天 <code>04:20</code></li>
+</ul>
+<h4>6.4 保留策略</h4>
+<ul>
+<li>自动保留最近 <code>7</code> 天目录备份</li>
+<li>超过 <code>7</code> 天的旧备份自动删除</li>
+</ul>
+<h4>6.5 备份内容</h4>
+<p>脚本当前会备份：</p>
+<ul>
+<li><code>/srv/apps</code></li>
+<li><code>/srv/data</code></li>
+<li><code>/opt/komari</code></li>
+<li><code>/etc/nginx</code></li>
+<li><code>/etc/letsencrypt</code></li>
+<li><code>/etc/ssh/sshd_config</code></li>
+<li><code>/etc/ssh/sshd_config.d</code></li>
+<li><code>/etc/systemd/journald.conf.d</code></li>
+<li><code>/etc/logrotate.d</code></li>
+<li><code>/etc/docker/daemon.json</code></li>
+<li><code>zipline.sql</code> 数据库导出</li>
+</ul>
+<h4>6.6 备份目录结构</h4>
+<p>示例：</p>
+<pre><code>/srv/backups/2026-05-08_06-42-36
+/srv/backups/latest -&gt; /srv/backups/2026-05-08_06-42-36</code></pre>
+<h4>6.7 当前验证状态</h4>
+<p>备份定时器当前已验证可用：</p>
+<ul>
+<li>定时器：<code>qianyan-backup.timer</code></li>
+<li>执行时间：每天 <code>04:20</code></li>
+<li>已手动触发过一次</li>
+<li><code>latest</code> 软链接正常更新</li>
+</ul>
+<h3>7. 最近一次清理记录</h3>
+<p>后续又做过一次保守清理。</p>
+<p>清理内容：</p>
+<ul>
+<li>删除远端 <code>/tmp</code> 中的部署临时脚本、调试脚本、临时 <code>.tmp.js</code> / <code>.tmp.ico</code></li>
+<li>清理 <code>apt</code> 缓存</li>
+<li>执行 Docker 镜像与构建缓存清理</li>
+</ul>
+<p>清理原则：</p>
+<ul>
+<li>不删除业务数据</li>
+<li>不删除证书</li>
+<li>不删除容器持久化目录</li>
+<li>不删除实际站点日志</li>
+</ul>
+<p>清理后状态：</p>
+<ul>
+<li><code>APT</code> 缓存约 <code>12K</code></li>
+<li>Docker 无可回收镜像</li>
+<li>根分区使用约 <code>8.6G / 157G</code></li>
+</ul>
+<h3>8. 站点清单文件</h3>
+<p>服务器内新增：</p>
+<ul>
+<li><code>/srv/apps/SITES.md</code></li>
+</ul>
+<p>用途：</p>
+<ul>
+<li>记录每个域名对应的应用</li>
+<li>记录反向代理端口</li>
+<li>记录数据目录</li>
+<li>方便以后新增站点时快速定位</li>
+</ul>
+<h3>9. 当前建议的新增站点流程</h3>
+<p>以后每新建一个站点，建议固定按下面做：</p>
+<ol>
+<li>在 <code>/srv/apps/&lt;site&gt;</code> 放 Compose 或应用配置</li>
+<li>在 <code>/srv/data/&lt;site&gt;</code> 放持久化数据</li>
+<li>Nginx 站点文件单独放 <code>/etc/nginx/sites-available/&lt;domain&gt;</code></li>
+<li>日志写到 <code>/srv/logs/nginx/&lt;site&gt;.access.log</code> 和 <code>&lt;site&gt;.error.log</code></li>
+<li>用 <code>certbot --nginx -d &lt;domain&gt;</code> 签证书</li>
+<li>备份脚本默认会把整套目录带上，无需单独改逻辑</li>
+</ol>
+<h3>10. 当前策略的边界</h3>
+<p>这套方案已经足够支撑：</p>
+<ul>
+<li>多个 Docker 站点</li>
+<li>多个 Nginx 反代站点</li>
+<li>图床 / 面板 / API / 静态站</li>
+</ul>
+<p>但它不是物理隔离方案。 如果未来出现以下情况，再考虑拆分磁盘或对象存储：</p>
+<ul>
+<li>图床上传量很大</li>
+<li>日志量很大</li>
+<li>视频类文件明显增加</li>
+<li>想把上传文件迁移到 S3 / R2 / OSS</li>
+</ul>
+<h3>11. 结论</h3>
+<p>当前服务器已经具备：</p>
+<ul>
+<li>统一目录结构</li>
+<li>统一日志入口</li>
+<li>自动轮转</li>
+<li>自动证书续期</li>
+<li>自动每日备份</li>
+</ul>
+<p>对“建各种站”的用途来说，这已经是一个比较稳的第一版基线。 后续新增站点时，尽量不要再各自散放目录，而是继续沿用这套结构。</p></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

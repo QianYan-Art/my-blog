@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ubuntu 22.04 Swap (虚拟内存) 安装与卸载完整指南 · 千颜</title>
+  <meta name="description" content="本教程将指导您如何在 Ubuntu 22.04 系统上检查、创建、优化以及安全移除 Swap 文件。 1. 检查当前的 Swap 状态 在开始之前，首先检查系统是否已经配置了 Swap。 打开终端执行： 或者： 如果输出">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>Ubuntu 22.04 Swap (虚拟内存) 安装与卸载完整指南<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2025-11-20</span><span>3 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><p>本教程将指导您如何在 Ubuntu 22.04 系统上检查、创建、优化以及安全移除 Swap 文件。</p>
+<h3>1. 检查当前的 Swap 状态</h3>
+<p>在开始之前，首先检查系统是否已经配置了 Swap。</p>
+<p>打开终端执行：</p>
+<pre><code>sudo swapon --show</code></pre>
+<p>或者：</p>
+<pre><code>free -h</code></pre>
+<ul>
+<li>如果输出为空（<code>swapon</code>）或 Swap 一栏显示 <code>0B</code>，说明当前没有 Swap。</li>
+</ul>
+<ul>
+<li>如果已有 Swap，请根据需要决定是保留还是扩大（需先卸载旧的）。</li>
+</ul>
+<h3>2. 创建并启用 Swap (安装教程)</h3>
+<p>假设我们需要创建一个 <strong>4GB</strong> 的 Swap 文件。</p>
+<h4>第一步：创建 Swap 文件</h4>
+<p>我们将使用 <code>fallocate</code> 命令快速创建一个文件（比 <code>dd</code> 更快）。</p>
+<pre><code>sudo fallocate -l 4G /swapfile</code></pre>
+<p>&gt; <strong>注意</strong>：如果您需要不同大小，请将 <code>4G</code> 替换为 <code>1G</code>, <code>2G</code>, <code>8G</code> 等。</p>
+<h4>第二步：设置权限</h4>
+<p>为了安全起见，Swap 文件应该只能由 root 用户读取。</p>
+<pre><code>sudo chmod 600 /swapfile</code></pre>
+<h4>第三步：将文件格式化为 Swap 区域</h4>
+<pre><code>sudo mkswap /swapfile</code></pre>
+<h4>第四步：激活 Swap</h4>
+<pre><code>sudo swapon /swapfile</code></pre>
+<p>此时，您可以再次运行 <code>sudo free -h</code>，应该能看到 Swap 总量增加了。</p>
+<h4>第五步：设置开机自启 (持久化)</h4>
+<p>如果您现在重启电脑，刚才的设置会失效。我们需要将其写入 <code>/etc/fstab</code> 文件。</p>
+<p>为了防止出错，先备份：</p>
+<pre><code>sudo cp /etc/fstab /etc/fstab.bak</code></pre>
+<p>将配置追加到文件末尾：</p>
+<pre><code>echo &#39;/swapfile none swap sw 0 0&#39; | sudo tee -a /etc/fstab</code></pre>
+<h3>3. 优化 Swap 性能 (可选推荐)</h3>
+<h4>调整 Swappiness</h4>
+<p><code>swappiness</code> 参数决定了系统使用 Swap 的频率。值范围 0-100。</p>
+<ul>
+<li><strong>60</strong> (默认)：适合桌面环境。</li>
+</ul>
+<ul>
+<li><strong>10</strong> (推荐服务器)：尽可能使用物理内存，仅在紧急时使用 Swap。</li>
+</ul>
+<p><strong>查看当前值：</strong></p>
+<pre><code>cat /proc/sys/vm/swappiness</code></pre>
+<p><strong>临时修改 (重启失效)：</strong></p>
+<pre><code>sudo sysctl vm.swappiness=10</code></pre>
+<p>永久修改：</p>
+<p>编辑配置文件：</p>
+<pre><code>sudo nano /etc/sysctl.conf</code></pre>
+<p>在文件末尾添加或修改以下行：</p>
+<pre><code>vm.swappiness=10</code></pre>
+<p>保存 (<code>Ctrl+O</code>, <code>Enter</code>) 并退出 (<code>Ctrl+X</code>)。</p>
+<h3>4. 删除 Swap (卸载教程)</h3>
+<p>如果您不再需要 Swap，或者想要调整大小（先删后加），请按以下步骤操作。</p>
+<h4>第一步：停用 Swap</h4>
+<p>这将把 Swap 中的数据移回内存，可能需要几秒钟。</p>
+<pre><code>sudo swapoff -v /swapfile</code></pre>
+<h4>第二步：删除开机自启配置</h4>
+<p>我们需要从 <code>/etc/fstab</code> 中移除刚才添加的那一行，否则重启会报错。</p>
+<p>打开文件：</p>
+<pre><code>sudo nano /etc/fstab</code></pre>
+<p>找到类似 /swapfile none swap sw 0 0 的行，将其删除或在行首加 # 注释掉。</p>
+<p>保存并退出。</p>
+<h4>第三步：删除文件</h4>
+<p>最后，删除物理文件释放磁盘空间。</p>
+<pre><code>sudo rm /swapfile</code></pre>
+<h3>常见问题</h3>
+<ol>
+<li><strong>Swap 应该设多大？</strong></li>
+</ol>
+<p>- 内存 &lt; 2GB：Swap 设为内存的 2 倍。</p>
+<p>- 内存 2GB - 8GB：Swap 等于内存大小。</p>
+<p>- 内存 &gt; 8GB：Swap 设为 4GB - 8GB 通常足够。</p>
+<ol>
+<li><strong>执行 <code>fallocate</code> 报错？</strong></li>
+</ol>
+<p>- 如果您的文件系统是 <strong>XFS</strong> 或某些老旧环境，<code>fallocate</code> 可能会失败。</p>
+<p>- <strong>替代方案</strong>：使用 <code>dd</code> 命令（速度较慢但更稳健）：</p>
+<pre><code>        sudo dd if=/dev/zero of=/swapfile bs=1G count=4</code></pre></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

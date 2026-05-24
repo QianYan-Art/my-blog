@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>两台VPS Reality SNI切换与简易HTTPS站部署记录 · 千颜</title>
+  <meta name="description" content="目标 为两台 VPS 上的 singbox VLESS + Reality 节点补一个可控的最简 HTTPS 握手站，用于把 SNI/serverName 从第三方大厂域名切换为自有域名，并同时满足以下要求： 不抢占现有">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>两台VPS Reality SNI切换与简易HTTPS站部署记录<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-08</span><span>11 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h3>目标</h3>
+<p>为两台 VPS 上的 <code>sing-box VLESS + Reality</code> 节点补一个可控的最简 HTTPS 握手站，用于把 <code>SNI/serverName</code> 从第三方大厂域名切换为自有域名，并同时满足以下要求：</p>
+<ul>
+<li>不抢占现有 <code>443</code></li>
+<li>尽量少占内存</li>
+<li>证书可自动续期</li>
+<li>VPS 重启后可自动恢复</li>
+<li>不影响原有 <code>komari-agent</code></li>
+<li>客户端尽量少改配置</li>
+</ul>
+<p>---</p>
+<h3>最终设计总览</h3>
+<h4>设计原则</h4>
+<p>现有节点已经由 <code>sing-box</code> 监听 <code>443</code>，因此不直接把 HTTPS 站部署到 <code>443</code>，而是采用下面的分工：</p>
+<ul>
+<li><code>443</code>：继续由 <code>sing-box</code> 提供 <code>VLESS + Reality</code></li>
+<li><code>80</code>：用于 HTTP 验证、ACME、续期</li>
+<li><code>8443</code>：最简 HTTPS 站，作为 Reality 的握手目标</li>
+</ul>
+<h4>改造后客户端需要改什么</h4>
+<p>客户端通常只需要修改节点中的 <code>SNI/serverName</code>：</p>
+<ul>
+<li>机器一：<code>sni.4071253.xyz</code></li>
+<li>机器二：<code>sni.starryocean.qzz.io</code></li>
+</ul>
+<p>通常不需要改：</p>
+<ul>
+<li><code>address</code></li>
+<li><code>port</code></li>
+<li><code>uuid</code></li>
+<li><code>public key</code></li>
+<li><code>flow</code></li>
+</ul>
+<h4>为什么 <code>address</code> 不一定要改成域名</h4>
+<p><code>address</code> 只是客户端真正连接 VPS 的入口。</p>
+<p>如果当前 VPS 的 IP 稳定，继续使用 IP 作为连接入口没有问题。这次改造的核心目标是把 Reality 握手所用的 <code>SNI</code> 从第三方域名切换为自有域名，而不是强制替换客户端连接入口。</p>
+<p>---</p>
+<h3>机器一</h3>
+<h4>基本信息</h4>
+<ul>
+<li>IP：<code>82.40.32.123</code></li>
+<li>SSH 端口：<code>23333</code></li>
+<li>新 SNI 域名：<code>sni.4071253.xyz</code></li>
+<li>原节点类型：<code>VLESS-REALITY-443</code></li>
+<li>原 <code>server_name</code>：<code>aws.amazon.com</code></li>
+</ul>
+<h4>实际变更</h4>
+<ol>
+<li>保持 <code>sing-box</code> 继续监听 <code>443</code></li>
+<li>安装 <code>Caddy</code></li>
+<li>新建最简静态站目录：</li>
+<p>- <code>/var/www/sni.4071253.xyz/index.html</code></p>
+<li>新建 <code>Caddy</code> 配置：</li>
+<p>- <code>/etc/caddy/Caddyfile</code></p>
+<li>站点端口规划：</li>
+<p>- <code>80</code>：仅用于 HTTP/ACME - <code>8443</code>：最简 HTTPS 站</p>
+<li>修改 Reality 配置文件：</li>
+<p>- <code>/etc/sing-box/conf/VLESS-REALITY-443.json</code></p>
+<li>保留原有节点身份信息不变，仅切换：</li>
+<p>- <code>tls.server_name</code> - <code>tls.reality.handshake.server</code> - <code>tls.reality.handshake.server_port = 8443</code></p>
+</ol>
+<h4>证书方案</h4>
+<p>机器一使用 <code>Caddy</code> 自动签发并自动续期证书：</p>
+<ul>
+<li>域名：<code>sni.4071253.xyz</code></li>
+<li>签发机构：<code>Let&#39;s Encrypt</code></li>
+<li>证书由 <code>Caddy</code> 自动管理</li>
+</ul>
+<h4>当前核心状态</h4>
+<ul>
+<li><code>sing-box</code> 监听 <code>443</code></li>
+<li><code>Caddy</code> 监听 <code>80</code> 和 <code>8443</code></li>
+<li>HTTPS 站访问地址：</li>
+<p>- <code>https://sni.4071253.xyz:8443</code></p>
+<li>Reality 配置结果：</li>
+<p>- <code>server_name = sni.4071253.xyz</code> - <code>handshake.server = sni.4071253.xyz</code> - <code>handshake.server_port = 8443</code></p>
+</ul>
+<h4>维护要点</h4>
+<ul>
+<li>域名必须保持 <strong>仅 DNS</strong></li>
+<li>不要把该域名切到 CDN、EdgeOne 代理或其他反向代理模式</li>
+<li>不要关闭 <code>80</code></li>
+<li>不要删除 <code>Caddy</code> 的证书存储目录</li>
+<li>VPS 重启后无需额外人工操作，<code>caddy</code> 和 <code>sing-box</code> 可自动拉起</li>
+</ul>
+<p>---</p>
+<h3>机器二</h3>
+<h4>基本信息</h4>
+<ul>
+<li>IP：<code>69.63.211.129</code></li>
+<li>SSH 端口：<code>23333</code></li>
+<li>新 SNI 域名：<code>sni.starryocean.qzz.io</code></li>
+<li>原节点类型：<code>VLESS-REALITY-443</code></li>
+<li>原 <code>server_name</code>：<code>www.amazon.com</code></li>
+</ul>
+<h4>实际变更</h4>
+<ol>
+<li>保持 <code>sing-box</code> 继续监听 <code>443</code></li>
+<li>安装 <code>Caddy</code></li>
+<li>新建最简静态站目录：</li>
+<p>- <code>/var/www/sni.starryocean.qzz.io/index.html</code></p>
+<li>新建 <code>Caddy</code> 配置：</li>
+<p>- <code>/etc/caddy/Caddyfile</code></p>
+<li>站点端口规划：</li>
+<p>- <code>80</code>：用于 HTTP/ACME - <code>8443</code>：用于 HTTPS 握手站</p>
+<li>修改 Reality 配置文件：</li>
+<p>- <code>/etc/sing-box/conf/VLESS-REALITY-443.json</code></p>
+<li>保留原有节点身份信息不变，仅切换：</li>
+<p>- <code>tls.server_name</code> - <code>tls.reality.handshake.server</code> - <code>tls.reality.handshake.server_port = 8443</code></p>
+</ol>
+<h4>证书方案</h4>
+<p>机器二没有继续使用 <code>Caddy</code> 自动签发，而是改为 <code>acme.sh + webroot</code> 方案。</p>
+<p>原因：</p>
+<ul>
+<li>Debian 自带的 <code>Caddy 2.6.2</code> 在该机针对该域名自动签发时出现内部 panic</li>
+<li>为了降低不确定性，改用更稳的 <code>acme.sh</code> 管理证书签发与续期</li>
+</ul>
+<p>最终方案：</p>
+<ul>
+<li>使用 <code>acme.sh</code> 为 <code>sni.starryocean.qzz.io</code> 申请 <code>Let&#39;s Encrypt</code> 证书</li>
+<li><code>webroot</code> 使用：</li>
+<p>- <code>/var/www/sni.starryocean.qzz.io</code></p>
+<li>证书部署到：</li>
+<p>- <code>/etc/ssl/starryocean/sni.starryocean.qzz.io.crt</code> - <code>/etc/ssl/starryocean/sni.starryocean.qzz.io.key</code></p>
+<li><code>Caddy</code> 读取上述证书文件提供 HTTPS</li>
+<li><code>acme.sh</code> 续期任务保存在 <code>root</code> 的 <code>crontab</code></li>
+<li>续期后执行：</li>
+<p>- <code>systemctl restart caddy</code></p>
+</ul>
+<h4>当前核心状态</h4>
+<ul>
+<li><code>sing-box</code> 监听 <code>443</code></li>
+<li><code>Caddy</code> 监听 <code>80</code> 和 <code>8443</code></li>
+<li>HTTPS 站访问地址：</li>
+<p>- <code>https://sni.starryocean.qzz.io:8443</code></p>
+<li>Reality 配置结果：</li>
+<p>- <code>server_name = sni.starryocean.qzz.io</code> - <code>handshake.server = sni.starryocean.qzz.io</code> - <code>handshake.server_port = 8443</code></p>
+</ul>
+<h4>维护要点</h4>
+<ul>
+<li>域名必须保持 <strong>仅 DNS</strong></li>
+<li>不要切到 CDN 或代理模式</li>
+<li><code>80</code> 必须保持可访问，用于 <code>acme.sh</code> 续期</li>
+<li>不要删除：</li>
+<p>- <code>/root/.acme.sh</code> - <code>/etc/ssl/starryocean/</code></p>
+<li>VPS 重启后无需手动干预，<code>caddy</code> 和 <code>sing-box</code> 可自动恢复</li>
+</ul>
+<p>---</p>
+<h3>与需求的对应关系</h3>
+<p>本方案满足你的实际需求：</p>
+<ol>
+<li><code>VLESS + Reality</code> 仍由 <code>sing-box</code> 在 <code>443</code> 提供服务</li>
+<li>Reality 握手使用自有域名，而不是大厂域名</li>
+<li>握手落点是本机 <code>8443</code> 的真实 HTTPS 站</li>
+<li>客户端改动极小，只需改 <code>SNI/serverName</code></li>
+<li>不破坏现有 <code>komari-agent</code></li>
+<li>支持证书自动续期与重启自动恢复</li>
+</ol>
+<p>---</p>
+<h3>当前配置核验结论</h3>
+<p>截至 <code>2026-05-08</code> 复查，两个节点当前状态正常。</p>
+<h4>机器一核验结果</h4>
+<ul>
+<li><code>sing-box</code> 服务状态：<code>active</code></li>
+<li><code>caddy</code> 服务状态：<code>active</code></li>
+<li><code>sing-box</code> 监听：<code>443</code></li>
+<li><code>caddy</code> 监听：<code>80</code>、<code>8443</code></li>
+<li>Reality 配置中：</li>
+<p>- <code>server_name = sni.4071253.xyz</code> - <code>handshake.server = sni.4071253.xyz</code> - <code>handshake.server_port = 8443</code></p>
+<li><code>https://sni.4071253.xyz:8443</code> 返回 <code>HTTP 200</code></li>
+<li>对 <code>127.0.0.1:443</code> 指定 <code>SNI=sni.4071253.xyz</code> 时，返回证书为该域名证书</li>
+</ul>
+<h4>机器二核验结果</h4>
+<ul>
+<li><code>sing-box</code> 服务状态：<code>active</code></li>
+<li><code>caddy</code> 服务状态：<code>active</code></li>
+<li><code>sing-box</code> 监听：<code>443</code></li>
+<li><code>caddy</code> 监听：<code>80</code>、<code>8443</code></li>
+<li>Reality 配置中：</li>
+<p>- <code>server_name = sni.starryocean.qzz.io</code> - <code>handshake.server = sni.starryocean.qzz.io</code> - <code>handshake.server_port = 8443</code></p>
+<li><code>https://sni.starryocean.qzz.io:8443</code> 返回 <code>HTTP 200</code></li>
+<li>对 <code>127.0.0.1:443</code> 指定 <code>SNI=sni.starryocean.qzz.io</code> 时，返回证书为该域名证书</li>
+</ul>
+<h4>结论</h4>
+<p>当前可以确认：</p>
+<ul>
+<li><code>VLESS + Reality</code> 已完成自有域名 SNI 切换</li>
+<li><code>sing-box</code> 当前工作正常</li>
+<li>两台机器的 HTTPS 握手站工作正常</li>
+<li>Reality 握手链路与文档设计一致</li>
+</ul>
+<p>---</p>
+<h3>Komari 自检结论</h3>
+<p>两台机器的 <code>komari-agent</code> 均未被本次改造破坏。</p>
+<h4>机器一</h4>
+<ul>
+<li>服务状态：<code>active (running)</code></li>
+<li>最近可见正常上报迹象：</li>
+<p>- <code>Get IPV4 Success: 82.40.32.123</code></p>
+</ul>
+<h4>机器二</h4>
+<ul>
+<li>服务状态：<code>active (running)</code></li>
+<li>最近可见正常上报迹象：</li>
+<p>- <code>WebSocket connected</code> - <code>Get IPV4 Success: 69.63.211.129</code> - <code>Get IPV6 Success: ...</code></p>
+</ul>
+<h4>关于 <code>curl https://komari.starryocean.qzz.io</code></h4>
+<p>从 VPS 上直接访问面板根路径返回 <code>404</code>，不代表 <code>komari-agent</code> 异常。</p>
+<p>这通常只表示：</p>
+<ul>
+<li>面板站点根路径当前路由返回 <code>404</code></li>
+<li>域名解析本身正常</li>
+<li><code>komari-agent</code> 的 WebSocket 与上报链路仍然正常</li>
+</ul>
+<p>也就是说，本次 Reality / Caddy / 证书改造 <strong>没有影响 Komari 正常工作</strong>。</p>
+<p>---</p>
+<h3>清理记录</h3>
+<p>为避免额外占用内存或磁盘，只做了低风险清理：</p>
+<ul>
+<li>清理 <code>apt</code> 缓存</li>
+<li>删除临时脚本和安装中间文件</li>
+</ul>
+<p>没有做的操作：</p>
+<ul>
+<li>没有强行 <code>drop_caches</code></li>
+<li>没有停用 <code>komari-agent</code></li>
+<li>没有改动 <code>kejilion.sh</code> 既有逻辑</li>
+<li>没有删除系统必要服务</li>
+</ul>
+<p>原因：</p>
+<p>Linux 页缓存本身可回收，强制清缓存对长期稳定运行帮助很小，反而可能引入额外抖动。</p>
+<p>---</p>
+<h3>建议保留的自检命令</h3>
+<p>下面这些命令适合作为手工核验命令使用，但只建议临时执行，不建议做成后台常驻脚本。</p>
+<h4>机器一</h4>
+<pre><code>systemctl is-active caddy
+systemctl is-active sing-box
+ss -lntp | grep -E &#39;:80 |:443 |:8443 &#39;
+curl -I https://sni.4071253.xyz:8443
+echo | openssl s_client -connect 127.0.0.1:443 -servername sni.4071253.xyz 2&gt;/dev/null | openssl x509 -noout -subject -issuer -dates</code></pre>
+<h4>机器二</h4>
+<pre><code>systemctl is-active caddy
+systemctl is-active sing-box
+ss -lntp | grep -E &#39;:80 |:443 |:8443 &#39;
+curl -I https://sni.starryocean.qzz.io:8443
+echo | openssl s_client -connect 127.0.0.1:443 -servername sni.starryocean.qzz.io 2&gt;/dev/null | openssl x509 -noout -subject -issuer -dates
+crontab -l</code></pre>
+<h4>关于 <code>127.0.0.1:8443</code> 的说明</h4>
+<p>不要把下面这种命令的报错误判为站点故障：</p>
+<pre><code>curl https://127.0.0.1:8443</code></pre>
+<p>原因是：</p>
+<ul>
+<li>该 HTTPS 站是按域名签发证书的</li>
+<li>直接访问 <code>127.0.0.1</code> 时，请求里可能没有带正确的 <code>SNI</code></li>
+<li>因此可能出现 TLS 握手错误</li>
+</ul>
+<p>更可靠的检查方式是使用真实域名访问，或者显式带 <code>SNI</code> 的 <code>openssl s_client</code> 检查。</p>
+<p>---</p>
+<h3>风险提醒</h3>
+<ol>
+<li>用于 Reality 握手的域名必须保持 <strong>仅 DNS</strong></li>
+<li>不要把这两个 <code>SNI</code> 域名切回 CDN、代理或其他中间层</li>
+<li>不要关闭 <code>80</code></li>
+<li>不要让其他服务抢占 <code>8443</code></li>
+<li>机器二的证书续期依赖 <code>acme.sh</code>，不要删除 <code>/root/.acme.sh</code></li>
+<li>不要随意删除机器二的 <code>/etc/ssl/starryocean/</code></li>
+<li>不要无确认地改动 <code>sing-box</code> 的 <code>server_name</code>、<code>handshake.server</code>、<code>handshake.server_port</code></li>
+</ol>
+<p>---</p>
+<h3>2026-05-08 故障排查补充</h3>
+<h4>现象</h4>
+<p>探针显示两台 VPS 的单核 CPU 长时间打满。</p>
+<h4>根因</h4>
+<p>根因不是 <code>sing-box</code> 主进程异常，也不是 <code>caddy</code> 或 <code>komari-agent</code> 异常，而是自检类探测命令被长期挂在后台运行。</p>
+<p>#### 机器一发现的残留进程</p>
+<ul>
+<li><code>/bin/sh /root/update-reality.sh</code></li>
+<li><code>/bin/bash /etc/sing-box/sh/sing-box.sh info VLESS-REALITY-443</code></li>
+<li><code>zsh -c /etc/sing-box/sh/sing-box.sh info VLESS-REALITY-443 | sed -n &#39;1,20p&#39;</code></li>
+</ul>
+<p>#### 机器二发现的残留进程</p>
+<ul>
+<li><code>bash -c echo | openssl s_client -connect 127.0.0.1:443 -servername sni.starryocean.qzz.io ...</code></li>
+<li><code>/bin/bash /etc/sing-box/sh/sing-box.sh info VLESS-REALITY-443.json</code></li>
+</ul>
+<p>这些进程会持续执行：</p>
+<ul>
+<li><code>sing-box.sh info</code></li>
+<li><code>openssl s_client</code></li>
+<li>配置读取与证书探测</li>
+</ul>
+<p>最终导致单核 CPU 被长期占用。</p>
+<h4>处理动作</h4>
+<p>已手动终止上述残留进程。</p>
+<p>处理后复查结果：</p>
+<ul>
+<li>高占用探测进程消失</li>
+<li>即时 CPU 采样恢复正常</li>
+<li><code>sing-box</code> 仍为 <code>active</code></li>
+<li><code>caddy</code> 仍为 <code>active</code></li>
+<li><code>komari-agent</code> 未受影响</li>
+</ul>
+<h4>经验结论</h4>
+<p>后续不要把自检命令用以下方式长期挂起：</p>
+<ul>
+<li><code>watch</code></li>
+<li><code>while true</code></li>
+<li><code>nohup</code></li>
+<li>后台 <code>bash -c</code> / <code>zsh -c</code></li>
+<li>自定义长期循环脚本</li>
+</ul>
+<p>正确做法是：</p>
+<ul>
+<li>需要时手工执行一次</li>
+<li>确认结果后退出</li>
+<li>不要把它们变成长期探针</li>
+</ul>
+<p>如果后续再次出现单核 CPU 异常打满，优先检查是否存在以下残留命令：</p>
+<ul>
+<li><code>sing-box.sh info</code></li>
+<li><code>openssl s_client -connect 127.0.0.1:443 ...</code></li>
+<li>自定义 <code>update-reality.sh</code></li>
+</ul>
+<p>---</p>
+<h3>最终结论</h3>
+<p>截至 <code>2026-05-08</code>，这套方案已经满足原始目标：</p>
+<ul>
+<li>两台 VPS 都已完成自有域名 SNI 切换</li>
+<li>两台机器都已部署最简 HTTPS 握手站</li>
+<li><code>sing-box</code> 主代理链路正常</li>
+<li>客户端仅需修改 <code>SNI/serverName</code></li>
+<li>两台机器都支持重启自动恢复</li>
+<li>证书都具备自动续期能力</li>
+<li><code>komari-agent</code> 未受本次改造影响</li>
+</ul>
+<p>如果后续只想维持当前可用状态，重点就是：</p>
+<ul>
+<li>保持域名仅 DNS</li>
+<li>保持 <code>80</code> 和 <code>8443</code> 可用</li>
+<li>不要误删证书目录</li>
+<li>不要把自检命令挂成常驻探针</li>
+</ul></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

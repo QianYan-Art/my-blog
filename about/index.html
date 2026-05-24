@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>关于 · 千颜</title>
+  <meta name="description" content="关于诗千颜——一个喜欢把灵感做成完成品的人。">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page">
+  <div class="binding"></div>
+  <div class="corner-mark cm-tl"></div>
+  <div class="corner-mark cm-tr"></div>
+  <div class="corner-mark cm-bl"></div>
+  <div class="corner-mark cm-br"></div>
+  <canvas id="grid-overlay"></canvas>
+
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/">
+      <span class="site-nav__mark" aria-hidden="true"></span>
+      <span class="site-nav__title">千颜</span>
+    </a>
+    <span class="site-nav__meta">QianYan · ZZU · Earth</span>
+    <nav class="site-nav__links">
+      <a href="/blog/">文章</a>
+      <a href="/projects/">项目</a>
+      <a href="/about/">关于</a>
+    </nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+
+  <main class="page-main" style="display:flex;flex-direction:column;justify-content:center;padding-block:var(--space-7);max-width:42rem;margin:0 auto;width:100%;">
+    <article>
+      <p class="hero-eyebrow" style="margin-bottom:var(--space-4)">§ 关于</p>
+      <h1 style="font-family:var(--font-ui);font-size:clamp(28px,3.6vw,48px);font-weight:500;line-height:1.2;letter-spacing:-0.005em;color:#1A1410;">
+        千颜 <span style="font-family:var(--font-display);font-style:italic;color:var(--lead);font-weight:400;">QianYan</span>
+      </h1>
+
+      <div style="margin-top:var(--space-5);font-size:var(--text-body);line-height:2;color:var(--lead);max-width:34em;">
+        <p>我是千颜，一个喜欢把灵感做成完成品的人。</p>
+        <p>比起堆砌炫目的功能，我更在意一个项目是否有自己的节奏、结构与余味。</p>
+        <p>目前专注于 AI 应用、自动化工作流与全栈开发。享受构建轻量但完整的项目，让想法变得真实可触。</p>
+        <p>希望我写的代码不仅有实用价值，也带有一点温度和性格。</p>
+      </div>
+
+      <dl style="margin-top:var(--space-6);padding-top:var(--space-5);border-top:1px solid var(--line-strong);font-family:var(--font-mono);font-size:var(--text-micro);letter-spacing:0.12em;color:var(--mist);line-height:2.2;">
+        <div style="display:flex;gap:var(--space-3)">
+          <dt style="min-width:5em;text-transform:uppercase;">GitHub</dt>
+          <dd><a href="https://github.com/QianYan-Art" style="color:var(--ink);text-decoration:none;">QianYan-Art</a></dd>
+        </div>
+        <div style="display:flex;gap:var(--space-3)">
+          <dt style="min-width:5em;text-transform:uppercase;">Email</dt>
+          <dd><a href="mailto:suyuan4071253@163.com" style="color:var(--ink);text-decoration:none;">suyuan4071253@163.com</a></dd>
+        </div>
+        <div style="display:flex;gap:var(--space-3)">
+          <dt style="min-width:5em;text-transform:uppercase;">Website</dt>
+          <dd><a href="https://www.shiqianyan.cn" style="color:var(--ink);text-decoration:none;">shiqianyan.cn</a></dd>
+        </div>
+        <div style="display:flex;gap:var(--space-3)">
+          <dt style="min-width:5em;text-transform:uppercase;">Location</dt>
+          <dd style="color:var(--ink);">ZZU · Earth</dd>
+        </div>
+      </dl>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__rule"></div>
+    <div class="status-bar">
+      <div class="status-item"><span class="status-key">千颜</span><span class="status-dot"></span><span class="status-val">QianYan·Shi</span></div>
+      <div class="status-spacer"></div>
+      <div class="status-item"><span class="status-key">Updated</span><span class="status-val" id="footDate">23 May 2026</span></div>
+    </div>
+  </footer>
+
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

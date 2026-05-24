@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <style>
+      .ink { fill: none; stroke: #1a1612; stroke-linecap: round; stroke-linejoin: round; }
+      .ink-fill { fill: #1a1612; stroke: none; }
+      .sw-outer { stroke-width: 2.2; }
+      .sw-mid { stroke-width: 1.5; }
+      .sw-fine { stroke-width: 0.9; }
+    </style>
+  </defs>
+
+  <!-- Warm wash behind head/hair area -->
+  <g id="wash">
+    <ellipse cx="200" cy="140" rx="142" ry="148" fill="#f0e8d8" opacity="0.15"/>
+  </g>
+
+  <!-- Hair back: large silhouette masses -->
+  <g id="hair-back">
+    <!-- Main hair mass -->
+    <path class="ink sw-outer" d="M 78 92 C 68 48 106 26 168 23 C 235 21 290 30 318 56 C 348 85 358 122 352 166 C 346 215 338 260 328 298 C 318 340 308 368 292 385 C 275 398 250 394 226 381 C 200 366 178 341 158 310 C 136 276 120 235 110 192 C 100 148 90 115 82 100 Z" data-ink-stroke="true"/>
+    <!-- Right flowing hair extension -->
+    <path class="ink sw-outer" d="M 318 56 C 348 40 365 56 368 98 C 372 148 363 198 352 248 C 343 290 334 325 322 353 C 314 372 308 386 300 391" data-ink-stroke="true"/>
+    <!-- Interior hair clump divisions (sparse) -->
+    <path class="ink sw-fine" d="M 155 38 C 162 58 170 82 175 108"/>
+    <path class="ink sw-fine" d="M 240 28 C 248 48 255 74 258 102"/>
+    <path class="ink sw-fine" d="M 335 88 C 342 128 343 175 337 222"/>
+    <path class="ink sw-fine" d="M 310 362 C 298 340 292 310 290 278"/>
+    <path class="ink sw-fine" d="M 345 158 C 348 190 342 230 335 262"/>
+  </g>
+
+  <!-- Body: shoulders and collar -->
+  <g id="body">
+    <path class="ink sw-outer" d="M 100 252 C 118 228 165 222 200 222 C 235 222 282 228 300 252" data-ink-stroke="true"/>
+    <path class="ink sw-fine" d="M 188 220 C 188 226 190 232 195 236"/>
+    <path class="ink sw-fine" d="M 212 220 C 212 226 210 232 205 236"/>
+    <path class="ink sw-mid" d="M 182 224 C 188 238 200 245 212 238 C 218 234 221 228 219 224"/>
+    <path class="ink sw-fine" d="M 100 252 C 108 262 122 272 138 278"/>
+    <path class="ink sw-fine" d="M 300 252 C 292 262 278 272 262 278"/>
+  </g>
+
+  <!-- Face: head outline, features -->
+  <g id="face">
+    <!-- Face silhouette -->
+    <path class="ink sw-outer" d="M 200 64 C 254 62 286 100 282 153 C 278 200 253 222 200 222 C 147 222 122 200 118 153 C 114 100 146 62 200 64 Z" data-ink-stroke="true"/>
+
+    <!-- Left eyebrow -->
+    <path class="ink sw-fine" d="M 148 128 C 155 122 174 121 186 126"/>
+    <!-- Right eyebrow -->
+    <path class="ink sw-fine" d="M 214 126 C 226 121 245 122 252 128"/>
+
+    <!-- Left eye: upper lid -->
+    <path class="ink sw-mid" d="M 146 142 C 156 135 178 135 188 142"/>
+    <!-- Left eye: lower lid -->
+    <path class="ink sw-fine" d="M 149 148 C 160 154 176 154 185 148"/>
+    <!-- Left eye: iris (partially covered by upper lid) -->
+    <path class="ink sw-fine" d="M 153 148 C 156 152 178 152 181 148"/>
+    <!-- Left eye: pupil -->
+    <circle cx="167" cy="145" r="3.2" class="ink-fill"/>
+    <!-- Left eye: upper lid fold -->
+    <path class="ink sw-fine" d="M 150 138 C 158 135 174 135 184 138"/>
+
+    <!-- Right eye: upper lid -->
+    <path class="ink sw-mid" d="M 212 142 C 222 135 244 135 254 142"/>
+    <!-- Right eye: lower lid -->
+    <path class="ink sw-fine" d="M 215 148 C 226 154 242 154 251 148"/>
+    <!-- Right eye: iris -->
+    <path class="ink sw-fine" d="M 219 148 C 222 152 244 152 247 148"/>
+    <!-- Right eye: pupil -->
+    <circle cx="233" cy="145" r="3.2" class="ink-fill"/>
+    <!-- Right eye: upper lid fold -->
+    <path class="ink sw-fine" d="M 216 138 C 224 135 240 135 250 138"/>
+
+    <!-- Nose dot -->
+    <circle cx="200" cy="164" r="1.2" class="ink-fill"/>
+
+    <!-- Mouth: tiny gentle curve -->
+    <path class="ink sw-fine" d="M 194 182 C 196 185 204 185 206 182"/>
+
+    <!-- Blush left: three short diagonal strokes -->
+    <path class="ink sw-fine" d="M 134 157 L 141 153"/>
+    <path class="ink sw-fine" d="M 132 161 L 139 157"/>
+    <path class="ink sw-fine" d="M 134 165 L 141 161"/>
+
+    <!-- Blush right: three short diagonal strokes -->
+    <path class="ink sw-fine" d="M 266 157 L 259 153"/>
+    <path class="ink sw-fine" d="M 268 161 L 261 157"/>
+    <path class="ink sw-fine" d="M 266 165 L 259 161"/>
+  </g>
+
+  <!-- Hair front: bangs, side strands, tied section -->
+  <g id="hair-front">
+    <!-- Center part -->
+    <path class="ink sw-fine" d="M 200 54 C 200 60 200 66 200 70"/>
+
+    <!-- Left bangs: outer contours -->
+    <path class="ink sw-outer" d="M 200 64 C 194 66 183 72 169 87 C 157 100 145 118 137 139 C 132 150 129 157 127 160" data-ink-stroke="true"/>
+    <path class="ink sw-outer" d="M 200 64 C 190 68 177 78 160 97 C 146 115 135 135 128 152" data-ink-stroke="true"/>
+    <!-- Left bangs: interior lines -->
+    <path class="ink sw-fine" d="M 194 70 C 183 88 169 110 155 134"/>
+    <path class="ink sw-fine" d="M 188 76 C 178 95 165 118 150 142"/>
+
+    <!-- Right bangs: outer contours -->
+    <path class="ink sw-outer" d="M 200 64 C 206 66 217 72 231 87 C 243 100 255 118 263 139 C 268 150 271 157 273 160" data-ink-stroke="true"/>
+    <path class="ink sw-outer" d="M 200 64 C 210 68 223 78 240 97 C 254 115 265 135 272 152" data-ink-stroke="true"/>
+    <!-- Right bangs: interior lines -->
+    <path class="ink sw-fine" d="M 206 70 C 217 88 231 110 245 134"/>
+    <path class="ink sw-fine" d="M 212 76 C 222 95 235 118 250 142"/>
+
+    <!-- Left side strands framing face -->
+    <path class="ink sw-mid" d="M 127 160 C 122 172 117 188 115 204 C 113 218 115 232 120 242"/>
+    <path class="ink sw-fine" d="M 123 165 C 118 180 114 198 113 215"/>
+
+    <!-- Right side strands framing face -->
+    <path class="ink sw-mid" d="M 273 160 C 278 172 283 188 285 204 C 287 218 285 232 280 242"/>
+    <path class="ink sw-fine" d="M 277 165 C 282 180 286 198 287 215"/>
+
+    <!-- Tied side-section on right -->
+    <path class="ink sw-mid" d="M 285 204 C 293 212 302 216 310 213 C 316 210 320 203 318 194 C 316 186 309 180 301 180"/>
+    <!-- Tie ribbon -->
+    <path class="ink sw-fine" d="M 301 180 C 300 173 303 168 308 170"/>
+    <path class="ink sw-fine" d="M 301 180 C 302 173 299 168 295 170"/>
+    <!-- Hair flowing from tied section -->
+    <path class="ink sw-mid" d="M 301 180 C 312 188 320 205 322 225 C 324 242 320 260 312 274"/>
+    <path class="ink sw-fine" d="M 310 213 C 320 216 328 225 330 238"/>
+  </g>
+
+  <!-- Bow: large chest bow -->
+  <g id="bow">
+    <!-- Left loop -->
+    <path class="ink sw-mid" d="M 200 264 C 170 253 136 259 128 278 C 121 298 143 315 170 308 C 190 303 200 289 200 274"/>
+    <!-- Right loop -->
+    <path class="ink sw-mid" d="M 200 264 C 230 253 264 259 272 278 C 279 298 257 315 230 308 C 210 303 200 289 200 274"/>
+    <!-- Center knot -->
+    <ellipse cx="200" cy="274" rx="12" ry="14" class="ink sw-mid"/>
+    <!-- Left tail -->
+    <path class="ink sw-mid" d="M 189 284 C 180 304 171 328 168 348 C 165 362 168 374 173 380"/>
+    <!-- Right tail -->
+    <path class="ink sw-mid" d="M 211 284 C 220 304 229 328 232 348 C 235 362 232 374 227 380"/>
+    <!-- Interior fold lines -->
+    <path class="ink sw-fine" d="M 168 278 C 178 288 188 295 198 296"/>
+    <path class="ink sw-fine" d="M 232 278 C 222 288 212 295 202 296"/>
+    <!-- Left tail interior -->
+    <path class="ink sw-fine" d="M 186 290 C 180 315 176 340 174 355"/>
+    <!-- Right tail interior -->
+    <path class="ink sw-fine" d="M 214 290 C 220 315 224 340 226 355"/>
+  </g>
+
+  <!-- Hand: raised near chin, holding tiny folded slip -->
+  <g id="hand">
+    <!-- Hand back/palm -->
+    <path class="ink sw-mid" d="M 282 190 C 286 185 294 183 298 187 C 302 191 303 198 299 203 C 295 208 288 209 283 205 C 278 201 278 195 282 190 Z"/>
+    <!-- Thumb -->
+    <path class="ink sw-fine" d="M 283 190 C 280 185 281 180 285 179"/>
+    <!-- Finger hint -->
+    <path class="ink sw-fine" d="M 290 188 C 292 192 293 197 292 201"/>
+    <!-- Folded paper slip -->
+    <path class="ink sw-fine" d="M 292 188 L 301 187 L 302 194 L 293 195 Z"/>
+    <path class="ink sw-fine" d="M 294 190 L 300 189"/>
+  </g>
+
+  <!-- Vermillion seal: diamond near lower right -->
+  <g id="seal">
+    <rect x="316" y="312" width="26" height="26" transform="rotate(45, 329, 325)" fill="none" stroke="#B5392D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" rx="2"/>
+    <line x1="317" y1="325" x2="341" y2="325" stroke="#B5392D" stroke-width="1.3" stroke-linecap="round"/>
+  </g>
+</svg>

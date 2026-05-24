@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>查看内存及 Swap 使用情况 · 千颜</title>
+  <meta name="description" content="主机概况： 配置：2 vCPU / 2.5 GB RAM / 40 GB SSD 系统：Ubuntu 22.04 LTS 用户：Root 网络别名：RackNerdDF2 (根据 hostname) 1. 内存与 Swa">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>查看内存及 Swap 使用情况<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2025-11-22</span><span>4 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><p><strong>主机概况：</strong></p>
+<ul>
+<li><strong>配置</strong>：2 vCPU / 2.5 GB RAM / 40 GB SSD</li>
+</ul>
+<ul>
+<li><strong>系统</strong>：Ubuntu 22.04 LTS</li>
+</ul>
+<ul>
+<li><strong>用户</strong>：Root</li>
+</ul>
+<ul>
+<li><strong>网络别名</strong>：RackNerd-DF2 (根据 hostname)</li>
+</ul>
+<h3>1. 内存与 Swap 策略 (Memory Configuration)</h3>
+<p>鉴于 2.5G 物理内存对于运行 Docker 或现代应用略显紧张，我们实施了 <strong>&quot;保物理、大 Swap&quot;</strong> 的策略。</p>
+<h4>当前状态</h4>
+<ul>
+<li><strong>物理内存</strong>：2.5 GB</li>
+</ul>
+<ul>
+<li><strong>虚拟内存 (Swap)</strong>：4.0 GB (文件形式)</li>
+</ul>
+<ul>
+<li><strong>总可用内存空间</strong>：~6.5 GB</li>
+</ul>
+<h4>已执行的操作</h4>
+<ol>
+<li><strong>禁用旧分区</strong>：禁用了原本位于 <code>/dev/vda3</code> 的 1.2GB Swap 分区。</li>
+</ol>
+<ol>
+<li><strong>创建新 Swap</strong>：在根目录下创建了 <code>/swapfile</code> (4GB)。</li>
+</ol>
+<ol>
+<li>性能优化 (Swappiness)：</li>
+</ol>
+<p>将 vm.swappiness 从默认的 60 调整为 10。</p>
+<p>&gt; <strong>意义</strong>：告诉内核“除非物理内存剩余极少，否则不要使用 Swap”。这能显著减少 SSD 的读写损耗，防止 VPS 因频繁换页而卡顿。</p>
+<h4>常用检查命令</h4>
+<pre><code># 查看内存及 Swap 使用情况
+free -h
+
+# 查看当前的 Swappiness 值 (应为 10)
+cat /proc/sys/vm/swappiness</code></pre>
+<h3>2. 存储空间规划 (Storage Layout)</h3>
+<p>我们将原本闲置的 1.2GB 旧 Swap 分区进行了“废物利用”，将其转换为独立的数据存储盘。</p>
+<h4>当前挂载结构</h4>
+<div class="post-table-wrap"><table><thead><tr><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td><strong>设备</strong></td><td><strong>挂载点</strong></td><td><strong>大小</strong></td><td><strong>文件系统</strong></td><td><strong>用途</strong></td></tr><tr><td><code>/dev/vda2</code></td><td><code>/</code></td><td>~38G</td><td>ext4</td><td>操作系统、Docker 镜像、程序代码</td></tr><tr><td><code>/dev/vda3</code></td><td><strong><code>/mnt/logs</code></strong></td><td><strong>1.2G</strong></td><td><strong>ext4</strong></td><td><strong>专用日志、临时备份、非易失性缓存</strong></td></tr><tr><td><code>/swapfile</code></td><td>[Swap]</td><td>4.0G</td><td>swap</td><td>虚拟内存</td></tr></tbody></table></div>
+<h4>配置文件 (<code>/etc/fstab</code>)</h4>
+<p>系统已配置开机自动挂载，关键配置如下：</p>
+<pre><code># 根分区
+/dev/vda2 / ext4 defaults 0 1
+# 独立的日志分区 (原 Swap 分区)
+/dev/vda3 /mnt/logs ext4 defaults 0 0
+# 新的 Swap 文件
+/swapfile none swap sw 0 0</code></pre>
+<h3>3. 使用指南：如何使用 <code>/mnt/logs</code></h3>
+<p>由于 <code>/mnt/logs</code> 只有 1.2G，它非常适合存放<strong>文本日志</strong>或<strong>轻量级备份</strong>，但不适合存放 Docker 镜像或大型媒体文件。</p>
+<h4>场景 A：Node.js / PM2 日志</h4>
+<p>如果你使用 PM2 部署项目，建议将日志指向此目录，防止日志撑爆主系统盘。</p>
+<pre><code># 启动应用时指定日志路径
+pm2 start app.js --log /mnt/logs/app.log
+
+# 或者在 ecosystem.config.js 中配置
+module.exports = {
+  apps : [{
+    name: &quot;my-app&quot;,
+    script: &quot;./app.js&quot;,
+    error_file: &quot;/mnt/logs/my-app-err.log&quot;,
+    out_file: &quot;/mnt/logs/my-app-out.log&quot;,
+    merge_logs: true
+  }]
+}</code></pre>
+<h4>场景 B：Docker 容器日志挂载</h4>
+<p>运行 Docker 容器时，可以将容器内的日志目录映射出来。</p>
+<pre><code># 示例：运行 Nginx 并将日志存放在独立分区
+docker run -d \
+  --name nginx-web \
+  -v /mnt/logs/nginx:/var/log/nginx \
+  nginx</code></pre>
+<h4>场景 C：定期备份关键配置</h4>
+<p>可以编写简单的 Crontab 脚本，将重要的配置文件打包到这里。</p>
+<pre><code># 示例：备份 /etc/nginx 配置
+tar -czf /mnt/logs/backup_nginx_$(date +%F).tar.gz /etc/nginx</code></pre>
+<h3>4. 维护与清理建议</h3>
+<p>由于 1.2G 空间较小，建议定期清理日志。</p>
+<h4>1. 检查磁盘占用</h4>
+<pre><code>df -h | grep vda3</code></pre>
+<h4>2. 快速清空日志文件 (而不删除文件)</h4>
+<p>如果发现某个日志文件（例如 <code>app.log</code>）太大，可以使用以下命令瞬间清空内容，且不需要停止服务：</p>
+<pre><code>truncate -s 0 /mnt/logs/app.log</code></pre>
+<h3>5. 后续推荐安装 (Next Steps)</h3>
+<p>既然基础环境已调优，建议安装以下工具以发挥 VPS 最大效能：</p>
+<ol>
+<li><strong>Docker &amp; Docker Compose</strong> (部署服务的核心)</li>
+</ol>
+<pre><code>    curl -fsSL [https://get.docker.com](https://get.docker.com) -o get-docker.sh &amp;&amp; sh get-docker.sh</code></pre>
+<ol>
+<li><strong>htop</strong> (比 top 更好看的监控工具)</li>
+</ol>
+<pre><code>    apt install htop -y</code></pre>
+<p>_使用 <code>htop</code> 可以直观地看到 4GB Swap 条和 2.5GB 内存条的使用情况。_</p></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

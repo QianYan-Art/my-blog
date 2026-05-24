@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1. 安装 · 千颜</title>
+  <meta name="description" content="用户: qianyan (非 root) 核心原则: 严禁混用 pip 和 poetry；生产环境使用 poetry install 锁定版本。 1. 环境准备 如果是一台全新的服务器，需要先安装基础工具。 1.1 安装">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">服务器记录</p>
+      <h1>1. 安装<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2025-11-25</span><span>6 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><p>用户: qianyan (非 root)</p>
+<p>核心原则: 严禁混用 pip 和 poetry；生产环境使用 poetry install 锁定版本。</p>
+<h3>1. 环境准备</h3>
+<p>如果是一台全新的服务器，需要先安装基础工具。</p>
+<h4>1.1 安装 Poetry (官方脚本)</h4>
+<p>不要使用 <code>apt install python3-poetry</code>，版本太老。</p>
+<pre><code># 1. 安装
+curl -sSL [https://install.python-poetry.org](https://install.python-poetry.org) | python3 -
+
+# 2. 添加环境变量 (写入 .bashrc 永久生效)
+echo &#39;export PATH=&quot;/home/qianyan/.local/bin:$PATH&quot;&#39; &gt;&gt; ~/.bashrc
+source ~/.bashrc
+
+# 3. 验证
+poetry --version</code></pre>
+<h4>1.2 安装 PM2 (如果未安装)</h4>
+<pre><code>npm install pm2 -g</code></pre>
+<h3>2. 项目部署 (全新安装)</h3>
+<h4>2.1 克隆与配置</h4>
+<pre><code>cd ~
+git clone [https://github.com/CJackHwang/AIstudioProxyAPI.git](https://github.com/CJackHwang/AIstudioProxyAPI.git)
+cd AIstudioProxyAPI
+
+# 关键配置：让虚拟环境生成在项目目录下 (.venv)，避免权限问题
+poetry config virtualenvs.create true
+poetry config virtualenvs.in-project true</code></pre>
+<h4>2.2 安装依赖</h4>
+<p>使用 <code>install</code> 而不是 <code>update</code>，确保与作者环境完全一致。</p>
+<pre><code>poetry install</code></pre>
+<h4>2.3 下载浏览器内核</h4>
+<p>必须使用 Poetry 环境内的 Python 来下载，确保版本匹配。</p>
+<pre><code>poetry run python -m camoufox fetch</code></pre>
+<h4>2.4 还原备份 (如果有)</h4>
+<p>如果你之前备份了登录信息：</p>
+<pre><code># 假设备份在 ~/auth_profiles_backup
+cp -r ~/auth_profiles_backup/* ~/AIstudioProxyAPI/auth_profiles/</code></pre>
+<h4>2.5 启动服务 (PM2)</h4>
+<p>使用虚拟环境解释器启动，并开启无头模式。</p>
+<pre><code>pm2 start launch_camoufox.py \
+  --name aistudio \
+  --interpreter ./venv/bin/python \
+  -- \
+  --headless</code></pre>
+<h3>3. 稳定性加固 (守护与监控)</h3>
+<h4>3.1 设置定时重启</h4>
+<p>防止内存泄漏，设置每小时重启一次。</p>
+<pre><code>pm2 restart aistudio --cron &quot;0 * * * *&quot;</code></pre>
+<h4>3.2 部署看门狗 (Watchdog)</h4>
+<p>防止 <code>503</code> 或 <code>页面丢失</code> 错误导致服务假死。</p>
+<p>创建脚本 ~/watchdog.py:</p>
+<p>(此脚本位于主目录，防止项目重装时丢失)</p>
+<pre><code>import subprocess
+import time
+import os
+
+# 配置部分
+LOG_FILE = &quot;/home/qianyan/.pm2/logs/aistudio-error.log&quot;
+TARGET_PM2_NAME = &quot;aistudio&quot;
+KEYWORDS = [
+    &quot;503&quot;, 
+    &quot;AI Studio 页面丢失&quot;, 
+    &quot;Locator expected to be enabled&quot;,
+    &quot;Unexpected server error&quot;
+]
+COOLDOWN = 60
+
+def restart_pm2():
+    print(f&quot;检测到关键错误，正在重启 {TARGET_PM2_NAME} ...&quot;)
+    os.system(f&quot;pm2 restart {TARGET_PM2_NAME}&quot;)
+    time.sleep(COOLDOWN)
+
+def follow(file):
+    f = subprocess.Popen([&#39;tail&#39;, &#39;-F&#39;, &#39;-n&#39;, &#39;0&#39;, file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    while True:
+        line = f.stdout.readline()
+        if line:
+            yield line.decode(&#39;utf-8&#39;, errors=&#39;ignore&#39;)
+
+if __name__ == &quot;__main__&quot;:
+    print(f&quot;正在监视日志: {LOG_FILE}&quot;)
+    try:
+        if not os.path.exists(LOG_FILE):
+            print(f&quot;错误：日志文件不存在 {LOG_FILE}&quot;)
+            exit(1)
+        for line in follow(LOG_FILE):
+            for keyword in KEYWORDS:
+                if keyword in line:
+                    print(f&quot;捕获错误: {line.strip()}&quot;)
+                    restart_pm2()
+                    break
+    except KeyboardInterrupt:
+        print(&quot;停止监视。&quot;)</code></pre>
+<p><strong>启动看门狗:</strong></p>
+<pre><code>pm2 start ~/watchdog.py --name log-watcher --interpreter python3
+pm2 save</code></pre>
+<h3>4. 更新维护 (一键脚本)</h3>
+<p><strong>⚠️ 警告</strong>: 不要手动执行 <code>poetry update</code>。请使用以下脚本同步更新代码、依赖和内核。</p>
+<h4>4.1 创建更新脚本 <code>~/update_aistudio.sh</code></h4>
+<pre><code>#!/bin/bash
+PROJECT_DIR=&quot;$HOME/AIstudioProxyAPI&quot;
+
+echo &quot;=== 开始更新流程 ===&quot;
+cd &quot;$PROJECT_DIR&quot; || exit
+
+echo &quot;1. 暂停服务...&quot;
+pm2 stop aistudio
+
+echo &quot;2. 拉取最新代码...&quot;
+git pull
+
+echo &quot;3. 同步依赖 (Strict Mode)...&quot;
+# --sync 会删除本地多余的包，强制与 lock 文件一致
+poetry install --sync
+
+echo &quot;4. 更新/匹配浏览器内核...&quot;
+poetry run python -m camoufox fetch
+
+echo &quot;5. 重启服务...&quot;
+pm2 restart aistudio
+
+echo &quot;=== 更新完成，正在检查日志 ===&quot;
+sleep 3
+pm2 logs aistudio --lines 10 --nostream</code></pre>
+<h4>4.2 赋予权限与修复格式</h4>
+<pre><code># 赋予执行权限
+chmod +x ~/update_aistudio.sh
+
+# 修复 Windows 换行符问题 (如果你是在 Windows 编辑后上传的)
+sed -i &#39;s/\r$//&#39; ~/update_aistudio.sh</code></pre>
+<h4>4.3 执行更新</h4>
+<p>以后需要更新时，直接运行：</p>
+<pre><code>~/update_aistudio.sh</code></pre>
+<h3>5. 卸载与清理</h3>
+<p>如果你想彻底删除项目（例如重装）：</p>
+<h4>5.1 备份数据</h4>
+<pre><code>cp -r ~/AIstudioProxyAPI/auth_profiles ~/auth_profiles_backup</code></pre>
+<h4>5.2 删除进程</h4>
+<pre><code>pm2 stop aistudio log-watcher
+pm2 delete aistudio log-watcher</code></pre>
+<h4>5.3 删除文件与缓存</h4>
+<p><strong>注意</strong>: 必须删除 camoufox 缓存，否则下次安装可能会调用旧内核导致版本冲突。</p>
+<pre><code>rm -rf ~/AIstudioProxyAPI      # 删除项目
+rm -rf ~/.cache/camoufox       # 删除浏览器内核缓存
+# rm -rf ~/.cache/pypoetry     # (可选) 删除 pip 包缓存，通常建议保留以加速下次安装</code></pre></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>

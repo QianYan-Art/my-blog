@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codex 与 OMP 本机配置调整记录 · 千颜</title>
+  <meta name="description" content="Codex 与 OMP 本机配置调整记录 记录日期：20260522 最后核查更新：20260522 本文已按当前本机真实配置重新核对，旧文中与当前状态不一致的内容已全部改写。 1. 当前总览 当前结论： Codex 与">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
+  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener">GitHub →</a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="article-board__kicker">本地记录</p>
+      <h1>Codex 与 OMP 本机配置调整记录<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <div class="post-meta"><span>2026-05-22</span><span>12 min</span></div>
+      <div class="article-card__tags"></div>
+      <div class="post-content"><h2>Codex 与 OMP 本机配置调整记录</h2>
+<p>记录日期：2026-05-22 最后核查更新：2026-05-22</p>
+<p>本文已按当前本机真实配置重新核对，旧文中与当前状态不一致的内容已全部改写。</p>
+<p>---</p>
+<h3>1. 当前总览</h3>
+<p>当前结论：</p>
+<ul>
+<li><code>Codex</code> 与 <code>OMP</code> 都已接入 <code>context-mode</code> 与 <code>Serena</code></li>
+<li><code>OMP</code> 仍保持直连 <code>Linkup</code> 搜索，且内置 <code>web_search</code> 关闭</li>
+<li><code>Codex</code> 当前未配置 <code>mcp-router</code></li>
+<li><code>OMP</code> 主对话模型已切为 <code>longcat/LongCat-2.0-Preview</code></li>
+<li><code>LongCat-2.0-Preview</code> 当前按<strong>纯文本模型</strong>使用，不再作为视觉模型记录</li>
+<li><code>OMP</code> 已保留图片上传 blob 解引用热修脚本，供后续升级后重放</li>
+<li><code>ai-coding-discipline</code> 与 <code>ddia-principles</code> 已从 <code>Codex</code> 技能目录和 <code>OMP</code> skill 挂载中移除</li>
+<li><code>SP</code> 系列只保留 5 个：<code>Brainstorming</code>、<code>Requesting Code Review</code>、<code>Systematic Debugging</code>、<code>Verification Before Completion</code>、<code>Writing Plans</code></li>
+<li><code>caveman</code> 系列与 <code>kami</code> 已在 2026-05-22 按上游最新状态同步</li>
+</ul>
+<p>---</p>
+<h3>2. Node / nvm</h3>
+<p>本机仍使用 <code>nvm</code> 管理 Node。</p>
+<p>已核实：</p>
+<ul>
+<li><code>nvm</code> 版本：<code>1.2.2</code></li>
+<li><code>Node 24</code> 仍存在：<code>v24.0.0</code></li>
+</ul>
+<p>相关路径：</p>
+<ul>
+<li><code>nvm.exe</code>：<code>D:\jetbrains\node\nvm\nvm.exe</code></li>
+<li><code>Node 24</code>：<code>D:\jetbrains\node\nvm\v24.0.0\</code></li>
+<li><code>Node 24 npx</code>：<code>D:\jetbrains\node\nvm\v24.0.0\npx.cmd</code></li>
+</ul>
+<p>用途：</p>
+<ul>
+<li><code>Node 24</code> 不是全局默认 Node</li>
+<li>主要供 <code>OMP</code> 的 <code>Linkup</code> MCP 直连使用</li>
+</ul>
+<p>---</p>
+<h3>3. Codex 当前状态</h3>
+<h4>3.1 主模型</h4>
+<p><code>Codex</code> 当前主模型配置：</p>
+<ul>
+<li><code>model = &quot;gpt-5.4&quot;</code></li>
+<li><code>model_reasoning_effort = &quot;medium&quot;</code></li>
+</ul>
+<p>配置文件：</p>
+<ul>
+<li><code>C:\Users\lenovo\.codex\config.toml</code></li>
+</ul>
+<h4>3.2 MCP</h4>
+<p><code>Codex</code> 当前有效 MCP：</p>
+<ul>
+<li><code>context-mode</code></li>
+<li><code>serena</code></li>
+<li><code>node_repl</code></li>
+</ul>
+<p>说明：</p>
+<ul>
+<li>旧文里提到的 <code>mcp-router</code> 已不在当前 <code>config.toml</code> 中</li>
+<li><code>serena</code> 当前配置为：</li>
+<p>- <code>serena start-mcp-server --context=codex --project-from-cwd</code></p>
+</ul>
+<h4>3.3 搜索策略</h4>
+<p>当前策略仍是：</p>
+<ul>
+<li>默认优先 <code>Codex</code> 自带网页搜索</li>
+<li>明确点名时再用 <code>grok-search</code></li>
+</ul>
+<h4>3.4 Skills</h4>
+<p><code>Codex</code> 当前保留的自定义 skill 重点如下：</p>
+<ul>
+<li><code>caveman</code></li>
+<li><code>caveman-commit</code></li>
+<li><code>caveman-compress</code></li>
+<li><code>caveman-review</code></li>
+<li><code>frontend-skill</code></li>
+<li><code>deepseek-writer</code></li>
+<li><code>grok-search</code></li>
+<li><code>mail-vps-ops</code></li>
+<li><code>kami</code></li>
+<li><code>research-paper-writing</code></li>
+<li><code>SP / Brainstorming</code></li>
+<li><code>SP / Requesting Code Review</code></li>
+<li><code>SP / Systematic Debugging</code></li>
+<li><code>SP / Verification Before Completion</code></li>
+<li><code>SP / Writing Plans</code></li>
+</ul>
+<p>已移除：</p>
+<ul>
+<li><code>ai-coding-discipline</code></li>
+<li><code>ddia-principles</code></li>
+</ul>
+<p>技能来源索引：</p>
+<ul>
+<li><code>C:\Users\lenovo\.codex\skills\skill-sources.toml</code></li>
+</ul>
+<p>其中已特别记录：</p>
+<ul>
+<li><code>caveman</code> 系列：2026-05-22 已按 <code>JuliusBrussee/caveman</code> 最新 release <code>v1.7.0</code> 同步</li>
+<li><code>kami</code>：2026-05-22 已按 <code>tw93/Kami</code> 最新 release <code>V1.4.2 Quiet Rails</code> 同步</li>
+</ul>
+<p>---</p>
+<h3>4. OMP 当前状态</h3>
+<h4>4.1 主对话模型</h4>
+<p><code>OMP</code> 当前主对话默认模型：</p>
+<ul>
+<li><code>longcat/LongCat-2.0-Preview</code></li>
+</ul>
+<p>配置位置：</p>
+<ul>
+<li><code>C:\Users\lenovo\.omp\agent\config.yml</code></li>
+<li>字段：<code>modelRoles.default</code></li>
+</ul>
+<p>重要说明：</p>
+<ul>
+<li><code>LongCat-2.0-Preview</code> 当前按<strong>纯文本模型</strong>记录</li>
+<li>不再把它当成可靠视觉模型</li>
+</ul>
+<h4>4.2 MCP</h4>
+<p><code>OMP</code> 当前 MCP：</p>
+<ul>
+<li><code>context-mode</code></li>
+<li><code>serena</code></li>
+<li><code>linkup</code></li>
+</ul>
+<p>配置文件：</p>
+<ul>
+<li><code>C:\Users\lenovo\.omp\agent\mcp.json</code></li>
+</ul>
+<p>细节：</p>
+<ul>
+<li><code>context-mode</code></li>
+<p>- <code>D:\Develop\nodejs\node_global\context-mode.cmd</code></p>
+<li><code>serena</code></li>
+<p>- <code>C:\Users\lenovo\.local\bin\serena.exe</code> - 参数：<code>start-mcp-server --project-from-cwd --context=ide --open-web-dashboard=false</code></p>
+<li><code>linkup</code></li>
+<p>- <code>D:\jetbrains\node\nvm\v24.0.0\npx.cmd</code> - 参数：<code>-y linkup-mcp-server@latest</code> - <code>LINKUP_API_KEY</code> 直接写在 <code>mcp.json</code> 的 server env 中</p>
+</ul>
+<p>说明：</p>
+<ul>
+<li><code>OMP</code> 当前不再使用 <code>mcp-router</code></li>
+<li><code>mcp-router</code> 即便仍装在机器上，也不是 <code>OMP</code> 的活配置组成部分</li>
+</ul>
+<h4>4.3 搜索策略</h4>
+<p>当前 <code>OMP</code> 搜索策略：</p>
+<ul>
+<li>默认：<code>Linkup</code></li>
+<li>补充：<code>grok-search</code></li>
+<li>内置 <code>web_search</code>：关闭</li>
+</ul>
+<p>配置状态：</p>
+<ul>
+<li><code>C:\Users\lenovo\.omp\agent\config.yml</code></li>
+<p>- <code>tools.web_search.enabled = false</code></p>
+</ul>
+<h4>4.4 OMP Skills</h4>
+<p><code>OMP</code> 当前挂载的全局自定义 skill：</p>
+<ul>
+<li><code>frontend-skill</code></li>
+<li><code>deepseek-writer</code></li>
+<li><code>grok-search</code></li>
+<li><code>caveman</code></li>
+<li><code>caveman-commit</code></li>
+<li><code>caveman-compress</code></li>
+<li><code>caveman-review</code></li>
+<li><code>mail-vps-ops</code></li>
+<li><code>kami</code></li>
+<li><code>research-paper-writing</code></li>
+<li><code>brainstorming</code></li>
+<li><code>requesting-code-review</code></li>
+<li><code>systematic-debugging</code></li>
+<li><code>verification-before-completion</code></li>
+<li><code>writing-plans</code></li>
+</ul>
+<p>说明：</p>
+<ul>
+<li><code>OMP</code> 现在和 <code>Codex</code> 已同步到同一批 <code>caveman</code> / <code>kami</code> / <code>SP</code> skill</li>
+<li><code>ai-coding-discipline</code>、<code>ddia-principles</code> 已不再挂到 <code>OMP</code></li>
+</ul>
+<p>---</p>
+<h3>5. OMP 模型 Provider</h3>
+<p>当前正式模型配置文件：</p>
+<ul>
+<li><code>C:\Users\lenovo\.omp\agent\models.yml</code></li>
+</ul>
+<p>当前存在 4 个 provider：</p>
+<h4>5.1 <code>deepseek</code></h4>
+<p>基础：</p>
+<ul>
+<li><code>baseUrl = https://api.deepseek.com</code></li>
+<li><code>api = openai-completions</code></li>
+</ul>
+<p>模型：</p>
+<ul>
+<li><code>deepseek-v4-pro</code></li>
+<li><code>deepseek-v4-flash</code></li>
+</ul>
+<p>用途：</p>
+<ul>
+<li>实现</li>
+<li>修复</li>
+<li>轻量子任务</li>
+</ul>
+<h4>5.2 <code>suyuan</code></h4>
+<p>基础：</p>
+<ul>
+<li><code>baseUrl = https://suyuan.4071253.xyz/v1</code></li>
+<li><code>api = openai-completions</code></li>
+</ul>
+<p>模型：</p>
+<ul>
+<li><code>gpt-5.4</code></li>
+<li><code>gpt-5.4-mini</code></li>
+</ul>
+<p>用途：</p>
+<ul>
+<li>规划</li>
+<li>评审</li>
+<li>设计</li>
+</ul>
+<h4>5.3 <code>qianyan</code></h4>
+<p>基础：</p>
+<ul>
+<li><code>baseUrl = https://api.shiqianyan.cn/v1</code></li>
+<li><code>api = openai-completions</code></li>
+</ul>
+<p>模型：</p>
+<ul>
+<li><code>wukomg@bf16</code></li>
+<li><code>wukomg@q4_k_xl</code></li>
+</ul>
+<p>说明：</p>
+<ul>
+<li>当前仍在 <code>models.yml</code> 中</li>
+<li>两个模型都声明支持 <code>text + image</code></li>
+<li>但不是当前默认主对话模型</li>
+</ul>
+<h4>5.4 <code>longcat</code></h4>
+<p>基础：</p>
+<ul>
+<li><code>baseUrl = https://api.longcat.chat/openai</code></li>
+<li><code>api = openai-completions</code></li>
+</ul>
+<p>模型：</p>
+<ul>
+<li><code>LongCat-2.0-Preview</code></li>
+</ul>
+<p>当前记录：</p>
+<ul>
+<li><code>input = [text]</code></li>
+<li><code>contextWindow = 1000000</code></li>
+<li><code>maxTokens = 64000</code></li>
+</ul>
+<p>结论：</p>
+<ul>
+<li>当前按<strong>文本模型</strong>使用</li>
+<li>不再把它写成视觉模型</li>
+</ul>
+<p>---</p>
+<h3>6. OMP 子 Agent 分工</h3>
+<p>当前角色分工如下：</p>
+<ul>
+<li><code>plan</code></li>
+<p>- <code>suyuan/gpt-5.4</code></p>
+<li><code>task</code></li>
+<p>- <code>deepseek/deepseek-v4-pro</code></p>
+<li><code>quick_task</code></li>
+<p>- <code>deepseek/deepseek-v4-flash</code></p>
+<li><code>explore</code></li>
+<p>- <code>longcat/LongCat-2.0-Preview</code></p>
+<li><code>librarian</code></li>
+<p>- <code>longcat/LongCat-2.0-Preview</code></p>
+<li><code>reviewer</code></li>
+<p>- <code>suyuan/gpt-5.3-codex</code></p>
+<li><code>designer</code></li>
+<p>- <code>suyuan/gpt-5.4</code></p>
+</ul>
+<p>对应文件：</p>
+<ul>
+<li><code>C:\Users\lenovo\.omp\agent\agents\plan.md</code></li>
+<li><code>C:\Users\lenovo\.omp\agent\agents\task.md</code></li>
+<li><code>C:\Users\lenovo\.omp\agent\agents\quick_task.md</code></li>
+<li><code>C:\Users\lenovo\.omp\agent\agents\explore.md</code></li>
+<li><code>C:\Users\lenovo\.omp\agent\agents\librarian.md</code></li>
+<li><code>C:\Users\lenovo\.omp\agent\agents\reviewer.md</code></li>
+<li><code>C:\Users\lenovo\.omp\agent\agents\designer.md</code></li>
+</ul>
+<p>补充说明：</p>
+<ul>
+<li>主对话模型不是这 7 个角色之一</li>
+<li>主对话当前仍是 <code>longcat/LongCat-2.0-Preview</code></li>
+</ul>
+<p>---</p>
+<h3>7. context-mode 当前状态</h3>
+<p>已核查：</p>
+<ul>
+<li><code>context-mode upgrade</code> 已执行完成</li>
+<li><code>context-mode doctor</code> 可正常运行</li>
+<li>当前本机 MCP 版本：<code>v1.0.146</code></li>
+</ul>
+<p>结论：</p>
+<ul>
+<li><code>context-mode</code> 当前已升级到最新</li>
+<li><code>Codex</code> 侧 hooks 已补齐并通过 <code>doctor</code> 全量检查</li>
+</ul>
+<p>当前 <code>doctor</code> 结果：</p>
+<ul>
+<li><code>[features].hooks = true</code> 已开启</li>
+<li><code>PreToolUse</code>：PASS</li>
+<li><code>PostToolUse</code>：PASS</li>
+<li><code>SessionStart</code>：PASS</li>
+<li><code>PreCompact</code>：PASS</li>
+<li><code>UserPromptSubmit</code>：PASS</li>
+<li><code>Stop</code>：PASS</li>
+</ul>
+<p>当前补齐后的 <code>Codex</code> hooks 文件：</p>
+<ul>
+<li><code>C:\Users\lenovo\.codex\hooks.json</code></li>
+</ul>
+<p>补充：</p>
+<ul>
+<li>升级过程自动生成了备份：</li>
+<p>- <code>C:\Users\lenovo\.codex\hooks.json.bak</code></p>
+<li><code>context-mode upgrade</code> 提示需要重启会话，才能让新 MCP 工具集完全生效</li>
+</ul>
+<p>---</p>
+<h3>8. Serena 当前状态</h3>
+<p><code>Serena</code> 当前已安装：</p>
+<ul>
+<li><code>C:\Users\lenovo\.local\bin\serena.exe</code></li>
+<li><code>C:\Users\lenovo\.local\bin\serena-hooks.exe</code></li>
+</ul>
+<p>当前接入：</p>
+<ul>
+<li><code>Codex</code></li>
+<p>- 直连 MCP</p>
+<li><code>OMP</code></li>
+<p>- 直连 MCP</p>
+</ul>
+<p>说明：</p>
+<ul>
+<li><code>OMP</code> 的 <code>Serena</code> 不经过 <code>mcp-router</code></li>
+<li>当前 <code>Codex</code> 也不是通过 <code>mcp-router</code> 接 <code>Serena</code></li>
+</ul>
+<p>---</p>
+<h3>9. grok-search 当前状态</h3>
+<p><code>grok-search</code> 是共享的全局 skill：</p>
+<ul>
+<li><code>C:\Users\lenovo\.codex\skills\grok-search</code></li>
+</ul>
+<p>取配置方式：</p>
+<ul>
+<li>主来源：skill 目录下 <code>.env</code></li>
+<li>后备来源：本机环境变量</li>
+</ul>
+<p>结论：</p>
+<ul>
+<li><code>Codex</code> 与 <code>OMP</code> 共用同一套 <code>grok-search</code> skill</li>
+<li>两边调用逻辑仍然成立</li>
+</ul>
+<p>---</p>
+<h3>10. OMP 图片上传热修</h3>
+<p>当前保留的热修文件：</p>
+<ul>
+<li><code>C:\Users\lenovo\.omp\agent\patches\apply-upload-image-blob-fix.ps1</code></li>
+<li><code>C:\Users\lenovo\.omp\agent\patches\README.md</code></li>
+</ul>
+<p>用途：</p>
+<ul>
+<li>修复 <code>OMP</code> 聊天上传图片时，<code>blob:sha256:...</code> 未在发给 OpenAI-compatible provider 前解引用的问题</li>
+<li>这是给本机 <code>node_modules</code> 热修留的重放脚本</li>
+</ul>
+<p>当前判断：</p>
+<ul>
+<li>这份热修建议保留</li>
+<li>后续 <code>OMP</code> 升级如果覆盖本地改动，可重新执行该脚本</li>
+</ul>
+<p>注意：</p>
+<ul>
+<li>即便图片上传链路热修保留，<code>LongCat-2.0-Preview</code> 本身仍按纯文本模型使用</li>
+<li>所以“聊天直接上传图片并让 LongCat 看图”不是当前推荐路线</li>
+</ul>
+<p>---</p>
+<h3>11. Codex Documents Skill 本地显示修复</h3>
+<p>本机发现一处 <code>Codex App</code> 的 skill 引用显示问题：</p>
+<ul>
+<li><code>Presentations</code> 与 <code>Spreadsheets</code> 能在对话里正常标蓝</li>
+<li><code>documents</code> 同类引用不标蓝</li>
+</ul>
+<p>本地排查结果：</p>
+<ul>
+<li><code>documents</code> 插件自身 <code>plugin.json</code> 的展示名是 <code>Documents</code></li>
+<li>但对应 <code>SKILL.md</code> 头部原先写的是：</li>
+<p>- <code>name: documents</code></p>
+<li>同目录下另外两个 runtime skill 的显示名与 <code>SKILL.md</code> 头部名大小写一致：</li>
+<p>- <code>Presentations</code> - <code>Spreadsheets</code></p>
+</ul>
+<p>因此本机做了一处最小修复：</p>
+<ul>
+<li>文件：</li>
+<p>- <code>C:\Users\lenovo\.codex\plugins\cache\openai-primary-runtime\documents\26.521.10419\skills\documents\SKILL.md</code></p>
+<li>改动：</li>
+<p>- <code>name: documents</code> → <code>name: Documents</code></p>
+</ul>
+<p>用途：</p>
+<ul>
+<li>尽量让 <code>Documents</code> 的 skill 名与插件展示名保持一致</li>
+<li>提高 <code>Codex App</code> 将该 skill 正确识别为可点击蓝色引用的概率</li>
+</ul>
+<p>注意：</p>
+<ul>
+<li>这是对 <code>openai-primary-runtime</code> 插件缓存做的本地补丁</li>
+<li>后续 runtime 升级后，可能被覆盖</li>
+<li>若升级后问题复发，可再次检查这处大小写是否被回退</li>
+</ul>
+<p>---</p>
+<h3>12. 已清理与残留项</h3>
+<h4>12.1 已清理</h4>
+<ul>
+<li><code>OMP</code> 不再引用 <code>mcp-router</code></li>
+<li><code>OMP</code> 不再挂 <code>ai-coding-discipline</code></li>
+<li><code>OMP</code> 不再挂 <code>ddia-principles</code></li>
+<li><code>Codex</code> 技能目录中已移除 <code>ai-coding-discipline</code></li>
+<li><code>Codex</code> 技能目录中已移除 <code>ddia-principles</code></li>
+<li><code>superpowers</code> 只保留 5 个核心 skill</li>
+</ul>
+<h4>12.2 仍可继续收尾但不影响当前使用</h4>
+<ol>
+<li>系统级 <code>TAVILY_API_KEY</code> 可能仍存在  </li>
+<p>需要管理员权限删除。</p>
+</ol>
+<ol>
+<li><code>context-mode</code> 不是最新  </li>
+<p>此项已处理，当前已是 <code>v1.0.146</code>。</p>
+</ol>
+<ol>
+<li><code>Codex</code> 的 <code>context-mode</code> hooks 未完全对齐推荐配置  </li>
+<p>此项已处理，<code>doctor</code> 当前已全部 PASS。</p>
+</ol>
+<p>---</p>
+<h3>13. 当前建议</h3>
+<p>建议维持以下策略：</p>
+<ul>
+<li><code>Codex</code></li>
+<p>- 默认用内置搜索 - 明确需要时再用 <code>grok-search</code></p>
+</ul>
+<ul>
+<li><code>OMP</code></li>
+<p>- 默认用 <code>Linkup</code> - 需要补充时再用 <code>grok-search</code></p>
+</ul>
+<ul>
+<li>多模态任务</li>
+<p>- 不要默认指望 <code>LongCat-2.0-Preview</code> - 需要看图时手动切到支持图片输入的模型</p>
+</ul>
+<ul>
+<li>升级维护</li>
+<p>- <code>caveman</code>、<code>kami</code>、<code>SP</code> 系列继续以 <code>C:\Users\lenovo\.codex\skills\skill-sources.toml</code> 为准 - <code>OMP</code> 继续复用 <code>Codex</code> 的 skill 目录，不单独维护第二套 skill 仓库</p>
+</ul></div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>
