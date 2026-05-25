@@ -870,15 +870,6 @@
   color: var(--ink);
 }
 
-.page--articles .site-nav {
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--verm);
-}
-
-.page--articles .site-nav__rule {
-  margin-top: 0;
-}
-
 .page-main--articles {
   padding-top: clamp(42px, 7vh, 82px);
 }
