@@ -403,8 +403,8 @@ function renderPost(article, markdown) {
   <main class="page-main post-shell">
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
-      <p class="article-board__kicker">${category}</p>
-      <h1>${title}<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <p class="post-kicker">${category}</p>
+      <h1>${title}</h1>
       <div class="post-meta"><span>${date}</span><span>${readingTime}</span></div>
       <div class="article-card__tags">${tags}</div>
       <div class="post-content">${markdownToHtml(markdown)}</div>

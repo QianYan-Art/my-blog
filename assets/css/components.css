@@ -764,7 +764,6 @@
     column-gap: 10px;
     row-gap: 12px;
     position: relative;
-    padding-right: 34px;
   }
 
   .site-nav__brand {
@@ -791,9 +790,8 @@
 
   .site-nav__github-mobile {
     display: inline-flex;
-    position: fixed;
-    top: 15px;
-    right: clamp(18px, 4.6vw, 22px);
+    grid-column: 3;
+    position: static;
     width: 24px;
     height: 24px;
     line-height: 0;
@@ -801,7 +799,7 @@
     color: var(--ink);
     align-items: center;
     justify-content: center;
-    background: rgba(248, 244, 234, 0.88);
+    background: transparent;
     border-radius: 999px;
   }
 
@@ -906,18 +904,17 @@
   margin-top: var(--space-2);
   max-width: 9em;
   text-wrap: balance;
-  word-break: keep-all;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 .articles-title span {
   display: block;
-  white-space: nowrap;
 }
 
 .articles-title span:last-child {
   display: inline-flex;
   align-items: flex-end;
-  white-space: nowrap;
 }
 
 .articles-lede {
@@ -1329,7 +1326,7 @@
 
 .article-card h3 {
   margin-top: var(--space-4);
-  max-width: 13em;
+  max-width: 100%;
   font-family: var(--font-ui);
   font-size: clamp(22px, 2vw, 34px);
   line-height: 1.25;
@@ -1337,12 +1334,13 @@
   color: var(--ink);
   transition: color 0.25s var(--ease-ink), transform 0.35s var(--ease-ink);
   text-wrap: balance;
-  word-break: keep-all;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 .article-card--featured h3 {
   font-size: clamp(34px, 3.8vw, 64px);
-  max-width: 11em;
+  max-width: 100%;
 }
 
 .article-card p {
@@ -1527,6 +1525,17 @@
   color: var(--verm);
 }
 
+.post-kicker {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.16em;
+  color: var(--mist);
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
+}
+
 .post-body {
   border-top: 1px solid var(--line-strong);
   padding-top: var(--space-5);
@@ -1540,12 +1549,8 @@
   color: var(--ink);
   max-width: 9.8em;
   text-wrap: balance;
-  word-break: keep-all;
-  overflow-wrap: normal;
-}
-
-.post-body h1 .hero-title__cursor {
-  margin-left: 0.08em;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 .post-meta {
