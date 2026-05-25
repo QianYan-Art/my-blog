@@ -201,6 +201,7 @@ function htmlEscape(value) {
 
 function plainSummary(markdown) {
   const text = stripFrontMatter(markdown)
+    .replace(/^\s*#\s+.+(?:\r?\n)+/, "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/!\[[^\]]*]\([^)]+\)/g, "")
     .replace(/\[[^\]]+]\([^)]+\)/g, (match) => match.replace(/^\[|\]\([^)]+\)$/g, ""))
