@@ -20,6 +20,15 @@ jobs:
         with:
           node-version: 20
 
+      - name: Check KBase token
+        env:
+          KBASE_READ_TOKEN: ${{ secrets.KBASE_READ_TOKEN }}
+        run: |
+          if [ -z "$KBASE_READ_TOKEN" ]; then
+            echo "::error::Missing repository secret KBASE_READ_TOKEN. Create a fine-grained GitHub token with read-only Contents access to QianYan-Art/QianYan-KBase."
+            exit 1
+          fi
+
       - name: Sync articles from private KBase
         env:
           KBASE_SOURCE: github

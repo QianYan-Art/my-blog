@@ -109,12 +109,26 @@ function titleFromMarkdown(markdown, fallback) {
   return stripFrontMatter(markdown).match(/^#\s+(.+)$/m)?.[1]?.trim() || fallback;
 }
 
+function basenameTitleFromPath(filePath) {
+  return cleanDisplayTitle(path.basename(String(filePath || ""), path.extname(String(filePath || ""))));
+}
+
+function posixBasenameTitleFromPath(filePath) {
+  const value = String(filePath || "");
+  return cleanDisplayTitle(path.posix.basename(value, path.posix.extname(value)));
+}
+
 function cleanDisplayTitle(value) {
   return String(value || "")
     .trim()
     .replace(/^(20\d{2})[._-](\d{1,2})[._-](\d{1,2})(?:\s*[_\- ]\s*|\s+)/, "")
     .replace(/^[_\-\s]+/, "")
     .trim();
+}
+
+function titleFromPath(relativePath) {
+  const filename = String(relativePath || "").split(/[\\/]+/).filter(Boolean).pop() || "";
+  return filename.replace(/\.[^.]+$/, "");
 }
 
 function dateFromPath(filePath, stats) {
@@ -166,13 +180,19 @@ async function readGithubCommitDate(repoPath) {
 function kbaseSection(relativePath) {
   const parts = String(relativePath).split(/[\\/]+/).filter(Boolean);
   const root = parts[0] || "";
-  if (root === "my_local" || root === "local") {
-    return { category: "本地记录", sourceType: "local", section: "Local Notes" };
+  if (/^(my[-_]local|local)$/i.test(root)) {
+    return { category: "本地记录", sourceType: "local", section: "Local Notes", tags: [] };
   }
-  if (root === "my_server" || root === "server") {
-    return { category: "服务器记录", sourceType: "server", section: "Server Notes" };
+  if (/^(my[-_]server|server)$/i.test(root)) {
+    const trail = parts.slice(1, -1).map((part) => cleanDisplayTitle(part)).filter(Boolean);
+    return {
+      category: "服务器记录",
+      sourceType: "server",
+      section: trail.length ? trail.join(" · ") : "Server Notes",
+      tags: trail.slice(0, 3)
+    };
   }
-  return { category: "知识库", sourceType: "public", section: "Public Notes" };
+  return { category: "知识库", sourceType: "public", section: "Public Notes", tags: [] };
 }
 
 function htmlEscape(value) {
@@ -213,7 +233,7 @@ function compareByDateDesc(a, b) {
 }
 
 function markdownToHtml(markdown) {
-  const lines = stripFrontMatter(markdown).split(/\r?\n/);
+  const lines = stripFrontMatter(markdown).replace(/^\s*#\s+.+(?:\r?\n)+/, "").split(/\r?\n/);
   const html = [];
   let listOpen = false;
   let listType = "";
@@ -239,6 +259,11 @@ function markdownToHtml(markdown) {
 
   function inline(value) {
     return esc(value)
+      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
+        const safeSrc = sanitizeHref(src);
+        if (!safeSrc) return alt;
+        return `<img src="${esc(safeSrc)}" alt="${alt}" loading="lazy">`;
+      })
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
         const safeHref = sanitizeHref(href);
         if (!safeHref) return label;
@@ -279,7 +304,30 @@ function markdownToHtml(markdown) {
   }
 
   function splitTableRow(line) {
-    return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((cell) => cell.trim());
+    const row = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+    const cells = [];
+    let cell = "";
+    let escaped = false;
+    for (const char of row) {
+      if (escaped) {
+        cell += char;
+        escaped = false;
+        continue;
+      }
+      if (char === "\\") {
+        escaped = true;
+        cell += char;
+        continue;
+      }
+      if (char === "|") {
+        cells.push(cell.replace(/\\\|/g, "|").trim());
+        cell = "";
+        continue;
+      }
+      cell += char;
+    }
+    cells.push(cell.replace(/\\\|/g, "|").trim());
+    return cells;
   }
 
   function renderTable(startIndex) {
@@ -322,6 +370,13 @@ function markdownToHtml(markdown) {
       flushParagraph();
       closeList();
       lineIndex = renderTable(lineIndex);
+      continue;
+    }
+    const blockquote = line.match(/^>\s+(.+)$/);
+    if (blockquote) {
+      flushParagraph();
+      closeList();
+      html.push(`<blockquote>${inline(blockquote[1])}</blockquote>`);
       continue;
     }
     const heading = line.match(/^(#{1,3})\s+(.+)$/);
@@ -385,6 +440,13 @@ function renderPost(article, markdown) {
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]], displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -460,13 +522,15 @@ async function syncLocal(outputDir) {
     const meta = { ...frontMatter, ...config };
     const baseSlug = slugify(meta.slug || relativePath);
     const slug = uniqueSlug(baseSlug, used);
+    const sectionTags = section.tags || [];
+    const metaTags = Array.isArray(meta.tags) ? meta.tags : [];
     const article = {
       id: slug,
-      title: cleanDisplayTitle(meta.title || titleFromMarkdown(markdown, path.basename(filePath, path.extname(filePath)))),
+      title: basenameTitleFromPath(titleFromPath(relativePath)) || cleanDisplayTitle(meta.title || titleFromMarkdown(markdown, path.basename(filePath, path.extname(filePath)))),
       summary: meta.summary || meta.description || plainSummary(markdown),
       date: dateHintFromPath(relativePath) || meta.date || meta.created || readLocalGitDate(filePath) || dateFromPath(relativePath, stats),
       category: meta.category || section.category,
-      tags: Array.isArray(meta.tags) ? meta.tags : [],
+      tags: Array.from(new Set([...sectionTags, ...metaTags])),
       href: `/posts/kbase/${slug}.html`,
       readingTime: meta.readingTime || `${Math.max(1, Math.ceil(stripFrontMatter(markdown).length / 700))} min`,
       featured: Boolean(meta.featured),
@@ -510,13 +574,15 @@ async function syncGithub(outputDir) {
     const meta = { ...frontMatter, ...config };
     const slug = uniqueSlug(slugify(meta.slug || relativePath), used);
     const commitDate = await readGithubCommitDate(mdFile.path);
+    const sectionTags = section.tags || [];
+    const metaTags = Array.isArray(meta.tags) ? meta.tags : [];
     const article = {
       id: slug,
-      title: cleanDisplayTitle(meta.title || stripFrontMatter(markdown).match(/^#\s+(.+)$/m)?.[1] || slug),
+      title: posixBasenameTitleFromPath(titleFromPath(relativePath)) || cleanDisplayTitle(meta.title || titleFromMarkdown(markdown, slug)),
       summary: meta.summary || meta.description || plainSummary(markdown),
       date: dateHintFromPath(relativePath) || meta.date || meta.created || commitDate || "",
       category: meta.category || section.category,
-      tags: Array.isArray(meta.tags) ? meta.tags : [],
+      tags: Array.from(new Set([...sectionTags, ...metaTags])),
       href: `/posts/kbase/${slug}.html`,
       readingTime: meta.readingTime || `${Math.max(1, Math.ceil(stripFrontMatter(markdown).length / 700))} min`,
       featured: Boolean(meta.featured),
