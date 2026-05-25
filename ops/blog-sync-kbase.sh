@@ -3,12 +3,14 @@ set -euo pipefail
 
 BLOG_DIR="/www/wwwroot/blog"
 ENV_FILE="/etc/blog-sync.env"
-PROXY_KEY="/root/.ssh/blog-sync-proxy.key"
+PROXY_KEY="/etc/blog-sync/proxy.key"
 PROXY_HOST="124.156.206.155"
 PROXY_PORT="23333"
 LOCAL_SOCKS_PORT="11080"
 SYNC_LOG_PREFIX="[blog-sync]"
 TEMP_DIR=""
+
+umask 002
 
 log() {
   printf '%s %s %s\n' "$(date '+%F %T')" "$SYNC_LOG_PREFIX" "$*"
