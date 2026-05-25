@@ -1,12 +1,26 @@
 {
-  "updatedAt": "2026-05-25T10:45:29.552Z",
+  "updatedAt": "2026-05-25T16:34:22.206Z",
   "source": "D:\\Answer\\QianYan-KBase",
   "publicDir": "public",
   "groups": {
-    "server": 36,
-    "local": 23
+    "local": 23,
+    "server": 36
   },
   "articles": [
+    {
+      "id": "2026-05-25_codex上下文配置压缩记录",
+      "title": "Codex上下文配置压缩记录",
+      "summary": "1. 目标 把 C:\\tmp 下的 Codex 常驻配置压缩到“足够可用、但尽量省上下文”的状态，同时保留关键执行边界。 2. 本次处理对象 C:\\tmp\\AGENTS.md C:\\tmp\\AGENTS.min.md C",
+      "date": "2026-05-25",
+      "category": "本地记录",
+      "tags": [],
+      "href": "/posts/kbase/2026-05-25_codex上下文配置压缩记录.html",
+      "readingTime": "8 min",
+      "featured": false,
+      "sourceType": "local",
+      "section": "Local Notes",
+      "sourcePath": "my_local/2026-05-25_Codex上下文配置压缩记录.md"
+    },
     {
       "id": "2026-05-24_个人博客搭建与自动同步部署记录",
       "title": "个人博客搭建与自动同步部署记录",
@@ -142,20 +156,6 @@
       "sourceType": "server",
       "section": "e-RackNerd",
       "sourcePath": "my_server/e-RackNerd/2026-05-21_RackNerd VPS 运维记录.md"
-    },
-    {
-      "id": "2026-05-20_codex上下文配置压缩记录",
-      "title": "Codex上下文配置压缩记录",
-      "summary": "1. 目标 把 C:\\tmp 下的 Codex 常驻配置压缩到“足够可用、但尽量省上下文”的状态，同时保留关键执行边界。 2. 本次处理对象 C:\\tmp\\AGENTS.md C:\\tmp\\AGENTS.min.md C",
-      "date": "2026-05-20",
-      "category": "本地记录",
-      "tags": [],
-      "href": "/posts/kbase/2026-05-20_codex上下文配置压缩记录.html",
-      "readingTime": "6 min",
-      "featured": false,
-      "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-20_Codex上下文配置压缩记录.md"
     },
     {
       "id": "2026-05-17_jp日本-nat-节点-cliproxyapi-维护记录",

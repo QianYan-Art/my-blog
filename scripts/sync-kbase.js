@@ -433,9 +433,9 @@ function renderPost(article, markdown) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} · 千颜</title>
   <meta name="description" content="${summary}">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
-  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
+  <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/layout.css">

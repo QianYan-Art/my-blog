@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>个人博客搭建与自动同步部署记录 · 千颜</title>
   <meta name="description" content="最后更新：20260524 1. 目标 本次记录用于归档 www.shiqianyan.cn 个人博客从本地静态开发到线上部署、再到自动同步知识库文章的完整过程，重点覆盖： 1. 博客当前采用的技术形态。 2. 腾讯云服">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
-  <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=20260524f">
+  <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
+  <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/layout.css">
@@ -130,7 +130,7 @@
 </ul>
 <p>当前计划任务：</p>
 <ul>
-<li>每 15 分钟执行一次同步</li>
+<li>服务器 <code>crontab</code> 中每 15 分钟执行一次同步</li>
 </ul>
 <p>同步流程如下：</p>
 <ol>
@@ -140,6 +140,7 @@
 <li>重新生成：</li>
 <p>- <code>assets/data/articles.json</code> - <code>posts/kbase/*.html</code></p>
 <li><code>nginx</code> 继续直接服务这些更新后的静态文件</li>
+<li>GitHub Actions 只保留手动触发，不再承担周期同步</li>
 </ol>
 <h3>8. GitHub 连通性与代理兜底</h3>
 <p>这台腾讯云服务器对 GitHub 的连通性并不完全稳定。</p>
@@ -150,8 +151,8 @@
 </ul>
 <p>因此当前同步策略做成了两层：</p>
 <ol>
-<li>先直连 GitHub API 同步</li>
-<li>如果直连失败，再通过境外腾讯云机器做临时代理重试</li>
+<li>先通过境外腾讯云机器做临时代理同步</li>
+<li>如果代理同步失败，再回退到服务器本机直连重试</li>
 </ol>
 <p>备用代理来源：</p>
 <ul>
@@ -160,8 +161,8 @@
 <p>这台境外腾讯云机器上已部署 <code>sing-box</code>，作为兜底通路使用。</p>
 <p>结论：</p>
 <ul>
-<li>平时优先直连，结构更简单</li>
-<li>直连抖动时，脚本会尝试借助境外机继续完成文章同步</li>
+<li>平时优先代理，尽量绕开这台腾讯云机器对 GitHub 的直连抖动</li>
+<li>如果代理链路异常，脚本才回退到本机直连作为最后兜底</li>
 </ul>
 <h3>9. 本次博客项目修正项</h3>
 <p>本次围绕博客本身还做了这些修正：</p>
@@ -192,7 +193,7 @@
 <li>线上站点已部署到腾讯云服务器</li>
 <li>文章详情页使用静态生成结果</li>
 <li>服务器已具备定时同步能力</li>
-<li>GitHub 直连不稳时有境外代理兜底</li>
+<li>同步链路已调整为代理优先、直连兜底</li>
 </ul>
 <p>后续如果只是在 <code>QianYan-KBase/public</code> 中新增文章，并正常推送到 GitHub，博客就可以继续沿用当前链路自动更新。</p></div>
     </article>
