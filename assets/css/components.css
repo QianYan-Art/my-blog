@@ -133,12 +133,15 @@
 .site-nav__rule {
   height: 1px;
   width: 100%;
+  min-height: 1px;
   background: var(--verm);
   margin-top: 8px;
   transform: scaleX(1);
   transform-origin: left;
   position: relative;
   z-index: 10;
+  opacity: 1;
+  display: block;
 }
 
 /* ---- Hero title ---- */
@@ -867,6 +870,15 @@
   color: var(--ink);
 }
 
+.page--articles .site-nav {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--verm);
+}
+
+.page--articles .site-nav__rule {
+  margin-top: 0;
+}
+
 .page-main--articles {
   padding-top: clamp(42px, 7vh, 82px);
 }
@@ -903,7 +915,7 @@
   color: var(--ink);
   margin-top: var(--space-2);
   max-width: 9em;
-  text-wrap: balance;
+  text-wrap: wrap;
   word-break: normal;
   overflow-wrap: anywhere;
 }
@@ -1333,7 +1345,7 @@
   letter-spacing: -0.035em;
   color: var(--ink);
   transition: color 0.25s var(--ease-ink), transform 0.35s var(--ease-ink);
-  text-wrap: balance;
+  text-wrap: wrap;
   word-break: normal;
   overflow-wrap: anywhere;
 }
@@ -1547,8 +1559,8 @@
   line-height: 1.08;
   letter-spacing: -0.06em;
   color: var(--ink);
-  max-width: 9.8em;
-  text-wrap: balance;
+  max-width: 100%;
+  text-wrap: wrap;
   word-break: normal;
   overflow-wrap: anywhere;
 }
