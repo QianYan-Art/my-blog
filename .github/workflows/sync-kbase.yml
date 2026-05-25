@@ -28,6 +28,14 @@ jobs:
             echo "::error::Missing repository secret KBASE_READ_TOKEN. Create a fine-grained GitHub token with read-only Contents access to QianYan-Art/QianYan-KBase."
             exit 1
           fi
+          curl -fsS \
+            -H "Authorization: Bearer $KBASE_READ_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/QianYan-Art/QianYan-KBase/git/trees/main?recursive=1" \
+            > /dev/null || {
+              echo "::error::KBASE_READ_TOKEN cannot read QianYan-Art/QianYan-KBase. Check token expiration, selected repository, and Contents read-only permission."
+              exit 1
+            }
 
       - name: Sync articles from private KBase
         env:
