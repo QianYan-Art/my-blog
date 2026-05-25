@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>腾讯云新服务器 FRP API 端点站迁移与优化记录 · 千颜</title>
+  <title>腾讯云新服务器_frp-api端点站迁移与优化记录 · 千颜</title>
   <meta name="description" content="20260507 腾讯云新服务器 FRP API 端点站迁移与优化记录 范围说明： 本文记录迁移后的新服务器 81.70.168.127 上，api.shiqianyan.cn 这条 AI API 端点链路的最终状态。 ">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,11 +39,10 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
-      <h1>腾讯云新服务器 FRP API 端点站迁移与优化记录</h1>
+      <h1>腾讯云新服务器_frp-api端点站迁移与优化记录</h1>
       <div class="post-meta"><span>2026-05-07</span><span>7 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><h2>2026-05-07 腾讯云新服务器 FRP API 端点站迁移与优化记录</h2>
-<p>范围说明：</p>
+      <div class="article-card__tags"><span>d-腾讯云</span><span>frp</span></div>
+      <div class="post-content"><p>范围说明：</p>
 <ul>
 <li>本文记录迁移后的新服务器 <code>81.70.168.127</code> 上，<code>api.shiqianyan.cn</code> 这条 AI API 端点链路的最终状态。</li>
 <li>本文用于替代旧机器阶段的 <code>frp实现AI-api网站.md</code> 与 <code>面板端服务器全局调整与API端点优化.md</code> 中与旧服务器绑定的细节，但<strong>不删除旧文档</strong>。</li>

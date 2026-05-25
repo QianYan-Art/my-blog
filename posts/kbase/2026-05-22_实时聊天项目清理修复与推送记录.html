@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -35,8 +42,7 @@
       <h1>实时聊天项目清理修复与推送记录</h1>
       <div class="post-meta"><span>2026-05-22</span><span>9 min</span></div>
       <div class="article-card__tags"></div>
-      <div class="post-content"><h2>2026-05-22 实时聊天项目清理修复与推送记录</h2>
-<h3>1. 目标</h3>
+      <div class="post-content"><h3>1. 目标</h3>
 <p>对 <code>D:\Answer\real-time-app</code> 做一次完整收尾，确认项目当前状态，并把真正影响后续维护的遗留问题处理掉。目标包括：</p>
 <ul>
 <li>回顾此前对项目的修复与推送上下文</li>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minecraft（Cobblemon 宝可梦整合包）服务器搭建与维护手册（2026-01-23） · 千颜</title>
+  <title>mc服务器初部署 · 千颜</title>
   <meta name="description" content="Minecraft（Cobblemon 宝可梦整合包）服务器搭建与维护手册（20260123） 适用场景：你在日本服务器（Debian 11）上，用 Docker Compose 部署 Fabric 服务器，并把整合包 ">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,11 +39,10 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
-      <h1>Minecraft（Cobblemon 宝可梦整合包）服务器搭建与维护手册（2026-01-23）</h1>
+      <h1>mc服务器初部署</h1>
       <div class="post-meta"><span>2026-01-23</span><span>13 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><h2>Minecraft（Cobblemon 宝可梦整合包）服务器搭建与维护手册（2026-01-23）</h2>
-<p>&gt; 适用场景：你在日本服务器（Debian 11）上，用 Docker Compose 部署 Fabric 服务器，并把整合包 mods/config 同步到服务端。本文是“今天实际做过的操作”的复盘 + 后续维护指北。</p>
+      <div class="article-card__tags"><span>c-仅记录</span></div>
+      <div class="post-content"><blockquote>适用场景：你在日本服务器（Debian 11）上，用 Docker Compose 部署 Fabric 服务器，并把整合包 mods/config 同步到服务端。本文是“今天实际做过的操作”的复盘 + 后续维护指北。</blockquote>
 <p>---</p>
 <h3>0. 你现在这台服务器上有什么（现状概览）</h3>
 <h4>系统与 Docker</h4>
@@ -431,7 +437,7 @@
 </ul>
 <p>---</p>
 <h3>10. Docker 清理：删除容器/镜像/网络/卷（含你截图里的对象）</h3>
-<p>&gt; 建议：先确认哪些是“游戏服在用的”，不要误删 world。</p>
+<blockquote>建议：先确认哪些是“游戏服在用的”，不要误删 world。</blockquote>
 <h4>10.1 删除某个容器（不会删镜像）</h4>
 <ul>
 <li>删除 natpierce 容器：</li>
@@ -570,7 +576,7 @@
 <li>查看 mods 数量：<code>ls /opt/mc/data/mods | wc -l</code></li>
 </ul>
 <p>---</p>
-<p>&gt; 如果你愿意把你最终版 <code>mcctl</code> 菜单项截图/功能列表贴一下，我可以把本文第 4/7/8 部分按你脚本的实际功能再对齐一遍（强调“它能做什么、你什么时候用它”，而不是贴代码）。</p></div>
+<blockquote>如果你愿意把你最终版 <code>mcctl</code> 菜单项截图/功能列表贴一下，我可以把本文第 4/7/8 部分按你脚本的实际功能再对齐一遍（强调“它能做什么、你什么时候用它”，而不是贴代码）。</blockquote></div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>查看内存及 Swap 使用情况 · 千颜</title>
+  <title>RackNerd VPS 初始化配置手册（实战Swap操作） · 千颜</title>
   <meta name="description" content="主机概况： 配置：2 vCPU / 2.5 GB RAM / 40 GB SSD 系统：Ubuntu 22.04 LTS 用户：Root 网络别名：RackNerdDF2 (根据 hostname) 1. 内存与 Swa">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,9 +39,9 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
-      <h1>查看内存及 Swap 使用情况</h1>
+      <h1>RackNerd VPS 初始化配置手册（实战Swap操作）</h1>
       <div class="post-meta"><span>2025-11-22</span><span>4 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>e-RackNerd</span></div>
       <div class="post-content"><p><strong>主机概况：</strong></p>
 <ul>
 <li><strong>配置</strong>：2 vCPU / 2.5 GB RAM / 40 GB SSD</li>

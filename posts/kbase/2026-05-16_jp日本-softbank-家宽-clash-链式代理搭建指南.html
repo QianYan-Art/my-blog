@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -34,9 +41,13 @@
       <p class="post-kicker">服务器记录</p>
       <h1>JP日本 SoftBank 家宽 + Clash 链式代理搭建指南</h1>
       <div class="post-meta"><span>2026-05-16</span><span>15 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><p>&gt; 核心目标：通过建立一条“高隐匿、高信任度”的隧道，解决 ChatGPT 降智问题。 &gt; &gt; 方案架构：本地 Clash -&gt; 机场节点 (跳板) -&gt; AAITR NAT VPS (落地) -&gt; OpenAI</p>
-<p>&gt; 当前维护总览见：<code>两台家宽基础设置及3x-ui面板更新配置.md</code>。 &gt; &gt; <code>cliproxyapi</code> 专题见：<code>JP日本 NAT 节点 CLIProxyAPI 维护记录.md</code>。</p>
+      <div class="article-card__tags"><span>b-节点</span></div>
+      <div class="post-content"><blockquote>核心目标：通过建立一条“高隐匿、高信任度”的隧道，解决 ChatGPT 降智问题。</blockquote>
+<p>&gt;</p>
+<blockquote>方案架构：本地 Clash -&gt; 机场节点 (跳板) -&gt; AAITR NAT VPS (落地) -&gt; OpenAI</blockquote>
+<blockquote>当前维护总览见：<code>两台家宽基础设置及3x-ui面板更新配置.md</code>。</blockquote>
+<p>&gt;</p>
+<blockquote><code>cliproxyapi</code> 专题见：<code>JP日本 NAT 节点 CLIProxyAPI 维护记录.md</code>。</blockquote>
 <h3>当前维护状态（2026-05-16 核对）</h3>
 <p>这台机器当前作为日本家宽 NAT 落地节点使用，3x-ui 面板已经切换为自签证书维护方案，后续更新不再依赖公网 <code>80</code> 端口。2026-05-16 已确认 <code>cliproxyapi</code> 公网聊天、远程管理、生图链路与 <code>vertex</code> 模型前缀区分都正常。</p>
 <div class="post-table-wrap"><table><thead><tr><th>项目</th><th>当前值</th></tr></thead><tbody><tr><td>外部域名</td><td><code>nat-jp-3h8e.aproxy.top</code></td></tr><tr><td>SSH</td><td><code>root@nat-jp-3h8e.aproxy.top:27721</code></td></tr><tr><td>SSH key</td><td><code>C:\Users\lenovo\.ssh\60.157.94.240_ssh.key</code></td></tr><tr><td>服务器主机名</td><td><code>C202511281490067</code></td></tr><tr><td>服务器时区</td><td><code>Asia/Tokyo (JST)</code></td></tr><tr><td>3x-ui 版本记录</td><td><code>2.8.11</code>（上次维护记录，当前二进制无可用版本查询子命令）</td></tr><tr><td>面板内网端口</td><td><code>31927</code></td></tr><tr><td>面板外部映射端口</td><td><code>13131</code></td></tr><tr><td>面板访问格式</td><td><code>https://nat-jp-3h8e.aproxy.top:13131/&lt;WebBasePath&gt;/</code></td></tr><tr><td>自签证书目录</td><td><code>/root/cert/nat-jp-3h8e.aproxy.top/</code></td></tr><tr><td><code>cliproxyapi</code> 公网入口</td><td><code>https://suyuan.4071253.xyz/v1</code></td></tr><tr><td><code>cliproxyapi</code> 前置代理</td><td><code>cliproxyapi-edge-proxy.service</code> -&gt; <code>0.0.0.0:59999</code></td></tr><tr><td><code>cliproxyapi</code> 本机上游</td><td><code>cliproxyapi.service</code> -&gt; <code>127.0.0.1:59998</code></td></tr></tbody></table></div>

@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -34,9 +41,10 @@
       <p class="post-kicker">服务器记录</p>
       <h1>JP日本 NAT 节点 CLIProxyAPI 维护记录</h1>
       <div class="post-meta"><span>2026-05-17</span><span>12 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><p>&gt; 最后核对：2026-05-17（按服务器本地时间核对）。</p>
-<p>&gt; 适用节点：<code>nat-jp-3h8e.aproxy.top</code> 这份文档专门记录日本 NAT 节点上的 <code>CLIProxyAPI / cliproxyapi</code> 部署、前置代理、远程管理、图片链路修复和灾难恢复注意事项。</p>
+      <div class="article-card__tags"><span>b-节点</span></div>
+      <div class="post-content"><blockquote>最后核对：2026-05-17（按服务器本地时间核对）。</blockquote>
+<blockquote>适用节点：<code>nat-jp-3h8e.aproxy.top</code></blockquote>
+<p>这份文档专门记录日本 NAT 节点上的 <code>CLIProxyAPI / cliproxyapi</code> 部署、前置代理、远程管理、图片链路修复和灾难恢复注意事项。</p>
 <h3>1. 当前结构</h3>
 <pre><code>suyuan.4071253.xyz
   -&gt; NAT 外部映射

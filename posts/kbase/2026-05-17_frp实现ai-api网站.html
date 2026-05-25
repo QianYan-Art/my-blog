@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LM Studio 视觉 API 远程访问故障排查与域名 HTTPS 正式化部署记录 · 千颜</title>
+  <title>frp实现AI-api网站 · 千颜</title>
   <meta name="description" content="下面是一份“今日操作总结记录（Markdown）”，你可以直接复制保存为 20260311lmstudiofrpnginxhttps部署记录.md。 20260311 LM Studio 视觉 API 远程访问故障排查与">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,9 +39,9 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
-      <h1>LM Studio 视觉 API 远程访问故障排查与域名 HTTPS 正式化部署记录</h1>
+      <h1>frp实现AI-api网站</h1>
       <div class="post-meta"><span>2026-05-17</span><span>10 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>d-腾讯云</span><span>frp</span></div>
       <div class="post-content"><p>下面是一份“今日操作总结记录（Markdown）”，你可以直接复制保存为 <code>2026-03-11_lmstudio-frp-nginx-https_部署记录.md</code>。</p>
 <p>---</p>
 <h2>2026-03-11 LM Studio 视觉 API 远程访问故障排查与域名 HTTPS 正式化部署记录</h2>
@@ -83,7 +90,7 @@
 <li>通过域名 <code>https://api.qianyan.me/v1/chat/completions</code>：<strong>报 524（Receive timeout from origin）</strong></li>
 </ul>
 <p>因此确认：</p>
-<p>&gt; LM Studio 与 frp 隧道本身能支持视觉请求；真正导致“传图失败”的主要原因是 <strong>EdgeOne/边缘代理层回源超时或不兼容大请求/慢响应</strong>（视觉推理耗时明显更长）。</p>
+<blockquote>LM Studio 与 frp 隧道本身能支持视觉请求；真正导致“传图失败”的主要原因是 <strong>EdgeOne/边缘代理层回源超时或不兼容大请求/慢响应</strong>（视觉推理耗时明显更长）。</blockquote>
 <h3>3. 解决方案总体架构</h3>
 <p>为保留“正式域名 + HTTPS”，同时绕开边缘代理导致的 524：</p>
 <ul>

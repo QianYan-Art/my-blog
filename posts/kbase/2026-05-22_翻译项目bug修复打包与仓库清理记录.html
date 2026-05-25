@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>翻译项目 Bug 修复、打包与仓库清理记录 · 千颜</title>
+  <title>翻译项目Bug修复打包与仓库清理记录 · 千颜</title>
   <meta name="description" content="20260522 翻译项目 Bug 修复、打包与仓库清理记录 1. 目标 对 D:\MCPServer\translate 项目做一次完整收尾：全面排查并修复 bug、用 uv 环境重新打包、清理仓库中不应追踪的文件、更">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,11 +39,10 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">本地记录</p>
-      <h1>翻译项目 Bug 修复、打包与仓库清理记录</h1>
+      <h1>翻译项目Bug修复打包与仓库清理记录</h1>
       <div class="post-meta"><span>2026-05-22</span><span>10 min</span></div>
       <div class="article-card__tags"></div>
-      <div class="post-content"><h2>2026-05-22 翻译项目 Bug 修复、打包与仓库清理记录</h2>
-<h3>1. 目标</h3>
+      <div class="post-content"><h3>1. 目标</h3>
 <p>对 <code>D:\MCP_Server\translate</code> 项目做一次完整收尾：全面排查并修复 bug、用 uv 环境重新打包、清理仓库中不应追踪的文件、更新 README，确保远端与本地完全一致。</p>
 <h3>2. 项目与仓库信息</h3>
 <ul>

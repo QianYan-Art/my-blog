@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>1. 安装 · 千颜</title>
+  <title>AIstudioProxyAPI 最佳实践部署手册 · 千颜</title>
   <meta name="description" content="用户: qianyan (非 root) 核心原则: 严禁混用 pip 和 poetry；生产环境使用 poetry install 锁定版本。 1. 环境准备 如果是一台全新的服务器，需要先安装基础工具。 1.1 安装">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,9 +39,9 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
-      <h1>1. 安装</h1>
+      <h1>AIstudioProxyAPI 最佳实践部署手册</h1>
       <div class="post-meta"><span>2025-11-25</span><span>6 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>c-仅记录</span></div>
       <div class="post-content"><p>用户: qianyan (非 root)</p>
 <p>核心原则: 严禁混用 pip 和 poetry；生产环境使用 poetry install 锁定版本。</p>
 <h3>1. 环境准备</h3>

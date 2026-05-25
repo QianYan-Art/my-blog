@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Linux mmap 硬核学习笔记 · 千颜</title>
+  <title>学习记录2 · 千颜</title>
   <meta name="description" content="Linux mmap 硬核学习笔记 核心思想：Linux 内存管理的主权在内核，用户态拿到的往往只是“空头支票”。真正分配物理资源，往往发生在最后一刻（Lazy Allocation）。 1. 核心概念：打破“黑话”壁垒">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,11 +39,10 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">本地记录</p>
-      <h1>Linux mmap 硬核学习笔记</h1>
+      <h1>学习记录2</h1>
       <div class="post-meta"><span>2025-11-27</span><span>4 min</span></div>
       <div class="article-card__tags"></div>
-      <div class="post-content"><h2>Linux mmap 硬核学习笔记</h2>
-<p>&gt; <strong>核心思想</strong>：Linux 内存管理的主权在内核，用户态拿到的往往只是“空头支票”。真正分配物理资源，往往发生在最后一刻（Lazy Allocation）。</p>
+      <div class="post-content"><blockquote><strong>核心思想</strong>：Linux 内存管理的主权在内核，用户态拿到的往往只是“空头支票”。真正分配物理资源，往往发生在最后一刻（Lazy Allocation）。</blockquote>
 <h3>1. 核心概念：打破“黑话”壁垒</h3>
 <p>理解 <code>mmap</code> 的第一步是听懂内核的“行话”。</p>
 <div class="post-table-wrap"><table><thead><tr><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td><strong>名词</strong></td><td><strong>别名/比喻</strong></td><td><strong>解释</strong></td><td><strong>场景</strong></td></tr><tr><td><strong>User Space (用户态)</strong></td><td>柜台外 / 凡人</td><td>你的程序运行的地方，权限受限。</td><td>你在银行大堂填单子。</td></tr><tr><td><strong>Kernel Space (内核态)</strong></td><td>柜台内 / 上帝</td><td>操作系统核心，掌管硬件资源。</td><td>柜员在金库操作现金。</td></tr><tr><td><strong>Syscall (系统调用)</strong></td><td>传呼铃</td><td>用户态联系内核态的唯一合法途径。</td><td>你按响柜台铃声求助。</td></tr><tr><td><strong>Virtual Memory (虚拟内存)</strong></td><td>房号 / 空头支票</td><td>程序以为自己有的内存，只是个数字编号。</td><td>酒店给你的房卡（8888号），但房间可能还没建好。</td></tr><tr><td><strong>Physical Memory (物理内存)</strong></td><td>真实的房间 / RAM</td><td>宝贵的硬件资源，插在主板上的内存条。</td><td>真实的、能住人的房间。</td></tr><tr><td><strong>VMA (Virtual Memory Area)</strong></td><td><strong>户口本 / 预订记录</strong></td><td>内核记录“这段地址归谁用”的小账本。</td><td>前台登记簿：“8888号房预留给张三”。</td></tr><tr><td><strong>Page Fault (缺页异常)</strong></td><td><strong>报警器 / 补票机制</strong></td><td>当程序访问“有记录但无物理页”的地址时触发。</td><td>你刷卡进房发现没床，服务员（内核）听到报警赶紧搬床进去。</td></tr></tbody></table></div>
@@ -135,7 +141,11 @@ fclose(f); </code></pre>
 <ol>
 <li><strong>零拷贝 (Zero Copy)</strong>：Kafka 等高性能消息队列利用类似机制减少数据搬运。</li>
 </ol>
-<p>&gt; 总结： &gt; &gt; mmap 是打通 硬盘、物理内存、虚拟内存 的桥梁。 &gt; &gt; 它教会我们：操作系统是“懒惰”的（Lazy Allocation），而这种“懒惰”正是高效的源泉。</p></div>
+<blockquote>总结：</blockquote>
+<p>&gt;</p>
+<blockquote>mmap 是打通 硬盘、物理内存、虚拟内存 的桥梁。</blockquote>
+<p>&gt;</p>
+<blockquote>它教会我们：操作系统是“懒惰”的（Lazy Allocation），而这种“懒惰”正是高效的源泉。</blockquote></div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

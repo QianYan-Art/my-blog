@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>停止 · 千颜</title>
+  <title>Ubuntu Server Docker 部署 Firefox 完整指南 · 千颜</title>
   <meta name="description" content="本指南用于在 Ubuntu 服务器（或其他 Linux 发行版）中通过 Docker 部署一个带有 Web 界面（NoVNC）的可操作 Firefox 浏览器。（jlesage/firefox镜像） 适用场景：远程办公、">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,9 +39,9 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
-      <h1>停止</h1>
+      <h1>Ubuntu Server Docker 部署 Firefox 完整指南</h1>
       <div class="post-meta"><span>2025-11-20</span><span>4 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>c-仅记录</span></div>
       <div class="post-content"><p>本指南用于在 Ubuntu 服务器（或其他 Linux 发行版）中通过 Docker 部署一个带有 Web 界面（NoVNC）的可操作 Firefox 浏览器。（jlesage/firefox镜像）</p>
 <p><strong>适用场景</strong>：远程办公、网络调试、挂机脚本、通过服务器访问内网资源。</p>
 <h3>1. 前置准备</h3>
@@ -81,7 +88,7 @@
 <ul>
 <li><code>-v ...</code>: 将容器内的配置映射到服务器硬盘，保证数据不丢。</li>
 </ul>
-<p>&gt; <strong>⚠️ 注意</strong>：运行命令后，请等待 <strong>1-2 分钟</strong>，容器需要时间在后台下载并安装字体包。</p>
+<blockquote><strong>⚠️ 注意</strong>：运行命令后，请等待 <strong>1-2 分钟</strong>，容器需要时间在后台下载并安装字体包。</blockquote>
 <h3>3. 防火墙设置</h3>
 <p>如果无法访问，请检查防火墙：</p>
 <ol>

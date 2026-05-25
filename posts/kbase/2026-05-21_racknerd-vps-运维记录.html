@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RackNerd VPS 运维记录（2026-05-21） · 千颜</title>
+  <title>RackNerd VPS 运维记录 · 千颜</title>
   <meta name="description" content="RackNerd VPS 运维记录（20260521） 机器：RackNerd VPS — 2 vCPU / 2.4G RAM / 40G SSD + 1.2G 日志盘 系统：Ubuntu 22.04 LTS / Xan">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,11 +39,13 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
-      <h1>RackNerd VPS 运维记录（2026-05-21）</h1>
+      <h1>RackNerd VPS 运维记录</h1>
       <div class="post-meta"><span>2026-05-21</span><span>24 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><h2>RackNerd VPS 运维记录（2026-05-21）</h2>
-<p>&gt; <strong>机器</strong>：RackNerd VPS — 2 vCPU / 2.4G RAM / 40G SSD + 1.2G 日志盘 &gt; <strong>系统</strong>：Ubuntu 22.04 LTS / XanMod 6.19.9 &gt; <strong>IP</strong>：<code>23.238.70.240</code>（RackNerd 于 2026-05-21 迁移邮件中分配的新 IP；旧 IP <code>74.48.40.123</code> 已废弃） &gt; <strong>hostname</strong>：<code>racknerd-df2acce</code>（2026-05-21 迁移后系统当前实际 hostname；邮件服务名仍为 <code>mail.qianyan.me</code>）</p>
+      <div class="article-card__tags"><span>e-RackNerd</span></div>
+      <div class="post-content"><blockquote><strong>机器</strong>：RackNerd VPS — 2 vCPU / 2.4G RAM / 40G SSD + 1.2G 日志盘</blockquote>
+<blockquote><strong>系统</strong>：Ubuntu 22.04 LTS / XanMod 6.19.9</blockquote>
+<blockquote><strong>IP</strong>：<code>23.238.70.240</code>（RackNerd 于 2026-05-21 迁移邮件中分配的新 IP；旧 IP <code>74.48.40.123</code> 已废弃）</blockquote>
+<blockquote><strong>hostname</strong>：<code>racknerd-df2acce</code>（2026-05-21 迁移后系统当前实际 hostname；邮件服务名仍为 <code>mail.qianyan.me</code>）</blockquote>
 <p>---</p>
 <h3>一、MuMuAINovel 历史维护（已下线）</h3>
 <h4>1.1 修复配置</h4>
@@ -121,7 +130,7 @@ MuMu 相关目录与日志残留：0
 <h4>2.6 DNS 记录（迁移前历史值）</h4>
 <p>以下记录均在 EdgeOne <code>qianyan.me</code> 域名下创建，主机记录列已标注：</p>
 <div class="post-table-wrap"><table><thead><tr><th>类型</th><th>主机记录</th><th>值</th><th>状态</th></tr></thead><tbody><tr><td>A</td><td>mail</td><td>74.48.40.123</td><td>✅</td></tr><tr><td>MX</td><td>mail</td><td><code>mail.qianyan.me</code>（优先级 10）</td><td>✅</td></tr><tr><td>TXT</td><td>mail</td><td><code>v=spf1 mx a ip4:74.48.40.123 ~all</code></td><td>✅</td></tr><tr><td>TXT</td><td>mail._domainkey</td><td><code>v=DKIM1; h=sha256; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm2QsPpNJb6QoNQ4bCY9nH2DpzydAwEk+l0RJHu2V7vf4eoxPiTDaems0Vpsf7JUuQE7NXIK7px1KVM1bb9VUfU1XIzloFm1ruvCCdL39p92AwxeAY1xTampJlWNjHbNnGxJWPFnph3eahauoQqOC+wQYOvvCMf00bty/Hm3+BDZicekGuR1zcpgXqAyAhDT5AWOZZE7GL5GIFyrx6zcOe7vpjqNueC/n9+q94wREDS0vuewKCSAfTscUhi96CuysEpUxJY4EeJ5uNGCcjJbmVCYQGdDeOMakpP0JcG0AeYXTYqXcCRBEdm1IX72eTObWtsvU8iI8aQlpPw695vIXrwIDAQAB</code></td><td>✅</td></tr><tr><td>TXT</td><td>_dmarc.mail</td><td><code>v=DMARC1; p=quarantine; pct=100</code></td><td>✅</td></tr></tbody></table></div>
-<p>&gt; 注意：DKIM 值极长，EdgeOne 保存后 DNS 查询会多一个尾随 <code>\n</code>——这无影响，接收方会忽略。</p>
+<blockquote>注意：DKIM 值极长，EdgeOne 保存后 DNS 查询会多一个尾随 <code>\n</code>——这无影响，接收方会忽略。</blockquote>
 <h4>2.6.1 2026-05-21 迁移后已完成的 DNS / 邮件切换</h4>
 <p>RackNerd 已通知这台 VPS 从 Los Angeles DC-02 迁移到 DC-03，并为 VPS 分配了新 IP：<code>23.238.70.240</code>。 截至当前记录，EdgeOne 中 <code>A</code> 与 <code>SPF</code> 已完成切换，RackNerd 也已确认新 IP 的 PTR / rDNS 已配置。</p>
 <div class="post-table-wrap"><table><thead><tr><th>项目</th><th>当前正式值</th><th>说明</th></tr></thead><tbody><tr><td><code>mail.qianyan.me</code> A</td><td><code>23.238.70.240</code></td><td>已切换完成</td></tr><tr><td><code>mail</code> SPF TXT</td><td><code>v=spf1 mx a ip4:23.238.70.240 ~all</code></td><td>已切换完成</td></tr><tr><td>MX</td><td><code>mail.qianyan.me</code>（优先级 10）</td><td>保持不变</td></tr><tr><td>DKIM TXT</td><td>现有 <code>mail._domainkey</code></td><td>保持不变</td></tr><tr><td>DMARC TXT</td><td>现有 <code>_dmarc.mail</code></td><td>保持不变</td></tr></tbody></table></div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>新版本使用 docker compose 子命令 · 千颜</title>
+  <title>RackNerd VPS 部署 MuMuAINovel 全流程笔记 · 千颜</title>
   <meta name="description" content="机器环境：RackNerd VPS（2 vCPU / 2.5G RAM / 40G SSD）+ 额外 1.2G 日志盘挂载到 /mnt/logs 系统：Ubuntu 22.04 项目目录：/root/MuMuAINove">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,10 +39,13 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
-      <h1>新版本使用 docker compose 子命令</h1>
+      <h1>RackNerd VPS 部署 MuMuAINovel 全流程笔记</h1>
       <div class="post-meta"><span>2025-12-11</span><span>14 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><p>&gt; 机器环境：RackNerd VPS（2 vCPU / 2.5G RAM / 40G SSD）+ 额外 1.2G 日志盘挂载到 <code>/mnt/logs</code> &gt; 系统：Ubuntu 22.04 &gt; 项目目录：<code>/root/MuMuAINovel</code> &gt; 访问架构：浏览器 → EdgeOne（域名 + 免费证书 + 缓存）→ VPS:80 (Nginx) → 127.0.0.1:8000 (MuMuAINovel 容器)</p>
+      <div class="article-card__tags"><span>e-RackNerd</span></div>
+      <div class="post-content"><blockquote>机器环境：RackNerd VPS（2 vCPU / 2.5G RAM / 40G SSD）+ 额外 1.2G 日志盘挂载到 <code>/mnt/logs</code>  </blockquote>
+<blockquote>系统：Ubuntu 22.04  </blockquote>
+<blockquote>项目目录：<code>/root/MuMuAINovel</code>  </blockquote>
+<blockquote>访问架构：浏览器 → EdgeOne（域名 + 免费证书 + 缓存）→ VPS:80 (Nginx) → 127.0.0.1:8000 (MuMuAINovel 容器)</blockquote>
 <p>---</p>
 <h3>一、VPS 基础环境 &amp; 日志盘</h3>
 <h4>1.1 查看磁盘与日志盘</h4>
@@ -68,7 +78,7 @@ sh get-docker.sh</code></pre>
 <pre><code>docker -v
 # 新版本使用 docker compose 子命令
 docker compose version</code></pre>
-<p>&gt; 备注：本机没有单独的 <code>docker-compose</code> 可执行文件，使用的是 <code>docker compose</code> 子命令形式。</p>
+<blockquote>备注：本机没有单独的 <code>docker-compose</code> 可执行文件，使用的是 <code>docker compose</code> 子命令形式。</blockquote>
 <p>---</p>
 <h3>三、克隆 MuMuAINovel 项目</h3>
 <pre><code>cd /root
@@ -114,7 +124,14 @@ LOCAL_AUTH_PASSWORD=自己设定的密码
 # =====================
 APP_PORT=8000
 TZ=Asia/Tokyo</code></pre>
-<p>&gt; 注意： &gt; &gt; - <code>OPENAI_BASE_URL</code> 配置为中转地址（如 juya）。 &gt; &gt; - <code>DEFAULT_AI_PROVIDER</code> 不要留空，典型为 <code>openai</code>。 &gt; &gt; - API KEY 属于敏感信息，外泄要立刻废弃重建。 &gt;</p>
+<blockquote>注意：</blockquote>
+<p>&gt;</p>
+<blockquote>- <code>OPENAI_BASE_URL</code> 配置为中转地址（如 juya）。</blockquote>
+<blockquote> </blockquote>
+<blockquote>- <code>DEFAULT_AI_PROVIDER</code> 不要留空，典型为 <code>openai</code>。</blockquote>
+<blockquote> </blockquote>
+<blockquote>- API KEY 属于敏感信息，外泄要立刻废弃重建。</blockquote>
+<blockquote> </blockquote>
 <p>---</p>
 <h3>五、修改 docker-compose.yml</h3>
 <h4>5.1 使用官方镜像而非本地构建</h4>
@@ -145,7 +162,7 @@ TZ=Asia/Tokyo</code></pre>
       - &quot;0.0.0.0:5432:5432&quot;
     volumes:
       - ./postgres-data:/var/lib/postgresql/data</code></pre>
-<p>&gt; 备注：Postgres 暴露 5432 到外网是方便调试用，生产环境建议限制访问来源或关闭端口映射。</p>
+<blockquote>备注：Postgres 暴露 5432 到外网是方便调试用，生产环境建议限制访问来源或关闭端口映射。</blockquote>
 <h4>5.2 日志挂载到独立日志盘</h4>
 <p>在 <code>mumuainovel</code> 服务下配置 volumes：</p>
 <pre><code>    volumes:
@@ -184,7 +201,7 @@ TZ=Asia/Tokyo</code></pre>
       - DEFAULT_MODEL=${DEFAULT_MODEL:-gpt-4o-mini}
       - DEFAULT_TEMPERATURE=${DEFAULT_TEMPERATURE:-0.7}
       - DEFAULT_MAX_TOKENS=${DEFAULT_MAX_TOKENS:-2000}</code></pre>
-<p>&gt; 实际部署中，通过 <code>.env</code> 明确写入 DEFAULT_*，避免被宿主机环境变量覆盖引发“配置改不动”的错觉。</p>
+<blockquote>实际部署中，通过 <code>.env</code> 明确写入 DEFAULT_*，避免被宿主机环境变量覆盖引发“配置改不动”的错觉。</blockquote>
 <p>---</p>
 <h3>六、拉取镜像并启动容器</h3>
 <h4>6.1 预拉镜像（可选）</h4>

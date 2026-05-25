@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-24T18:08:12.926Z",
+  "updatedAt": "2026-05-25T09:50:44.787Z",
   "source": "D:\\Answer\\QianYan-KBase",
   "publicDir": "public",
   "groups": {
@@ -13,17 +13,19 @@
       "summary": "个人博客搭建与自动同步部署记录 最后更新：20260524 1. 目标 本次记录用于归档 www.shiqianyan.cn 个人博客从本地静态开发到线上部署、再到自动同步知识库文章的完整过程，重点覆盖： 1. 博客当前",
       "date": "2026-05-24",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "d-腾讯云"
+      ],
       "href": "/posts/kbase/2026-05-24_个人博客搭建与自动同步部署记录.html",
       "readingTime": "5 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "d-腾讯云",
       "sourcePath": "my_server/d-腾讯云/2026-05-24_个人博客搭建与自动同步部署记录.md"
     },
     {
       "id": "2026-05-22_codex与omp本机配置调整记录",
-      "title": "Codex 与 OMP 本机配置调整记录",
+      "title": "Codex与OMP本机配置调整记录",
       "summary": "Codex 与 OMP 本机配置调整记录 记录日期：20260522 最后核查更新：20260522 本文已按当前本机真实配置重新核对，旧文中与当前状态不一致的内容已全部改写。 1. 当前总览 当前结论： Codex 与",
       "date": "2026-05-22",
       "category": "本地记录",
@@ -33,7 +35,7 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-05-22_Codex与OMP本机配置调整记录.md"
+      "sourcePath": "my_local/2026-05-22_Codex与OMP本机配置调整记录.md"
     },
     {
       "id": "2026-05-22_safetyraise开源版整理与推送记录",
@@ -47,7 +49,7 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-05-22_SafetyRAISE开源版整理与推送记录.md"
+      "sourcePath": "my_local/2026-05-22_SafetyRAISE开源版整理与推送记录.md"
     },
     {
       "id": "2026-05-22_实时聊天项目清理修复与推送记录",
@@ -61,11 +63,11 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-05-22_实时聊天项目清理修复与推送记录.md"
+      "sourcePath": "my_local/2026-05-22_实时聊天项目清理修复与推送记录.md"
     },
     {
       "id": "2026-05-22_翻译项目bug修复打包与仓库清理记录",
-      "title": "翻译项目 Bug 修复、打包与仓库清理记录",
+      "title": "翻译项目Bug修复打包与仓库清理记录",
       "summary": "20260522 翻译项目 Bug 修复、打包与仓库清理记录 1. 目标 对 D:\\MCPServer\\translate 项目做一次完整收尾：全面排查并修复 bug、用 uv 环境重新打包、清理仓库中不应追踪的文件、更",
       "date": "2026-05-22",
       "category": "本地记录",
@@ -75,67 +77,75 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-05-22_翻译项目Bug修复打包与仓库清理记录.md"
+      "sourcePath": "my_local/2026-05-22_翻译项目Bug修复打包与仓库清理记录.md"
     },
     {
       "id": "2026-05-22_hermes_唐语歌人格维护说明",
-      "title": "Hermes 唐语歌人格维护说明",
+      "title": "Hermes_唐语歌人格维护说明",
       "summary": "Hermes 唐语歌人格维护说明 最后更新：20260522 本文回答三个问题： 1. 现在这套 Hermes 在哪里、怎么跑。 2. 后续维护必须保住哪些定制层。 3. 遇到故障时，先查什么、再改什么。 1. 当前部署",
       "date": "2026-05-22",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "d-腾讯云"
+      ],
       "href": "/posts/kbase/2026-05-22_hermes_唐语歌人格维护说明.html",
       "readingTime": "22 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "d-腾讯云",
       "sourcePath": "my_server/d-腾讯云/2026-05-22_Hermes_唐语歌人格维护说明.md"
     },
     {
       "id": "2026-05-22_hermes_当前服务器全局状态",
-      "title": "Hermes 当前服务器全局状态",
+      "title": "Hermes_当前服务器全局状态",
       "summary": "Hermes 当前服务器全局状态 最后更新：20260522 1. 当前机器 | 项目 | 当前值 | | | | | 服务器 | 81.70.168.127 | | SSH 端口 | 22 | | SSH 认证 | 仅",
       "date": "2026-05-22",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "d-腾讯云"
+      ],
       "href": "/posts/kbase/2026-05-22_hermes_当前服务器全局状态.html",
       "readingTime": "17 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "d-腾讯云",
       "sourcePath": "my_server/d-腾讯云/2026-05-22_Hermes_当前服务器全局状态.md"
     },
     {
       "id": "2026-05-21_hermes_邮件vps集成说明",
-      "title": "Hermes 邮件 VPS 集成说明",
+      "title": "Hermes_邮件VPS集成说明",
       "summary": "Hermes 邮件 VPS 集成说明 最后更新：20260521 1. 目标 本文专门记录 Hermes QQBot 与邮件 VPS 的集成方式，包括： 读取邮箱列表 读取最新邮件 列出与取回附件 发送邮件 回复 / 转",
       "date": "2026-05-21",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "d-腾讯云"
+      ],
       "href": "/posts/kbase/2026-05-21_hermes_邮件vps集成说明.html",
       "readingTime": "8 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "d-腾讯云",
       "sourcePath": "my_server/d-腾讯云/2026-05-21_Hermes_邮件VPS集成说明.md"
     },
     {
-      "id": "2026-05-21_racknerd-vps-运维记录-2026-0521",
-      "title": "RackNerd VPS 运维记录（2026-05-21）",
+      "id": "2026-05-21_racknerd-vps-运维记录",
+      "title": "RackNerd VPS 运维记录",
       "summary": "RackNerd VPS 运维记录（20260521） 机器：RackNerd VPS — 2 vCPU / 2.4G RAM / 40G SSD + 1.2G 日志盘 系统：Ubuntu 22.04 LTS / Xan",
       "date": "2026-05-21",
       "category": "服务器记录",
-      "tags": [],
-      "href": "/posts/kbase/2026-05-21_racknerd-vps-运维记录-2026-0521.html",
+      "tags": [
+        "e-RackNerd"
+      ],
+      "href": "/posts/kbase/2026-05-21_racknerd-vps-运维记录.html",
       "readingTime": "24 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
-      "sourcePath": "my_server/e-RackNerd/2026-05-21_RackNerd VPS 运维记录（2026-0521）.md"
+      "section": "e-RackNerd",
+      "sourcePath": "my_server/e-RackNerd/2026-05-21_RackNerd VPS 运维记录.md"
     },
     {
       "id": "2026-05-20_codex上下文配置压缩记录",
-      "title": "Codex 上下文配置压缩记录",
+      "title": "Codex上下文配置压缩记录",
       "summary": "20260520 Codex 上下文配置压缩记录 1. 目标 把 C:\\tmp 下的 Codex 常驻配置压缩到“足够可用、但尽量省上下文”的状态，同时保留关键执行边界。 2. 本次处理对象 C:\\tmp\\AGENTS.",
       "date": "2026-05-20",
       "category": "本地记录",
@@ -145,7 +155,7 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-05-20_Codex上下文配置压缩记录.md"
+      "sourcePath": "my_local/2026-05-20_Codex上下文配置压缩记录.md"
     },
     {
       "id": "2026-05-17_jp日本-nat-节点-cliproxyapi-维护记录",
@@ -153,26 +163,31 @@
       "summary": "最后核对：20260517（按服务器本地时间核对）。 适用节点：natjp3h8e.aproxy.top 这份文档专门记录日本 NAT 节点上的 CLIProxyAPI / cliproxyapi 部署、前置代理、远程管",
       "date": "2026-05-17",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "b-节点"
+      ],
       "href": "/posts/kbase/2026-05-17_jp日本-nat-节点-cliproxyapi-维护记录.html",
       "readingTime": "12 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "b-节点",
       "sourcePath": "my_server/b-节点/2026-05-17_JP日本 NAT 节点 CLIProxyAPI 维护记录.md"
     },
     {
       "id": "2026-05-17_frp实现ai-api网站",
-      "title": "LM Studio 视觉 API 远程访问故障排查与域名 HTTPS 正式化部署记录",
+      "title": "frp实现AI-api网站",
       "summary": "下面是一份“今日操作总结记录（Markdown）”，你可以直接复制保存为 20260311lmstudiofrpnginxhttps部署记录.md。 20260311 LM Studio 视觉 API 远程访问故障排查与",
       "date": "2026-05-17",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "d-腾讯云",
+        "frp"
+      ],
       "href": "/posts/kbase/2026-05-17_frp实现ai-api网站.html",
       "readingTime": "10 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "d-腾讯云 · frp",
       "sourcePath": "my_server/d-腾讯云/frp/2026-05-17_frp实现AI-api网站.md"
     },
     {
@@ -181,12 +196,15 @@
       "summary": "记录日期：20260423 现状说明（20260518）： 本文是 api.qianyan.me 阶段的历史优化记录。 当前正式 AI API 域名已切换为 api.shiqianyan.cn。 当前新服务器实际 Ngi",
       "date": "2026-05-17",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "d-腾讯云",
+        "frp"
+      ],
       "href": "/posts/kbase/2026-05-17_面板端服务器全局调整与api端点优化.html",
       "readingTime": "9 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "d-腾讯云 · frp",
       "sourcePath": "my_server/d-腾讯云/frp/2026-05-17_面板端服务器全局调整与API端点优化.md"
     },
     {
@@ -195,17 +213,19 @@
       "summary": "20260517 NetCup 上 CLIProxyAPI 迁移与 EdgeOne 回源配置记录 1. 目标与结论 本次目标： 放弃旧 JP NAT 机上那套专门为 Codex + suyuan 临时修补过很多次的运行方",
       "date": "2026-05-17",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "f-NetCup"
+      ],
       "href": "/posts/kbase/2026-05-17_netcup-上-cliproxyapi-迁移与-edgeone-回源配置记录.html",
       "readingTime": "16 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "f-NetCup",
       "sourcePath": "my_server/f-NetCup/2026-05-17_NetCup 上 CLIProxyAPI 迁移与 EdgeOne 回源配置记录.md"
     },
     {
       "id": "2026-05-16_cc-switch与codex会话记录修复记录",
-      "title": "CC-Switch 与 Codex 会话记录修复记录",
+      "title": "CC-Switch与Codex会话记录修复记录",
       "summary": "CCSwitch 与 Codex 会话记录修复记录 记录日期：20260517（更新） 本文记录本次修复 CCSwitch 切换 provider 后 Codex 聊天记录丢失问题的完整过程、改动内容与后续维护说明。 1",
       "date": "2026-05-16",
       "category": "本地记录",
@@ -215,7 +235,7 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-05-16_CC-Switch与Codex会话记录修复记录.md"
+      "sourcePath": "my_local/2026-05-16_CC-Switch与Codex会话记录修复记录.md"
     },
     {
       "id": "2026-05-16_jp日本-softbank-家宽-clash-链式代理搭建指南",
@@ -223,17 +243,19 @@
       "summary": "核心目标：通过建立一条“高隐匿、高信任度”的隧道，解决 ChatGPT 降智问题。 方案架构：本地 Clash 机场节点 (跳板) AAITR NAT VPS (落地) OpenAI 当前维护总览见：两台家宽基础设置及3",
       "date": "2026-05-16",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "b-节点"
+      ],
       "href": "/posts/kbase/2026-05-16_jp日本-softbank-家宽-clash-链式代理搭建指南.html",
       "readingTime": "15 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "b-节点",
       "sourcePath": "my_server/b-节点/2026-05-16_JP日本 SoftBank 家宽 + Clash 链式代理搭建指南.md"
     },
     {
       "id": "2026-05-15_uv缓存清理与环境依赖记录",
-      "title": "uv 缓存清理与环境依赖记录",
+      "title": "uv缓存清理与环境依赖记录",
       "summary": "uv 缓存清理与环境依赖记录 更新时间：20260515 目的 本次记录用于说明本机 uv 缓存清理前的核查结果、已补充的依赖记录文件，以及后续环境恢复方式。 本次只处理： C:\\Users\\lenovo\\AppData",
       "date": "2026-05-15",
       "category": "本地记录",
@@ -243,11 +265,11 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-05-15_uv缓存清理与环境依赖记录.md"
+      "sourcePath": "my_local/2026-05-15_uv缓存清理与环境依赖记录.md"
     },
     {
       "id": "2026-05-15_本机运行时与家目录依赖体检记录",
-      "title": "本机运行时与家目录依赖体检记录 - 2026-05-15",
+      "title": "本机运行时与家目录依赖体检记录",
       "summary": "本机运行时与家目录依赖体检记录 20260515 一、检查目标 本次检查主要解决以下问题： 1. 明确当前本机常用运行时、包管理器、CLI 工具的真实安装来源与命中路径。 2. 判断 C:\\Users\\lenovo 家目",
       "date": "2026-05-15",
       "category": "本地记录",
@@ -257,11 +279,11 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-05-15_本机运行时与家目录依赖体检记录.md"
+      "sourcePath": "my_local/2026-05-15_本机运行时与家目录依赖体检记录.md"
     },
     {
       "id": "2026-05-14_mcp-router开机自启问题修复记录",
-      "title": "MCP Router 开机自启问题修复记录 - 2026-05-14",
+      "title": "MCP-Router开机自启问题修复记录",
       "summary": "MCP Router 开机自启问题修复记录 20260514 一、问题现象 本机安装 MCP Router 后，每次启动程序都会自动把自己加入 Windows 开机启动项。 即使在任务管理器中手动禁用启动项，只要再次打开",
       "date": "2026-05-14",
       "category": "本地记录",
@@ -271,11 +293,11 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-05-14_MCP-Router开机自启问题修复记录.md"
+      "sourcePath": "my_local/2026-05-14_MCP-Router开机自启问题修复记录.md"
     },
     {
       "id": "2026-05-14_win工作站frpc与lmstudio-api运维记录",
-      "title": "Win 工作站 FRPC 与 LM Studio API 运维记录",
+      "title": "Win工作站FRPC与LMStudio-API运维记录",
       "summary": "Win 工作站 FRPC 与 LM Studio API 运维记录 日期： 20260513 操作者： Claude (via Oh My Pi) 涉及机器： | 角色 | 主机名 | IP | 用户 | ||||| |",
       "date": "2026-05-14",
       "category": "本地记录",
@@ -285,7 +307,7 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-05-14_Win工作站FRPC与LMStudio-API运维记录.md"
+      "sourcePath": "my_local/2026-05-14_Win工作站FRPC与LMStudio-API运维记录.md"
     },
     {
       "id": "2026-05-11_两台家宽基础设置及3x-ui面板更新配置",
@@ -293,12 +315,14 @@
       "summary": "最后核对：20260427（按服务器本地时间核对）。 适用节点：natjp3h8e.aproxy.top 与 nat.qq.pw。 这份文档用于记录两台 NAT 家宽 VPS 的基础维护状态、3xui 面板更新方案、自签",
       "date": "2026-05-11",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "b-节点"
+      ],
       "href": "/posts/kbase/2026-05-11_两台家宽基础设置及3x-ui面板更新配置.html",
       "readingTime": "16 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "b-节点",
       "sourcePath": "my_server/b-节点/2026-05-11_两台家宽基础设置及3x-ui面板更新配置.md"
     },
     {
@@ -307,26 +331,30 @@
       "summary": "目标 为两台 VPS 上的 singbox VLESS + Reality 节点补一个可控的最简 HTTPS 握手站，用于把 SNI/serverName 从第三方大厂域名切换为自有域名，并同时满足以下要求： 不抢占现有",
       "date": "2026-05-08",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "b-节点"
+      ],
       "href": "/posts/kbase/2026-05-08_两台vps-reality-sni切换与简易https站部署记录.html",
       "readingTime": "11 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "b-节点",
       "sourcePath": "my_server/b-节点/2026-05-08_两台VPS Reality SNI切换与简易HTTPS站部署记录.md"
     },
     {
       "id": "2026-05-08_img-starryocean-qzz-io-zipline-图床部署记录",
-      "title": "img.starryocean.qzz.io Zipline 图床部署记录",
+      "title": "img.starryocean.qzz",
       "summary": "20260508 img.starryocean.qzz.io Zipline 图床部署记录 1. 目标 在同一台 netcup Debian 13 服务器上新增一个图床站点： 域名：img.starryocean.qz",
       "date": "2026-05-08",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "f-NetCup"
+      ],
       "href": "/posts/kbase/2026-05-08_img-starryocean-qzz-io-zipline-图床部署记录.html",
       "readingTime": "4 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "f-NetCup",
       "sourcePath": "my_server/f-NetCup/2026-05-08_img.starryocean.qzz.io Zipline 图床部署记录.md"
     },
     {
@@ -335,12 +363,14 @@
       "summary": "20260508 netcup Debian13 服务器初始化与 Komari 部署记录 1. 服务器基础信息 服务器商家：netcup 系统：Debian GNU/Linux 13 (trixie) 主机名：v2202",
       "date": "2026-05-08",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "f-NetCup"
+      ],
       "href": "/posts/kbase/2026-05-08_netcup-debian13-服务器初始化与-komari-部署记录.html",
       "readingTime": "8 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "f-NetCup",
       "sourcePath": "my_server/f-NetCup/2026-05-08_netcup Debian13 服务器初始化与 Komari 部署记录.md"
     },
     {
@@ -349,17 +379,19 @@
       "summary": "20260508 服务器目录规范、日志与备份策略 1. 背景 这台服务器后续会承载多个站点。 当前磁盘结构只有一个主要根分区： /dev/vda4 / 因此本次没有做“物理分区重切”，而是改成更适合现阶段的： 统一目录规",
       "date": "2026-05-08",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "f-NetCup"
+      ],
       "href": "/posts/kbase/2026-05-08_服务器目录规范-日志与备份策略.html",
       "readingTime": "5 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "f-NetCup",
       "sourcePath": "my_server/f-NetCup/2026-05-08_服务器目录规范、日志与备份策略.md"
     },
     {
       "id": "2026-05-07_tabby-ssh配置保存问题修复记录",
-      "title": "Tabby SSH 配置保存问题修复记录 - 2026-05-07",
+      "title": "Tabby-SSH配置保存问题修复记录",
       "summary": "Tabby SSH 配置保存问题修复记录 20260507 结论 本机 Tabby 已修复“新建 SSH 配置点击保存无反应 / 保存后不出现在列表里”的问题。 当前本机状态已恢复到接近排障前，仅保留必要修复补丁；用户原",
       "date": "2026-05-07",
       "category": "本地记录",
@@ -369,7 +401,7 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-05-07_Tabby-SSH配置保存问题修复记录.md"
+      "sourcePath": "my_local/2026-05-07_Tabby-SSH配置保存问题修复记录.md"
     },
     {
       "id": "2026-05-07_grok2api-项目配置与运维说明",
@@ -377,26 +409,31 @@
       "summary": "grok2api 项目配置与运维说明 最后更新：20260507 1. 项目定位 grok2api 是一个将 Grok Web 侧能力封装为 OpenAI 兼容接口的反向代理项目。 当前用途： 对外提供 /v1/mode",
       "date": "2026-05-07",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "d-腾讯云"
+      ],
       "href": "/posts/kbase/2026-05-07_grok2api-项目配置与运维说明.html",
       "readingTime": "9 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "d-腾讯云",
       "sourcePath": "my_server/d-腾讯云/2026-05-07_grok2api 项目配置与运维说明.md"
     },
     {
       "id": "2026-05-07_腾讯云新服务器_frp-api端点站迁移与优化记录",
-      "title": "腾讯云新服务器 FRP API 端点站迁移与优化记录",
+      "title": "腾讯云新服务器_frp-api端点站迁移与优化记录",
       "summary": "20260507 腾讯云新服务器 FRP API 端点站迁移与优化记录 范围说明： 本文记录迁移后的新服务器 81.70.168.127 上，api.shiqianyan.cn 这条 AI API 端点链路的最终状态。 ",
       "date": "2026-05-07",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "d-腾讯云",
+        "frp"
+      ],
       "href": "/posts/kbase/2026-05-07_腾讯云新服务器_frp-api端点站迁移与优化记录.html",
       "readingTime": "7 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "d-腾讯云 · frp",
       "sourcePath": "my_server/d-腾讯云/frp/2026-05-07_腾讯云新服务器_frp-api端点站迁移与优化记录.md"
     },
     {
@@ -405,17 +442,19 @@
       "summary": "Komari 面板 Nginx 反向代理配置指南 更新时间：20260423 本文档基于当前服务器实际运行状态整理，适用于以下现状： 源站服务器：103.97.176.178 Komari 面板容器监听：127.0.0.",
       "date": "2026-04-27",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "c-仅记录"
+      ],
       "href": "/posts/kbase/2026-04-27_komari-面板-nginx-反向代理配置指南.html",
       "readingTime": "12 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "c-仅记录",
       "sourcePath": "my_server/c-仅记录/2026-04-27_Komari 面板 Nginx 反向代理配置指南.md"
     },
     {
       "id": "2026-04-17_powershell与pwsh现状说明",
-      "title": "本机 PowerShell 与 pwsh 现状说明（阿颜专用）",
+      "title": "PowerShell与pwsh现状说明",
       "summary": "本机 PowerShell 与 pwsh 现状说明（阿颜专用） 1. 当前结论（先看这个） 截至 20260316，本机主力 PowerShell 7 已更新为 Scoop 管理的 pwsh 7.5.5。 当前 pwsh",
       "date": "2026-04-17",
       "category": "本地记录",
@@ -425,25 +464,27 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-04-17_PowerShell与pwsh现状说明.md"
+      "sourcePath": "my_local/2026-04-17_PowerShell与pwsh现状说明.md"
     },
     {
       "id": "2026-03-24_mumu依托于watchtower的本次更新",
-      "title": "全局 Watchtower 自动更新部署与运维归档记录",
+      "title": "MuMu依托于watchtower的本次更新",
       "summary": "全局 Watchtower 自动更新部署与运维归档记录 记录时间： 20260324 核心目标： 实现多台服务器上 Watchtower 的精确卡点更新（北京时间凌晨）、自我更新功能，并绝对保障底层数据库与游戏存档的数据",
       "date": "2026-03-24",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "e-RackNerd"
+      ],
       "href": "/posts/kbase/2026-03-24_mumu依托于watchtower的本次更新.html",
       "readingTime": "5 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "e-RackNerd",
       "sourcePath": "my_server/e-RackNerd/2026-03-24_MuMu依托于watchtower的本次更新.md"
     },
     {
       "id": "2026-03-19_claude与终端本机环境说明",
-      "title": "本机 Claude / Git / PowerShell / Node 终端环境说明",
+      "title": "Claude与终端本机环境说明",
       "summary": "本机 Claude / Git / PowerShell / Node 终端环境说明 文档用途 这份文档用于记录阿颜这台 Windows 机器上命令行相关环境的当前事实，重点覆盖： claude git pwsh nod",
       "date": "2026-03-19",
       "category": "本地记录",
@@ -453,11 +494,11 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-03-19_Claude与终端本机环境说明.md"
+      "sourcePath": "my_local/2026-03-19_Claude与终端本机环境说明.md"
     },
     {
       "id": "2026-03-17_git本机环境说明与后续操作准则",
-      "title": "本机 Git 环境说明与后续操作准则",
+      "title": "Git本机环境说明与后续操作准则",
       "summary": "本机 Git 环境说明与后续操作准则 文档用途 这份文档用于给后续接手的大模型或人工维护者快速建立上下文，避免在不了解本机 Git 历史和现状的前提下误改环境。 适用场景： 终端或 IDE 出现 Git 版本、路径、LF",
       "date": "2026-03-17",
       "category": "本地记录",
@@ -467,11 +508,11 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-03-17_Git本机环境说明与后续操作准则.md"
+      "sourcePath": "my_local/2026-03-17_Git本机环境说明与后续操作准则.md"
     },
     {
       "id": "2026-02-10_easy-dataset-操作记录",
-      "title": "Easy Dataset 本机操作记录（2026-02-10）",
+      "title": "easy-dataset-操作记录",
       "summary": "Easy Dataset 本机操作记录（20260210） 1. 背景 仓库路径：D:\\MCPServer\\easydataset\\easydataset 主要目标： 解决 git pull 更新冲突问题并完成代码更新 ",
       "date": "2026-02-10",
       "category": "本地记录",
@@ -481,53 +522,59 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-02-10_easy-dataset-操作记录.md"
+      "sourcePath": "my_local/2026-02-10_easy-dataset-操作记录.md"
     },
     {
       "id": "2026-02-03_mc服务器定时备份修复",
-      "title": "MC 服务器备份策略修复与优化记录（2026-02-03）",
+      "title": "mc服务器定时备份修复",
       "summary": "MC 服务器备份策略修复与优化记录（20260203） 背景与问题 服务器上的 Minecraft 宝可梦整合包部署后，发现备份文件持续增长导致磁盘压力。目标是： 1. 关闭/修正“意外的自动备份来源” 2. 将备份保留",
       "date": "2026-02-03",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "c-仅记录"
+      ],
       "href": "/posts/kbase/2026-02-03_mc服务器定时备份修复.html",
       "readingTime": "5 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "c-仅记录",
       "sourcePath": "my_server/c-仅记录/2026-02-03_mc服务器定时备份修复.md"
     },
     {
       "id": "2026-01-23_mc服务器初部署",
-      "title": "Minecraft（Cobblemon 宝可梦整合包）服务器搭建与维护手册（2026-01-23）",
+      "title": "mc服务器初部署",
       "summary": "Minecraft（Cobblemon 宝可梦整合包）服务器搭建与维护手册（20260123） 适用场景：你在日本服务器（Debian 11）上，用 Docker Compose 部署 Fabric 服务器，并把整合包 ",
       "date": "2026-01-23",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "c-仅记录"
+      ],
       "href": "/posts/kbase/2026-01-23_mc服务器初部署.html",
       "readingTime": "13 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "c-仅记录",
       "sourcePath": "my_server/c-仅记录/2026-01-23_mc服务器初部署.md"
     },
     {
       "id": "2026-01-18_抢占式服务器保活",
-      "title": "阿里云ECS流量监控自动化部署完整文档",
+      "title": "抢占式服务器保活",
       "summary": "阿里云ECS流量监控自动化部署完整文档 📋 目录 1. 环境要求 2. 部署步骤 3. 日志管理配置 4. 验证与测试 5. 故障排查 6. 注意事项 🎯 环境要求 操作系统：Ubuntu 22.04+ / Debi",
       "date": "2026-01-18",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "a-初始化"
+      ],
       "href": "/posts/kbase/2026-01-18_抢占式服务器保活.html",
       "readingTime": "13 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "a-初始化",
       "sourcePath": "my_server/a-初始化/2026-01-18_抢占式服务器保活.md"
     },
     {
       "id": "2026-01-13_学习记录",
-      "title": "MoE / 量化 / 显存估算复习笔记（基于本次聊天）",
+      "title": "学习记录",
       "summary": "MoE / 量化 / 显存估算复习笔记（基于本次聊天） 目标：以后快速回忆“专家是什么、topk 是什么、为什么 A3B/active 不等于显存、以及在 LM Studio 里怎么估显存”。 1. 术语速查：专家、共享",
       "date": "2026-01-13",
       "category": "本地记录",
@@ -537,7 +584,7 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2026-01-13_学习记录.md"
+      "sourcePath": "my_local/2026-01-13_学习记录.md"
     },
     {
       "id": "2025-12-29_节点",
@@ -551,7 +598,7 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2025-12-29_节点.md"
+      "sourcePath": "my_local/2025-12-29_节点.md"
     },
     {
       "id": "2025-12-26_mumuainovel-本次更新与故障处理记录-racknerd-vps-_补充版",
@@ -559,12 +606,14 @@
       "summary": "目的：记录 今晚一次较大更新引发的数据库兼容问题、修复步骤、当前 VPS 部署现状，以及后续排障/回滚/更新的“操作手册”。 1. 当前部署概览（关键事实） 1.1 主目录 项目目录：/root/MuMuAINovel ",
       "date": "2025-12-26",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "e-RackNerd"
+      ],
       "href": "/posts/kbase/2025-12-26_mumuainovel-本次更新与故障处理记录-racknerd-vps-_补充版.html",
       "readingTime": "11 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "e-RackNerd",
       "sourcePath": "my_server/e-RackNerd/2025-12-26_MuMuAINovel 本次更新与故障处理记录（RackNerd VPS）_补充版.md"
     },
     {
@@ -573,40 +622,46 @@
       "summary": "目的：记录 今晚一次较大更新引发的数据库兼容问题、修复步骤、当前 VPS 部署现状，以及后续排障/回滚/更新的“操作手册”。 1. 当前部署概览（关键事实） 1.1 主目录 项目目录：/root/MuMuAINovel ",
       "date": "2025-12-23",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "e-RackNerd"
+      ],
       "href": "/posts/kbase/2025-12-23_mumuainovel-本次更新与故障处理记录-racknerd-vps.html",
       "readingTime": "7 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "e-RackNerd",
       "sourcePath": "my_server/e-RackNerd/2025-12-23_MuMuAINovel 本次更新与故障处理记录（RackNerd VPS）.md"
     },
     {
       "id": "2025-12-18_无-root-权限-vps-探针部署与保活通用指南",
-      "title": "================= 配置区域 (修改这里) =================",
+      "title": "无 Root 权限 VPS 探针部署与保活通用指南",
       "summary": "适用场景： 只有普通用户权限的 NAT VPS 共享主机或容器环境（LXC/OpenVZ） 管理员禁止使用 systemctl 的环境 核心原理： 1. 运行：使用 nohup 后台运行二进制文件。 2. 保活：利用 c",
       "date": "2025-12-18",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "c-仅记录"
+      ],
       "href": "/posts/kbase/2025-12-18_无-root-权限-vps-探针部署与保活通用指南.html",
       "readingTime": "5 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "c-仅记录",
       "sourcePath": "my_server/c-仅记录/2025-12-18_无 Root 权限 VPS 探针部署与保活通用指南.md"
     },
     {
       "id": "2025-12-11_racknerd-vps-部署-mumuainovel-全流程笔记",
-      "title": "新版本使用 docker compose 子命令",
+      "title": "RackNerd VPS 部署 MuMuAINovel 全流程笔记",
       "summary": "机器环境：RackNerd VPS（2 vCPU / 2.5G RAM / 40G SSD）+ 额外 1.2G 日志盘挂载到 /mnt/logs 系统：Ubuntu 22.04 项目目录：/root/MuMuAINove",
       "date": "2025-12-11",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "e-RackNerd"
+      ],
       "href": "/posts/kbase/2025-12-11_racknerd-vps-部署-mumuainovel-全流程笔记.html",
       "readingTime": "14 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "e-RackNerd",
       "sourcePath": "my_server/e-RackNerd/2025-12-11_RackNerd VPS 部署 MuMuAINovel 全流程笔记.md"
     },
     {
@@ -621,11 +676,11 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2025-11-27_学习记录1.md"
+      "sourcePath": "my_local/2025-11-27_学习记录1.md"
     },
     {
       "id": "2025-11-27_学习记录2",
-      "title": "Linux mmap 硬核学习笔记",
+      "title": "学习记录2",
       "summary": "Linux mmap 硬核学习笔记 核心思想：Linux 内存管理的主权在内核，用户态拿到的往往只是“空头支票”。真正分配物理资源，往往发生在最后一刻（Lazy Allocation）。 1. 核心概念：打破“黑话”壁垒",
       "date": "2025-11-27",
       "category": "本地记录",
@@ -635,34 +690,38 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2025-11-27_学习记录2.md"
+      "sourcePath": "my_local/2025-11-27_学习记录2.md"
     },
     {
       "id": "2025-11-27_droid-claudeforge卸载教程",
-      "title": "停止进程",
+      "title": "droid&ClaudeForge卸载教程",
       "summary": "这篇文章来自千颜的私有知识库，已在同步阶段生成静态索引。",
       "date": "2025-11-27",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "c-仅记录"
+      ],
       "href": "/posts/kbase/2025-11-27_droid-claudeforge卸载教程.html",
       "readingTime": "2 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "c-仅记录",
       "sourcePath": "my_server/c-仅记录/2025-11-27_droid&ClaudeForge卸载教程.md"
     },
     {
       "id": "2025-11-25_aistudioproxyapi-最佳实践部署手册",
-      "title": "1. 安装",
+      "title": "AIstudioProxyAPI 最佳实践部署手册",
       "summary": "用户: qianyan (非 root) 核心原则: 严禁混用 pip 和 poetry；生产环境使用 poetry install 锁定版本。 1. 环境准备 如果是一台全新的服务器，需要先安装基础工具。 1.1 安装",
       "date": "2025-11-25",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "c-仅记录"
+      ],
       "href": "/posts/kbase/2025-11-25_aistudioproxyapi-最佳实践部署手册.html",
       "readingTime": "6 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "c-仅记录",
       "sourcePath": "my_server/c-仅记录/2025-11-25_AIstudioProxyAPI 最佳实践部署手册.md"
     },
     {
@@ -671,12 +730,14 @@
       "summary": "这篇文章来自千颜的私有知识库，已在同步阶段生成静态索引。",
       "date": "2025-11-24",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "b-节点"
+      ],
       "href": "/posts/kbase/2025-11-24_dns更改-mihomo.html",
       "readingTime": "3 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "b-节点",
       "sourcePath": "my_server/b-节点/2025-11-24_DNS更改（mihomo）.md"
     },
     {
@@ -691,25 +752,27 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2025-11-22_中国跨境网络基础设施深度研究报告：运营商骨干网架构、路由策略与性能经济学.md"
+      "sourcePath": "my_local/2025-11-22_中国跨境网络基础设施深度研究报告：运营商骨干网架构、路由策略与性能经济学.md"
     },
     {
       "id": "2025-11-22_racknerd-vps-初始化配置手册-实战swap操作",
-      "title": "查看内存及 Swap 使用情况",
+      "title": "RackNerd VPS 初始化配置手册（实战Swap操作）",
       "summary": "主机概况： 配置：2 vCPU / 2.5 GB RAM / 40 GB SSD 系统：Ubuntu 22.04 LTS 用户：Root 网络别名：RackNerdDF2 (根据 hostname) 1. 内存与 Swa",
       "date": "2025-11-22",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "e-RackNerd"
+      ],
       "href": "/posts/kbase/2025-11-22_racknerd-vps-初始化配置手册-实战swap操作.html",
       "readingTime": "4 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "e-RackNerd",
       "sourcePath": "my_server/e-RackNerd/2025-11-22_RackNerd VPS 初始化配置手册（实战Swap操作）.md"
     },
     {
       "id": "2025-11-21_现代分布式版本控制系统-git-与-github-生态架构深度指南",
-      "title": "Windows 用户",
+      "title": "现代分布式版本控制系统 Git 与 GitHub 生态架构深度指南",
       "summary": "摘要 在现代软件工程的版图中，版本控制系统（VCS）构成了开发运维（DevOps）的基础骨架。在这一领域中，Git 凭借其分布式的架构设计、高效的分支管理模型以及强大的数据完整性保障，已经实际上淘汰了传统的集中式版本控制",
       "date": "2025-11-21",
       "category": "本地记录",
@@ -719,11 +782,11 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2025-11-21_现代分布式版本控制系统 Git 与 GitHub 生态架构深度指南.md"
+      "sourcePath": "my_local/2025-11-21_现代分布式版本控制系统 Git 与 GitHub 生态架构深度指南.md"
     },
     {
       "id": "2025-11-20_openai-s-evals",
-      "title": "评估（Evals）如何推动企业 AI 的下一篇章",
+      "title": "OpenAI's Evals",
       "summary": "https://openai.com/index/evalsdrivenextchapterofai/ 评估（Evals）如何推动企业 AI 的下一篇章 本指南旨在教导企业领导者如何利用评估框架（简称“Evals”）将业",
       "date": "2025-11-20",
       "category": "本地记录",
@@ -733,7 +796,7 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2025-11-20_OpenAI's Evals.md"
+      "sourcePath": "my_local/2025-11-20_OpenAI's Evals.md"
     },
     {
       "id": "2025-11-20_屏蔽b站开屏广告",
@@ -747,90 +810,103 @@
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/public/2025-11-20_屏蔽b站开屏广告.md"
+      "sourcePath": "my_local/2025-11-20_屏蔽b站开屏广告.md"
     },
     {
       "id": "2025-11-20_linux-服务器网络配置与镜像源管理指南",
-      "title": "Ubuntu/Debian",
+      "title": "Linux 服务器网络配置与镜像源管理指南",
       "summary": "本文档旨在指导新购 Linux 服务器进行基础的网络配置（DNS/网关）以及软件镜像源的切换与恢复。 第一部分：配置 DNS 和网关 1. 临时修改 DNS (立即生效，重启可能失效) 适用于所有 Linux 发行版。 ",
       "date": "2025-11-20",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "a-初始化"
+      ],
       "href": "/posts/kbase/2025-11-20_linux-服务器网络配置与镜像源管理指南.html",
       "readingTime": "7 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "a-初始化",
       "sourcePath": "my_server/a-初始化/2025-11-20_Linux 服务器网络配置与镜像源管理指南.md"
     },
     {
       "id": "2025-11-20_ubuntu-22-04-rclone-挂载-google-drive-完整指南",
-      "title": "安装 Rclone",
+      "title": "Ubuntu 22",
       "summary": "适用环境：Ubuntu 22.04 / 10GB 内存 / 无桌面环境 (Headless) 目标用户：qianyan 挂载路径：/home/gdrive 第一步：安装 Rclone 与依赖 在服务器上执行以下命令安装 ",
       "date": "2025-11-20",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "a-初始化"
+      ],
       "href": "/posts/kbase/2025-11-20_ubuntu-22-04-rclone-挂载-google-drive-完整指南.html",
       "readingTime": "6 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "a-初始化",
       "sourcePath": "my_server/a-初始化/2025-11-20_Ubuntu 22.04 Rclone 挂载 Google Drive 完整指南.md"
     },
     {
       "id": "2025-11-20_ubuntu-22-04-swap-虚拟内存-安装与卸载完整指南",
-      "title": "Ubuntu 22.04 Swap (虚拟内存) 安装与卸载完整指南",
+      "title": "Ubuntu 22",
       "summary": "本教程将指导您如何在 Ubuntu 22.04 系统上检查、创建、优化以及安全移除 Swap 文件。 1. 检查当前的 Swap 状态 在开始之前，首先检查系统是否已经配置了 Swap。 打开终端执行： 或者： 如果输出",
       "date": "2025-11-20",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "a-初始化"
+      ],
       "href": "/posts/kbase/2025-11-20_ubuntu-22-04-swap-虚拟内存-安装与卸载完整指南.html",
       "readingTime": "3 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "a-初始化",
       "sourcePath": "my_server/a-初始化/2025-11-20_Ubuntu 22.04 Swap (虚拟内存) 安装与卸载完整指南.md"
     },
     {
       "id": "2025-11-20_ubuntu-server-docker-部署-firefox-完整指南",
-      "title": "停止",
+      "title": "Ubuntu Server Docker 部署 Firefox 完整指南",
       "summary": "本指南用于在 Ubuntu 服务器（或其他 Linux 发行版）中通过 Docker 部署一个带有 Web 界面（NoVNC）的可操作 Firefox 浏览器。（jlesage/firefox镜像） 适用场景：远程办公、",
       "date": "2025-11-20",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "c-仅记录"
+      ],
       "href": "/posts/kbase/2025-11-20_ubuntu-server-docker-部署-firefox-完整指南.html",
       "readingTime": "4 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "c-仅记录",
       "sourcePath": "my_server/c-仅记录/2025-11-20_Ubuntu Server Docker 部署 Firefox 完整指南.md"
     },
     {
       "id": "2025-11-20_哪吒监控-nezha-monitoring-完整部署与管理指南",
-      "title": "如果脚本删了，可以重新下载下来运行，然后选择卸载选项",
+      "title": "哪吒监控 (Nezha Monitoring) 完整部署与管理指南",
       "summary": "适用系统： Ubuntu 22.04 LTS 本教程将指导你完成哪吒监控面板的搭建、被控端（Agent）的接入，以及如何彻底删除它们。 📋 第一部分：准备工作 在开始之前，请确保你拥有： 1. 两台或以上服务器（一台做",
       "date": "2025-11-20",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "c-仅记录"
+      ],
       "href": "/posts/kbase/2025-11-20_哪吒监控-nezha-monitoring-完整部署与管理指南.html",
       "readingTime": "6 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "c-仅记录",
       "sourcePath": "my_server/c-仅记录/2025-11-20_哪吒监控 (Nezha Monitoring) 完整部署与管理指南.md"
     },
     {
       "id": "2025-11-20_使用-frp-实现内网穿透完整部署教程",
-      "title": "进入用户目录",
+      "title": "使用 frp 实现内网穿透完整部署教程",
       "summary": "本文档详细介绍如何通过 frp 将本地内网服务暴露到公网，包含部署、管理和删除全流程。 一、环境说明 服务端：阿里云 Ubuntu 服务器（公网 IP: 101.200.155.141） 客户端：Windows 本地电脑",
       "date": "2025-11-20",
       "category": "服务器记录",
-      "tags": [],
+      "tags": [
+        "d-腾讯云",
+        "frp"
+      ],
       "href": "/posts/kbase/2025-11-20_使用-frp-实现内网穿透完整部署教程.html",
       "readingTime": "7 min",
       "featured": false,
       "sourceType": "server",
-      "section": "Server Notes",
+      "section": "d-腾讯云 · frp",
       "sourcePath": "my_server/d-腾讯云/frp/2025-11-20_使用 frp 实现内网穿透完整部署教程.md"
     }
   ]

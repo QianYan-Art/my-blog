@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -34,9 +41,8 @@
       <p class="post-kicker">服务器记录</p>
       <h1>Komari 面板 Nginx 反向代理配置指南</h1>
       <div class="post-meta"><span>2026-04-27</span><span>12 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><h2>Komari 面板 Nginx 反向代理配置指南</h2>
-<p>更新时间：2026-04-23</p>
+      <div class="article-card__tags"><span>c-仅记录</span></div>
+      <div class="post-content"><p>更新时间：2026-04-23</p>
 <p>本文档基于当前服务器实际运行状态整理，适用于以下现状：</p>
 <ul>
 <li>源站服务器：<code>103.97.176.178</code></li>

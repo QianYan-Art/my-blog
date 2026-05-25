@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -34,9 +41,8 @@
       <p class="post-kicker">服务器记录</p>
       <h1>netcup Debian13 服务器初始化与 Komari 部署记录</h1>
       <div class="post-meta"><span>2026-05-08</span><span>8 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><h2>2026-05-08 netcup Debian13 服务器初始化与 Komari 部署记录</h2>
-<h3>1. 服务器基础信息</h3>
+      <div class="article-card__tags"><span>f-NetCup</span></div>
+      <div class="post-content"><h3>1. 服务器基础信息</h3>
 <ul>
 <li>服务器商家：netcup</li>
 <li>系统：Debian GNU/Linux 13 (trixie)</li>

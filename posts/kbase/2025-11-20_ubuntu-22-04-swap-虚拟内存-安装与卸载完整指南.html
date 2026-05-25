@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ubuntu 22.04 Swap (虚拟内存) 安装与卸载完整指南 · 千颜</title>
+  <title>Ubuntu 22 · 千颜</title>
   <meta name="description" content="本教程将指导您如何在 Ubuntu 22.04 系统上检查、创建、优化以及安全移除 Swap 文件。 1. 检查当前的 Swap 状态 在开始之前，首先检查系统是否已经配置了 Swap。 打开终端执行： 或者： 如果输出">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,9 +39,9 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
-      <h1>Ubuntu 22.04 Swap (虚拟内存) 安装与卸载完整指南</h1>
+      <h1>Ubuntu 22</h1>
       <div class="post-meta"><span>2025-11-20</span><span>3 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>a-初始化</span></div>
       <div class="post-content"><p>本教程将指导您如何在 Ubuntu 22.04 系统上检查、创建、优化以及安全移除 Swap 文件。</p>
 <h3>1. 检查当前的 Swap 状态</h3>
 <p>在开始之前，首先检查系统是否已经配置了 Swap。</p>
@@ -53,7 +60,7 @@
 <h4>第一步：创建 Swap 文件</h4>
 <p>我们将使用 <code>fallocate</code> 命令快速创建一个文件（比 <code>dd</code> 更快）。</p>
 <pre><code>sudo fallocate -l 4G /swapfile</code></pre>
-<p>&gt; <strong>注意</strong>：如果您需要不同大小，请将 <code>4G</code> 替换为 <code>1G</code>, <code>2G</code>, <code>8G</code> 等。</p>
+<blockquote><strong>注意</strong>：如果您需要不同大小，请将 <code>4G</code> 替换为 <code>1G</code>, <code>2G</code>, <code>8G</code> 等。</blockquote>
 <h4>第二步：设置权限</h4>
 <p>为了安全起见，Swap 文件应该只能由 root 用户读取。</p>
 <pre><code>sudo chmod 600 /swapfile</code></pre>

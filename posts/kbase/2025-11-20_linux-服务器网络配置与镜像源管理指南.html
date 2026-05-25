@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ubuntu/Debian · 千颜</title>
+  <title>Linux 服务器网络配置与镜像源管理指南 · 千颜</title>
   <meta name="description" content="本文档旨在指导新购 Linux 服务器进行基础的网络配置（DNS/网关）以及软件镜像源的切换与恢复。 第一部分：配置 DNS 和网关 1. 临时修改 DNS (立即生效，重启可能失效) 适用于所有 Linux 发行版。 ">
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260524f">
   <link rel="shortcut icon" href="/favicon.ico?v=20260524f">
@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -32,9 +39,9 @@
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
-      <h1>Ubuntu/Debian</h1>
+      <h1>Linux 服务器网络配置与镜像源管理指南</h1>
       <div class="post-meta"><span>2025-11-20</span><span>7 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>a-初始化</span></div>
       <div class="post-content"><p>本文档旨在指导新购 Linux 服务器进行基础的网络配置（DNS/网关）以及软件镜像源的切换与恢复。</p>
 <h3>第一部分：配置 DNS 和网关</h3>
 <h4>1. 临时修改 DNS (立即生效，重启可能失效)</h4>

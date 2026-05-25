@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -35,8 +42,7 @@
       <h1>SafetyRAISE开源版整理与推送记录</h1>
       <div class="post-meta"><span>2026-05-22</span><span>9 min</span></div>
       <div class="article-card__tags"></div>
-      <div class="post-content"><h2>2026-05-22_SafetyRAISE开源版整理与推送记录</h2>
-<h3>1. 目标</h3>
+      <div class="post-content"><h3>1. 目标</h3>
 <p>在不影响私有部署主线的前提下，将 <code>D:\MCP_Server\TS_analysis_report</code> 当前较新的部署版代码整理为可公开发布的开源版，并推送到开源仓库 <code>QianYan-Art/SafetyRAISE-OS</code>。 本次记录只保留“从部署版整理为开源版并推送”的过程细节，私有部署版的日常开发、服务器维护、现网切换等内容仍以项目内 <code>项目文档</code> 目录为准。</p>
 <h3>2. 项目与仓库信息</h3>
 <ul>

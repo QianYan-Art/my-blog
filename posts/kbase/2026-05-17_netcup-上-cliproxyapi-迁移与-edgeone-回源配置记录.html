@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -34,9 +41,8 @@
       <p class="post-kicker">服务器记录</p>
       <h1>NetCup 上 CLIProxyAPI 迁移与 EdgeOne 回源配置记录</h1>
       <div class="post-meta"><span>2026-05-17</span><span>16 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><h2>2026-05-17 NetCup 上 CLIProxyAPI 迁移与 EdgeOne 回源配置记录</h2>
-<h3>1. 目标与结论</h3>
+      <div class="article-card__tags"><span>f-NetCup</span></div>
+      <div class="post-content"><h3>1. 目标与结论</h3>
 <p>本次目标：</p>
 <ul>
 <li>放弃旧 JP NAT 机上那套专门为 <code>Codex + suyuan</code> 临时修补过很多次的运行方式。</li>

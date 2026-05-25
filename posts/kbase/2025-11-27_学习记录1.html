@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -97,7 +104,7 @@ Nginx / Envoy / Traefik（反向代理）
 <li>R8 ~ R15</li>
 </ul>
 <p>用途类似：</p>
-<p>&gt; “我暂存一下这个值等会运算用。”</p>
+<blockquote>“我暂存一下这个值等会运算用。”</blockquote>
 <h3>② <strong>指令指针寄存器（PC / IP / EIP / RIP）</strong></h3>
 <p>你刚才问的那个 “IP”。</p>
 <p>用途：</p>

@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -34,7 +41,7 @@
       <p class="post-kicker">服务器记录</p>
       <h1>DNS更改（mihomo）</h1>
       <div class="post-meta"><span>2025-11-24</span><span>3 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>b-节点</span></div>
       <div class="post-content"><pre><code>原版：
 dns:
 

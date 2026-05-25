@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -34,8 +41,8 @@
       <p class="post-kicker">服务器记录</p>
       <h1>MuMuAINovel 本次更新与故障处理记录（RackNerd VPS）_补充版</h1>
       <div class="post-meta"><span>2025-12-26</span><span>11 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><p>&gt; 目的：记录 <strong>今晚一次较大更新</strong>引发的数据库兼容问题、修复步骤、当前 VPS 部署现状，以及后续排障/回滚/更新的“操作手册”。</p>
+      <div class="article-card__tags"><span>e-RackNerd</span></div>
+      <div class="post-content"><blockquote>目的：记录 <strong>今晚一次较大更新</strong>引发的数据库兼容问题、修复步骤、当前 VPS 部署现状，以及后续排障/回滚/更新的“操作手册”。</blockquote>
 <p>---</p>
 <h3>1. 当前部署概览（关键事实）</h3>
 <h4>1.1 主目录</h4>
@@ -78,7 +85,7 @@
 <li><code>/docker-entrypoint-initdb.d</code> 下只有 <code>init.sql</code></li>
 <li>手动执行 <code>/docker-entrypoint-initdb.d/init_postgres.sql</code> 报错：文件不存在</li>
 </ul>
-<p>&gt; 备注：Postgres 官方镜像的 <code>docker-entrypoint-initdb.d</code> 脚本通常只在“首次初始化数据卷”时自动执行；数据库已经有数据卷时，新增脚本不会自动再跑。</p>
+<blockquote>备注：Postgres 官方镜像的 <code>docker-entrypoint-initdb.d</code> 脚本通常只在“首次初始化数据卷”时自动执行；数据库已经有数据卷时，新增脚本不会自动再跑。</blockquote>
 <p>---</p>
 <h3>3. 今晚实际做过的操作（按时间线）</h3>
 <h4>3.1 确认容器状态</h4>
@@ -148,7 +155,7 @@ docker compose up -d --force-recreate postgres</code></pre>
 docker compose up -d --force-recreate postgres</code></pre>
 <p>验证：</p>
 <pre><code>docker inspect mumuainovel-postgres --format &#39;{{json .Config.Labels}}&#39; | grep -i watchtower</code></pre>
-<p>&gt; 备注：不同 watchtower 运行模式对 label 规则生效方式略有差异。为了确认“数据库不会被更新”，最可靠的做法是：观察 watchtower 日志是否跳过该容器。</p>
+<blockquote>备注：不同 watchtower 运行模式对 label 规则生效方式略有差异。为了确认“数据库不会被更新”，最可靠的做法是：观察 watchtower 日志是否跳过该容器。</blockquote>
 <p>检查 watchtower 最近日志：</p>
 <pre><code>docker logs -n 200 watchtower</code></pre>
 <p>（可选）临时手动触发一次检查：</p>
@@ -162,7 +169,7 @@ docker compose up -d --force-recreate postgres</code></pre>
 <li><code>/root/mumu_ops/mumu-full-update.sh</code>：全量更新（停应用→备份→拉更新→启动→健康检查）</li>
 <li><code>/root/mumu_ops/mumu-check.sh</code>：一键体检（检查后直接打印“建议执行的命令清单”）</li>
 </ul>
-<p>&gt; 如果后续模型接手排障，优先让它查看 <code>/root/mumu_ops/</code> 下脚本内容，按脚本的输出执行。</p>
+<blockquote>如果后续模型接手排障，优先让它查看 <code>/root/mumu_ops/</code> 下脚本内容，按脚本的输出执行。</blockquote>
 <p>---</p>
 <h3>7. 后续再出问题：最短“排障-回滚-再更新”流程</h3>
 <h4>7.1 先体检（推荐）</h4>
@@ -209,7 +216,7 @@ sudo apt -f install -y</code></pre>
 <h4>11.1 背景与决策</h4>
 <p>作者发布新版本（v1.2.0）后，数据库初始化/迁移机制发生较大变化（引入 Alembic）。对于“首次升级到该大版本”，作者建议按文档进行 <strong>重新初始化数据库</strong>。</p>
 <p>本次决策：<strong>不保留历史数据</strong>，采用“清库重建”的升级路径（更干净、后续迁移更省心）。</p>
-<p>&gt; ⚠️ 注意：清库重建会删除 Postgres 的数据卷（命名卷 <code>postgres_data</code>），不可逆。执行前建议仍保留一份备份文件以便救援/回溯。</p>
+<blockquote>⚠️ 注意：清库重建会删除 Postgres 的数据卷（命名卷 <code>postgres_data</code>），不可逆。执行前建议仍保留一份备份文件以便救援/回溯。</blockquote>
 <h4>11.2 升级步骤（清库重建）</h4>
 <p>建议在项目目录执行：</p>
 <p>1）临时停用 watchtower，避免更新过程中被自动更新打断：</p>
