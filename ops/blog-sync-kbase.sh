@@ -84,16 +84,8 @@ if [[ -d "$CURRENT_POSTS" ]]; then
 fi
 
 OLD_COUNT="$(read_count "$CURRENT_JSON")"
-log "开始直连同步 GitHub 私库文章，当前文章数：${OLD_COUNT}"
-if run_sync 240s 2>/dev/null; then
-  log "直连同步成功"
-else
-  log "直连失败，尝试通过 124 服务器临时代理重试"
-  if [[ ! -f "$PROXY_KEY" ]]; then
-    log "缺少代理 key：$PROXY_KEY"
-    exit 1
-  fi
-
+log "开始优先通过 124 服务器代理同步 GitHub 私库文章，当前文章数：${OLD_COUNT}"
+if [[ -f "$PROXY_KEY" ]]; then
   start_proxy
   sleep 2
 
@@ -101,8 +93,20 @@ else
   export HTTPS_PROXY="$ALL_PROXY"
   export HTTP_PROXY="$ALL_PROXY"
 
-  run_sync 300s
-  log "代理重试成功"
+  if run_sync 300s 2>/dev/null; then
+    log "代理同步成功"
+  else
+    log "代理同步失败，回退到服务器直连重试"
+    unset ALL_PROXY HTTPS_PROXY HTTP_PROXY
+    cleanup_proxy
+    run_sync 240s
+    log "直连重试成功"
+  fi
+else
+  log "缺少代理 key：$PROXY_KEY，改为服务器直连同步"
+  unset ALL_PROXY HTTPS_PROXY HTTP_PROXY
+  run_sync 240s
+  log "直连同步成功"
 fi
 
 NEW_COUNT="$(read_count "$CURRENT_JSON")"
