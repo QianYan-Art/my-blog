@@ -875,17 +875,6 @@
   border-bottom: 1px solid var(--verm);
 }
 
-.page--articles .site-nav::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -9px;
-  height: 1px;
-  background: var(--verm);
-  pointer-events: none;
-}
-
 .page--articles .site-nav__rule {
   margin-top: 0;
 }
