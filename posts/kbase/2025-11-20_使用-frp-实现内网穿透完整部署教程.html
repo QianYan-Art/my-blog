@@ -31,8 +31,8 @@
   <main class="page-main post-shell">
     <a class="post-back" href="/blog/">← 返回文章</a>
     <article class="post-body">
-      <p class="article-board__kicker">服务器记录</p>
-      <h1>进入用户目录<span class="hero-title__cursor" aria-hidden="true"></span></h1>
+      <p class="post-kicker">服务器记录</p>
+      <h1>进入用户目录</h1>
       <div class="post-meta"><span>2025-11-20</span><span>7 min</span></div>
       <div class="article-card__tags"></div>
       <div class="post-content"><p>本文档详细介绍如何通过 frp 将本地内网服务暴露到公网，包含部署、管理和删除全流程。</p>
@@ -112,7 +112,7 @@ ps aux | grep frps
 netstat -tlnp | grep -E &#39;7000|8080&#39;</code></pre>
 <h3>三、客户端配置</h3>
 <h4>1. 下载 Windows 版本</h4>
-<p>在本地 Windows 电脑访问 <a href="https://github.com/fatedier/frp/releases" target="_blank" rel="noopener">frp releases</a>，下载 <code>frp_0.65.0_windows_amd64.zip</code>，解压到任意目录（如 <code>C:\frp</code>）。</p>
+<p>在本地 Windows 电脑访问 <a href="https://github.com/fatedier/frp/releases" target="_blank" rel="noopener noreferrer">frp releases</a>，下载 <code>frp_0.65.0_windows_amd64.zip</code>，解压到任意目录（如 <code>C:\frp</code>）。</p>
 <h4>2. 配置 frpc.toml</h4>
 <p>在解压目录创建 <code>frpc.toml</code>：</p>
 <pre><code>serverAddr = &quot;101.200.155.141&quot;

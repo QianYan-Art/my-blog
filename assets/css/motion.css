@@ -85,10 +85,6 @@
 
 /* ---- Entrance timeline assignments ---- */
 
-.site-nav__rule {
-  --reveal-delay: var(--t-rule-top);
-}
-
 .site-nav__brand {
   --reveal-delay: var(--t-brand);
 }
