@@ -74,11 +74,26 @@ npm run sync:kbase
 当前线上自动刷新以服务器定时任务为主，执行入口是：
 
 - `/usr/local/bin/blog-sync-kbase.sh`
+- `root` 用户 `crontab`
+- `hermes` 用户也可手动执行同一脚本
 
 同步策略为：
 
 1. 优先通过境外腾讯云机器提供的临时 SOCKS 代理访问 GitHub。
 2. 如果代理同步失败，再回退到服务器本机直连重试。
 3. 如果代理 key 缺失，则直接走本机直连。
+
+当前服务器定时任务为本地时间每天 `04:00` 执行一次：
+
+```cron
+0 4 * * * /usr/local/bin/blog-sync-kbase.sh >> /var/log/blog-sync.log 2>&1
+```
+
+同步日志写入 `/var/log/blog-sync.log`，并通过 `/etc/logrotate.d/blog-sync` 轮转：
+
+- `daily`
+- 保留 `14` 份
+- `compress`
+- `copytruncate`
 
 仓库中的 `.github/workflows/sync-kbase.yml` 现在只保留手动触发，用于排查或临时补同步，不再按固定周期运行。
