@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hermes_唐语歌人格维护说明 · 千颜</title>
-  <meta name="description" content="最后更新：20260522 本文回答三个问题： 1. 现在这套 Hermes 在哪里、怎么跑。 2. 后续维护必须保住哪些定制层。 3. 遇到故障时，先查什么、再改什么。 1. 当前部署基线 当前正式机器： 81.70.">
+  <meta name="description" content="最后更新：20260526 本文回答三个问题： 1. 现在这套 Hermes 在哪里、怎么跑。 2. 后续维护必须保住哪些定制层。 3. 遇到故障时，先查什么、再改什么。 1. 当前部署基线 当前正式机器： 81.70.">
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
@@ -40,9 +40,9 @@
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
       <h1>Hermes_唐语歌人格维护说明</h1>
-      <div class="post-meta"><span>2026-05-22</span><span>22 min</span></div>
+      <div class="post-meta"><span>2026-05-22</span><span>24 min</span></div>
       <div class="article-card__tags"><span>d-腾讯云</span></div>
-      <div class="post-content"><p>最后更新：2026-05-22</p>
+      <div class="post-content"><p>最后更新：2026-05-26</p>
 <p>本文回答三个问题：</p>
 <ol>
 <li>现在这套 Hermes 在哪里、怎么跑。</li>
@@ -192,6 +192,8 @@
 <ul>
 <li>只调用 <code>http://127.0.0.1:19880/tts</code></li>
 <li>wrapper：<code>/home/hermes/.hermes/tts_remote_gptsovits_bridge.py</code></li>
+<li><code>tts.providers.remote_gptsovits.command</code> 当前已改为：</li>
+<p>- <code>python3 /home/hermes/.hermes/tts_remote_gptsovits_bridge.py {input_path} {output_path} {metadata_path}</code></p>
 </ul>
 <p>本机侧：</p>
 <ul>
@@ -209,6 +211,25 @@
 <li><code>tts.nvidia</code> 保留</li>
 <li><code>NVIDIA_API_KEY</code> 保留</li>
 <li>2026-05-18 升级后复核：服务器 <code>127.0.0.1:19880/health</code> 返回 <code>200</code>，说明 <code>remote_gptsovits</code> 主链路当前已恢复；如再次失败，先查本机 <code>TangyugeTTS</code> 服务与反向 SSH 隧道</li>
+</ul>
+<p>2026-05-26 TTS 参数链路完善结论：</p>
+<ul>
+<li>本机 bridge 已支持显式 <code>reference</code></li>
+<li>Hermes command provider 已新增 <code>metadata_path</code> 占位，可把结构化参数交给 wrapper</li>
+<li><code>remote_gptsovits</code> wrapper 不再只发 <code>{&quot;text&quot;: ...}</code>，当前会转发：</li>
+<p>- <code>scene</code> - <code>profile</code> - <code>reference</code> - <code>ref_audio_path</code> - <code>prompt_text</code> - <code>prompt_lang</code> - <code>text_lang</code> - <code>top_k</code> - <code>top_p</code> - <code>temperature</code> - <code>text_split_method</code> - <code>batch_size</code> - <code>media_type</code> - <code>streaming_mode</code></p>
+<li>兼容策略：</li>
+<p>- <code>voice</code> 在 <code>remote_gptsovits</code> wrapper 中映射为 <code>profile</code> 别名，方便 QQ / tool 侧沿用更通用的 TTS 心智 - <code>speed</code> / <code>model</code> 已能进入 Hermes command provider 的通用 metadata，但本机 Tangyuge bridge / GPT-SoVITS 后端当前没有消费它们，所以对这条链路暂时无实际效果；除非后端以后新增对应能力，否则不要把它们当成当前可调参数</p>
+<li>服务器侧实测通过：</li>
+<p>- <code>text_to_speech_tool(profile=&#39;morning&#39;)</code> - <code>text_to_speech_tool(reference=&#39;serious_script41_L0682&#39;)</code> - <code>text_to_speech_tool(voice=&#39;morning&#39;)</code> 三条都已成功生成 <code>voice_compatible=true</code> 的 <code>.ogg</code></p>
+</ul>
+<p>后续维护要点：</p>
+<ul>
+<li>如果只是想切语气/情境，优先传 <code>profile</code></li>
+<li>如果要锁定具体参考切片，传 <code>reference</code></li>
+<li>如果要临时覆盖参考音频或提示词，再传 <code>ref_audio_path / prompt_text / prompt_lang / text_lang</code></li>
+<li>采样相关参数当前可以继续透传：<code>top_k / top_p / temperature / text_split_method / batch_size / media_type / streaming_mode</code></li>
+<li>每次改动 <code>tts_tool.py</code>、<code>tts_remote_gptsovits_bridge.py</code> 或 <code>config.yaml</code> 后，都要重启 <code>hermes-gateway.service</code>，否则正在跑的 QQBot 进程不会重新加载新签名</li>
 </ul>
 <p>视觉 provider 说明：</p>
 <ul>

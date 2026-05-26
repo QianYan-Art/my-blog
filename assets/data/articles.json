@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-05-25T16:34:22.206Z",
+  "updatedAt": "2026-05-26T14:50:35.078Z",
   "source": "D:\\Answer\\QianYan-KBase",
   "publicDir": "public",
   "groups": {
@@ -8,18 +8,18 @@
   },
   "articles": [
     {
-      "id": "2026-05-25_codex上下文配置压缩记录",
-      "title": "Codex上下文配置压缩记录",
-      "summary": "1. 目标 把 C:\\tmp 下的 Codex 常驻配置压缩到“足够可用、但尽量省上下文”的状态，同时保留关键执行边界。 2. 本次处理对象 C:\\tmp\\AGENTS.md C:\\tmp\\AGENTS.min.md C",
-      "date": "2026-05-25",
+      "id": "2026-05-26_codex与omp本机配置调整记录",
+      "title": "Codex与OMP本机配置调整记录",
+      "summary": "记录日期：20260526 最后核查更新：20260526 本文已按当前本机真实配置重新核对，旧文中与当前状态不一致的内容已全部改写。 1. 当前总览 当前结论： Codex 与 OMP 都已接入 contextmode",
+      "date": "2026-05-26",
       "category": "本地记录",
       "tags": [],
-      "href": "/posts/kbase/2026-05-25_codex上下文配置压缩记录.html",
-      "readingTime": "8 min",
+      "href": "/posts/kbase/2026-05-26_codex与omp本机配置调整记录.html",
+      "readingTime": "12 min",
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-25_Codex上下文配置压缩记录.md"
+      "sourcePath": "my_local/2026-05-26_Codex与OMP本机配置调整记录.md"
     },
     {
       "id": "2026-05-24_个人博客搭建与自动同步部署记录",
@@ -38,18 +38,18 @@
       "sourcePath": "my_server/d-腾讯云/2026-05-24_个人博客搭建与自动同步部署记录.md"
     },
     {
-      "id": "2026-05-22_codex与omp本机配置调整记录",
-      "title": "Codex与OMP本机配置调整记录",
-      "summary": "记录日期：20260522 最后核查更新：20260522 本文已按当前本机真实配置重新核对，旧文中与当前状态不一致的内容已全部改写。 1. 当前总览 当前结论： Codex 与 OMP 都已接入 contextmode",
+      "id": "2026-05-22_codex上下文配置压缩记录",
+      "title": "Codex上下文配置压缩记录",
+      "summary": "1. 目标 把 C:\\tmp 下的 Codex 常驻配置压缩到“足够可用、但尽量省上下文”的状态，同时保留关键执行边界。 2. 本次处理对象 C:\\tmp\\AGENTS.md C:\\tmp\\AGENTS.min.md C",
       "date": "2026-05-22",
       "category": "本地记录",
       "tags": [],
-      "href": "/posts/kbase/2026-05-22_codex与omp本机配置调整记录.html",
-      "readingTime": "12 min",
+      "href": "/posts/kbase/2026-05-22_codex上下文配置压缩记录.html",
+      "readingTime": "6 min",
       "featured": false,
       "sourceType": "local",
       "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-22_Codex与OMP本机配置调整记录.md"
+      "sourcePath": "my_local/2026-05-22_Codex上下文配置压缩记录.md"
     },
     {
       "id": "2026-05-22_safetyraise开源版整理与推送记录",
@@ -96,14 +96,14 @@
     {
       "id": "2026-05-22_hermes_唐语歌人格维护说明",
       "title": "Hermes_唐语歌人格维护说明",
-      "summary": "最后更新：20260522 本文回答三个问题： 1. 现在这套 Hermes 在哪里、怎么跑。 2. 后续维护必须保住哪些定制层。 3. 遇到故障时，先查什么、再改什么。 1. 当前部署基线 当前正式机器： 81.70.",
+      "summary": "最后更新：20260526 本文回答三个问题： 1. 现在这套 Hermes 在哪里、怎么跑。 2. 后续维护必须保住哪些定制层。 3. 遇到故障时，先查什么、再改什么。 1. 当前部署基线 当前正式机器： 81.70.",
       "date": "2026-05-22",
       "category": "服务器记录",
       "tags": [
         "d-腾讯云"
       ],
       "href": "/posts/kbase/2026-05-22_hermes_唐语歌人格维护说明.html",
-      "readingTime": "22 min",
+      "readingTime": "24 min",
       "featured": false,
       "sourceType": "server",
       "section": "d-腾讯云",
@@ -112,14 +112,14 @@
     {
       "id": "2026-05-22_hermes_当前服务器全局状态",
       "title": "Hermes_当前服务器全局状态",
-      "summary": "最后更新：20260522 1. 当前机器 | 项目 | 当前值 | | | | | 服务器 | 81.70.168.127 | | SSH 端口 | 22 | | SSH 认证 | 仅公钥；已关闭密码登录 | | 主机",
+      "summary": "最后更新：20260526 1. 当前机器 | 项目 | 当前值 | | | | | 服务器 | 81.70.168.127 | | SSH 端口 | 22 | | SSH 认证 | 仅公钥；已关闭密码登录 | | 主机",
       "date": "2026-05-22",
       "category": "服务器记录",
       "tags": [
         "d-腾讯云"
       ],
       "href": "/posts/kbase/2026-05-22_hermes_当前服务器全局状态.html",
-      "readingTime": "17 min",
+      "readingTime": "19 min",
       "featured": false,
       "sourceType": "server",
       "section": "d-腾讯云",

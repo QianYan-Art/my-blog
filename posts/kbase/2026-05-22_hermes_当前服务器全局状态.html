@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hermes_当前服务器全局状态 · 千颜</title>
-  <meta name="description" content="最后更新：20260522 1. 当前机器 | 项目 | 当前值 | | | | | 服务器 | 81.70.168.127 | | SSH 端口 | 22 | | SSH 认证 | 仅公钥；已关闭密码登录 | | 主机">
+  <meta name="description" content="最后更新：20260526 1. 当前机器 | 项目 | 当前值 | | | | | 服务器 | 81.70.168.127 | | SSH 端口 | 22 | | SSH 认证 | 仅公钥；已关闭密码登录 | | 主机">
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
@@ -40,9 +40,9 @@
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
       <h1>Hermes_当前服务器全局状态</h1>
-      <div class="post-meta"><span>2026-05-22</span><span>17 min</span></div>
+      <div class="post-meta"><span>2026-05-22</span><span>19 min</span></div>
       <div class="article-card__tags"><span>d-腾讯云</span></div>
-      <div class="post-content"><p>最后更新：2026-05-22</p>
+      <div class="post-content"><p>最后更新：2026-05-26</p>
 <h3>1. 当前机器</h3>
 <div class="post-table-wrap"><table><thead><tr><th>项目</th><th>当前值</th></tr></thead><tbody><tr><td>服务器</td><td><code>81.70.168.127</code></td></tr><tr><td>SSH 端口</td><td><code>22</code></td></tr><tr><td>SSH 认证</td><td>仅公钥；已关闭密码登录</td></tr><tr><td>主机名</td><td><code>Ciallo</code></td></tr><tr><td>系统</td><td>Debian 13.x</td></tr><tr><td>运行用户</td><td><code>hermes</code></td></tr><tr><td>旧服务器</td><td><code>154.36.187.8:23333</code>，已清理 Hermes 项目并停用</td></tr></tbody></table></div>
 <h3>2. 当前 Hermes 运行状态</h3>
@@ -100,10 +100,18 @@
 <li>当前 <code>tts.provider = remote_gptsovits</code></li>
 <li>服务器调用入口：<code>http://127.0.0.1:19880/tts</code></li>
 <li>wrapper：<code>/home/hermes/.hermes/tts_remote_gptsovits_bridge.py</code></li>
+<li><code>tts.providers.remote_gptsovits.command</code> 当前已改为：</li>
+<p>- <code>python3 /home/hermes/.hermes/tts_remote_gptsovits_bridge.py {input_path} {output_path} {metadata_path}</code></p>
 <li>当前链路：新服务器 <code>127.0.0.1:19880</code> -&gt; 本机 <code>TangyugeTTS</code> 服务反向 SSH -&gt; 本机 bridge <code>127.0.0.1:9881</code></li>
 <li>本机 <code>TangyugeTTS</code> 已改为指向 <code>81.70.168.127:22</code></li>
 <li><code>tts.nvidia</code> 配置与 <code>NVIDIA_API_KEY</code> 保留为回退路径</li>
 <li>2026-05-18 升级后复核：<code>127.0.0.1:19880/health</code> 返回 <code>200</code>，<code>remote_gptsovits</code> 主链路当前已恢复</li>
+<li>2026-05-26 完善后，Hermes command provider 已支持通过 <code>metadata_path</code> 向 wrapper 传入结构化参数，不再只限 <code>text</code></li>
+<li>2026-05-26 当前实测可透传并生效：</li>
+<p>- <code>profile</code> - <code>reference</code> - <code>voice</code>（在 <code>remote_gptsovits</code> wrapper 中映射为 <code>profile</code> 别名） - <code>scene</code> - <code>ref_audio_path</code> - <code>prompt_text</code> - <code>prompt_lang</code> - <code>text_lang</code> - <code>top_k</code> - <code>top_p</code> - <code>temperature</code> - <code>text_split_method</code> - <code>batch_size</code> - <code>media_type</code> - <code>streaming_mode</code></p>
+<li>2026-05-26 当前 <code>speed</code> / <code>model</code> 虽已进入 Hermes command provider 的通用 metadata，但本机 Tangyuge bridge / GPT-SoVITS 后端当前没有消费它们，因此对 <code>remote_gptsovits</code> 暂无实际作用</li>
+<li>2026-05-26 服务器侧直接实测通过：</li>
+<p>- <code>text_to_speech_tool(profile=&#39;morning&#39;)</code> - <code>text_to_speech_tool(reference=&#39;serious_script41_L0682&#39;)</code> - <code>text_to_speech_tool(voice=&#39;morning&#39;)</code> 均成功返回 <code>voice_compatible=true</code> 的 <code>.ogg</code></p>
 </ul>
 <p>图像：</p>
 <ul>

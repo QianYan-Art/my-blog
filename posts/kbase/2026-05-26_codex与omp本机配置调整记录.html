@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Codex与OMP本机配置调整记录 · 千颜</title>
-  <meta name="description" content="记录日期：20260522 最后核查更新：20260522 本文已按当前本机真实配置重新核对，旧文中与当前状态不一致的内容已全部改写。 1. 当前总览 当前结论： Codex 与 OMP 都已接入 contextmode">
+  <meta name="description" content="记录日期：20260526 最后核查更新：20260526 本文已按当前本机真实配置重新核对，旧文中与当前状态不一致的内容已全部改写。 1. 当前总览 当前结论： Codex 与 OMP 都已接入 contextmode">
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
@@ -40,9 +40,9 @@
     <article class="post-body">
       <p class="post-kicker">本地记录</p>
       <h1>Codex与OMP本机配置调整记录</h1>
-      <div class="post-meta"><span>2026-05-22</span><span>12 min</span></div>
+      <div class="post-meta"><span>2026-05-26</span><span>12 min</span></div>
       <div class="article-card__tags"></div>
-      <div class="post-content"><p>记录日期：2026-05-22 最后核查更新：2026-05-22</p>
+      <div class="post-content"><p>记录日期：2026-05-26 最后核查更新：2026-05-26</p>
 <p>本文已按当前本机真实配置重新核对，旧文中与当前状态不一致的内容已全部改写。</p>
 <p>---</p>
 <h3>1. 当前总览</h3>
@@ -55,7 +55,7 @@
 <li><code>LongCat-2.0-Preview</code> 当前按<strong>纯文本模型</strong>使用，不再作为视觉模型记录</li>
 <li><code>OMP</code> 已保留图片上传 blob 解引用热修脚本，供后续升级后重放</li>
 <li><code>ai-coding-discipline</code> 与 <code>ddia-principles</code> 已从 <code>Codex</code> 技能目录和 <code>OMP</code> skill 挂载中移除</li>
-<li><code>SP</code> 系列只保留 5 个：<code>Brainstorming</code>、<code>Requesting Code Review</code>、<code>Systematic Debugging</code>、<code>Verification Before Completion</code>、<code>Writing Plans</code></li>
+<li><code>superpowers</code> 已整体移除，仅保留单个 <code>grill-me</code> skill</li>
 <li><code>caveman</code> 系列与 <code>kami</code> 已在 2026-05-22 按上游最新状态同步</li>
 </ul>
 <p>---</p>
@@ -121,16 +121,12 @@
 <li><code>mail-vps-ops</code></li>
 <li><code>kami</code></li>
 <li><code>research-paper-writing</code></li>
-<li><code>SP / Brainstorming</code></li>
-<li><code>SP / Requesting Code Review</code></li>
-<li><code>SP / Systematic Debugging</code></li>
-<li><code>SP / Verification Before Completion</code></li>
-<li><code>SP / Writing Plans</code></li>
+<p>- <code>grill-me</code></p>
 </ul>
 <p>已移除：</p>
 <ul>
 <li><code>ai-coding-discipline</code></li>
-<li><code>ddia-principles</code></li>
+<p>- <code>ddia-principles</code> - <code>superpowers</code>（原 6 个 SP skill 目录已全部删除）</p>
 </ul>
 <p>技能来源索引：</p>
 <ul>
@@ -208,15 +204,11 @@
 <li><code>mail-vps-ops</code></li>
 <li><code>kami</code></li>
 <li><code>research-paper-writing</code></li>
-<li><code>brainstorming</code></li>
-<li><code>requesting-code-review</code></li>
-<li><code>systematic-debugging</code></li>
-<li><code>verification-before-completion</code></li>
-<li><code>writing-plans</code></li>
+<p>- <code>grill-me</code></p>
 </ul>
 <p>说明：</p>
 <ul>
-<li><code>OMP</code> 现在和 <code>Codex</code> 已同步到同一批 <code>caveman</code> / <code>kami</code> / <code>SP</code> skill</li>
+<li><code>OMP</code> 现在和 <code>Codex</code> 已同步到同一批 <code>caveman</code> / <code>kami</code> / <code>grill-me</code> skill</li>
 <li><code>ai-coding-discipline</code>、<code>ddia-principles</code> 已不再挂到 <code>OMP</code></li>
 </ul>
 <p>---</p>
@@ -251,7 +243,7 @@
 </ul>
 <p>模型：</p>
 <ul>
-<li><code>gpt-5.4</code></li>
+<li><code>gpt-5.4</code>（支持 <code>text + image</code> 输入）</li>
 <li><code>gpt-5.4-mini</code></li>
 </ul>
 <p>用途：</p>
@@ -338,7 +330,7 @@
 <ul>
 <li><code>context-mode upgrade</code> 已执行完成</li>
 <li><code>context-mode doctor</code> 可正常运行</li>
-<li>当前本机 MCP 版本：<code>v1.0.146</code></li>
+<li>当前本机 MCP 版本：<code>v1.0.151</code>（2026-05-26 升级）</li>
 </ul>
 <p>结论：</p>
 <ul>
@@ -464,7 +456,7 @@
 <li><code>OMP</code> 不再挂 <code>ddia-principles</code></li>
 <li><code>Codex</code> 技能目录中已移除 <code>ai-coding-discipline</code></li>
 <li><code>Codex</code> 技能目录中已移除 <code>ddia-principles</code></li>
-<li><code>superpowers</code> 只保留 5 个核心 skill</li>
+<li><code>superpowers</code> 整套移除，替换为单个 <code>grill-me</code> skill</li>
 </ul>
 <h4>12.2 仍可继续收尾但不影响当前使用</h4>
 <ol>
@@ -472,12 +464,15 @@
 <p>需要管理员权限删除。</p>
 </ol>
 <ol>
-<li><code>context-mode</code> 不是最新  </li>
-<p>此项已处理，当前已是 <code>v1.0.146</code>。</p>
+<li><code>context-mode</code> 已升级到 <code>v1.0.151</code></li>
 </ol>
 <ol>
 <li><code>Codex</code> 的 <code>context-mode</code> hooks 未完全对齐推荐配置  </li>
 <p>此项已处理，<code>doctor</code> 当前已全部 PASS。</p>
+</ol>
+<ol>
+<li>Codex 默认文档类插件（<code>documents</code>、<code>spreadsheets</code>、<code>presentations</code>）当前为 <code>enabled = true</code>  </li>
+<p>账号切换后客户端自动重启用，此前已关闭过一次。如需再次关闭，手动编辑 <code>config.toml</code> 中对应 <code>[plugins.*]</code> 的 <code>enabled</code> 字段。</p>
 </ol>
 <p>---</p>
 <h3>13. 当前建议</h3>
@@ -496,8 +491,17 @@
 </ul>
 <ul>
 <li>升级维护</li>
-<p>- <code>caveman</code>、<code>kami</code>、<code>SP</code> 系列继续以 <code>C:\Users\lenovo\.codex\skills\skill-sources.toml</code> 为准 - <code>OMP</code> 继续复用 <code>Codex</code> 的 skill 目录，不单独维护第二套 skill 仓库</p>
-</ul></div>
+<p>- <code>caveman</code>、<code>kami</code>、<code>grill-me</code> 继续以 <code>C:\Users\lenovo\.codex\skills\skill-sources.toml</code> 为准 - <code>OMP</code> 继续复用 <code>Codex</code> 的 skill 目录，不单独维护第二套 skill 仓库</p>
+</ul>
+<p>---</p>
+<h3>14. grill-me skill-sources.toml 补全（2026-05-26）</h3>
+<h4>14.1 问题</h4>
+<p>检查 <code>.codex/skills</code> 更新索引时，发现 <code>skill-sources.toml</code> 中 <code>[skills.grill-me]</code> 缺少 <code>update_strategy</code> 字段。</p>
+<h4>14.2 补全内容</h4>
+<p>在 <code>[skills.grill-me]</code> 下新增：</p>
+<pre><code>update_strategy = &quot;manual_local_edit&quot;</code></pre>
+<h4>14.3 最终状态</h4>
+<p><code>skill-sources.toml</code> 中所有 skill 条目均已有明确的 <code>update_strategy</code>，无遗漏。</p></div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

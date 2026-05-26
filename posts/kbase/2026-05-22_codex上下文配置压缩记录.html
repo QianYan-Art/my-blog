@@ -40,7 +40,7 @@
     <article class="post-body">
       <p class="post-kicker">本地记录</p>
       <h1>Codex上下文配置压缩记录</h1>
-      <div class="post-meta"><span>2026-05-25</span><span>8 min</span></div>
+      <div class="post-meta"><span>2026-05-22</span><span>6 min</span></div>
       <div class="article-card__tags"></div>
       <div class="post-content"><h3>1. 目标</h3>
 <p>把 <code>C:\tmp</code> 下的 Codex 常驻配置压缩到“足够可用、但尽量省上下文”的状态，同时保留关键执行边界。</p>
@@ -226,35 +226,7 @@
 </ul>
 <p>同步替换为与 <code>C:\tmp\AGENTS.md</code> 同风格的精简常驻版，统一默认生效行为。</p>
 <h4>12.3 结果</h4>
-<p>现在全局目录与 <code>C:\tmp</code> 工作目录都使用短版规则，减少因规则文件位置不同导致的行为不一致。</p>
-<h3>13. Superpowers 移除与 grill-me 替换</h3>
-<h4>13.1 调整背景</h4>
-<p>原先本机 Codex 与 <code>ohmypi</code>（家目录 <code>.omp</code>）里保留了一组来自 <code>obra/superpowers</code> 的 skill。后续决定不再继续保留整套 <code>SP</code>，改为仅保留单个 <code>grill-me</code> skill。</p>
-<h4>13.2 已执行调整</h4>
-<ol>
-<li>在 <code>C:\Users\lenovo\.codex\skills</code> 下新增：</li>
-<p>- <code>grill-me\SKILL.md</code></p>
-<li>将 <code>C:\Users\lenovo\.codex\skills\skill-sources.toml</code> 中原有的 <code>obra/superpowers</code> 来源项移除，改为仅保留本地：</li>
-<p>- <code>[skills.grill-me]</code> - <code>source = &quot;skills/grill-me&quot;</code></p>
-<li>将 <code>C:\Users\lenovo\.omp\agent\config.yml</code> 中原先显式加载的 5 个旧 <code>SP</code> skill 路径替换为：</li>
-<p>- <code>C:\Users\lenovo\.codex\skills\grill-me</code></p>
-<li>删除旧目录：</li>
-<p>- <code>C:\Users\lenovo\.codex\skills\brainstorming</code> - <code>C:\Users\lenovo\.codex\skills\requesting-code-review</code> - <code>C:\Users\lenovo\.codex\skills\systematic-debugging</code> - <code>C:\Users\lenovo\.codex\skills\verification-before-completion</code> - <code>C:\Users\lenovo\.codex\skills\writing-plans</code></p>
-<li>中间曾短暂建立过 <code>sp-grill-me</code> 版本，随后根据“<code>grill-me</code> 本身就是单 skill，不需要额外前缀”的决定，已改回纯：</li>
-<p>- <code>grill-me</code></p>
-</ol>
-<h4>13.3 最终状态</h4>
-<ul>
-<li>Codex 本机仅保留单个 <code>grill-me</code> skill。</li>
-<li><code>ohmypi</code> 当前只加载 <code>C:\Users\lenovo\.codex\skills\grill-me</code>。</li>
-<li>旧 <code>SP</code> 目录与其来源索引已移除，不再作为默认可读 skill 被继续加载。</li>
-</ul>
-<h4>13.4 使用说明</h4>
-<ul>
-<li>之后如需在 Codex 或 <code>ohmypi</code> 中使用该能力，统一按：</li>
-<p>- <code>grill-me</code></p>
-<li>若界面仍短时显示旧 skill，通常是会话缓存问题；重启 Codex 或新开会话即可刷新。</li>
-</ul></div>
+<p>现在全局目录与 <code>C:\tmp</code> 工作目录都使用短版规则，减少因规则文件位置不同导致的行为不一致。</p></div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

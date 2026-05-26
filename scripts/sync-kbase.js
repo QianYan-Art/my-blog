@@ -181,7 +181,13 @@ function kbaseSection(relativePath) {
   const parts = String(relativePath).split(/[\\/]+/).filter(Boolean);
   const root = parts[0] || "";
   if (/^(my[-_]local|local)$/i.test(root)) {
-    return { category: "本地记录", sourceType: "local", section: "Local Notes", tags: [] };
+    const trail = parts.slice(1, -1).map((part) => cleanDisplayTitle(part)).filter(Boolean);
+    return {
+      category: "本地记录",
+      sourceType: "local",
+      section: trail.length ? trail.join(" · ") : "Local Notes",
+      tags: trail.slice(0, 3)
+    };
   }
   if (/^(my[-_]server|server)$/i.test(root)) {
     const trail = parts.slice(1, -1).map((part) => cleanDisplayTitle(part)).filter(Boolean);
