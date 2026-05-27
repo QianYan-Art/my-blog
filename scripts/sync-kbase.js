@@ -3,6 +3,12 @@ const path = require("path");
 const https = require("https");
 const { execFileSync } = require("child_process");
 const MarkdownIt = require("markdown-it");
+const markdownItAbbr = require("markdown-it-abbr");
+const markdownItDeflist = require("markdown-it-deflist");
+const markdownItFootnote = require("markdown-it-footnote");
+const markdownItMark = require("markdown-it-mark");
+const markdownItSub = require("markdown-it-sub");
+const markdownItSup = require("markdown-it-sup");
 const markdownItTaskLists = require("markdown-it-task-lists");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -248,11 +254,18 @@ function markdownToHtml(markdown) {
     linkify: true,
     breaks: false,
     typographer: false
-  }).use(markdownItTaskLists, {
-    enabled: true,
-    label: true,
-    labelAfter: true
-  });
+  })
+    .use(markdownItFootnote)
+    .use(markdownItDeflist)
+    .use(markdownItAbbr)
+    .use(markdownItMark)
+    .use(markdownItSub)
+    .use(markdownItSup)
+    .use(markdownItTaskLists, {
+      enabled: true,
+      label: true,
+      labelAfter: true
+    });
 
   function sanitizeHref(rawHref) {
     const value = String(rawHref || "").trim();
