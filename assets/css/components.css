@@ -1608,7 +1608,9 @@
 
 .post-content p,
 .post-content ul,
-.post-content blockquote {
+.post-content ol,
+.post-content blockquote,
+.post-content dl {
   margin-top: var(--space-3);
 }
 
@@ -1651,6 +1653,23 @@
   padding-left: 1.4em;
 }
 
+.post-content dl {
+  display: grid;
+  grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
+  gap: 10px 18px;
+}
+
+.post-content dt {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.post-content dd {
+  margin: 0;
+  color: var(--lead);
+}
+
 .post-content li + li {
   margin-top: var(--space-2);
 }
@@ -1669,6 +1688,27 @@
 .post-content .task-list-item label {
   display: inline-flex;
   align-items: center;
+}
+
+.post-content mark {
+  background: rgba(197, 53, 38, 0.14);
+  color: inherit;
+  padding: 0 0.2em;
+}
+
+.post-content sup,
+.post-content sub {
+  font-size: 0.74em;
+}
+
+.post-content .footnotes {
+  margin-top: var(--space-6);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line-strong);
+}
+
+.post-content .footnotes ol {
+  margin-top: var(--space-2);
 }
 
 .post-content code {
