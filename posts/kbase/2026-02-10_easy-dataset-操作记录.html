@@ -41,24 +41,40 @@
       <p class="post-kicker">本地记录</p>
       <h1>easy-dataset-操作记录</h1>
       <div class="post-meta"><span>2026-02-10</span><span>4 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>a-本机配置</span></div>
       <div class="post-content"><h3>1. 背景</h3>
 <ul>
 <li>仓库路径：<code>D:\MCP_Server\easydataset\easy-dataset</code></li>
-<li>主要目标：</li>
-<p>- 解决 <code>git pull</code> 更新冲突问题并完成代码更新 - 保留本地数据（<code>local-db</code>、<code>.env</code>） - 将端口统一为 <code>1750</code> - 从外部 JSON 直接导入问题到项目 <code>Eq3U7TeJ8uq4</code> - 统一问题中的 JSON 渲染格式 - 整理备份并补充自动化脚本</p>
+<li>主要目标：
+<ul>
+<li>解决 <code>git pull</code> 更新冲突问题并完成代码更新</li>
+<li>保留本地数据（<code>local-db</code>、<code>.env</code>）</li>
+<li>将端口统一为 <code>1750</code></li>
+<li>从外部 JSON 直接导入问题到项目 <code>Eq3U7TeJ8uq4</code></li>
+<li>统一问题中的 JSON 渲染格式</li>
+<li>整理备份并补充自动化脚本</li>
+</ul>
+</li>
 </ul>
 <h3>2. 关键时间线与操作</h3>
 <h4>2.1 仓库状态检查</h4>
 <ul>
 <li>检查到分支状态：<code>main...origin/main [behind 112]</code></li>
-<li>本地改动文件：</li>
-<p>- <code>package.json</code> - <code>package-lock.json</code></p>
+<li>本地改动文件：
+<ul>
+<li><code>package.json</code></li>
+<li><code>package-lock.json</code></li>
+</ul>
+</li>
 </ul>
 <h4>2.2 数据安全备份（首次）</h4>
 <ul>
-<li>创建备份：</li>
-<p>- <code>..\backup-local-db-20260209-224413</code> - <code>..\backup-env-20260209-224413</code></p>
+<li>创建备份：
+<ul>
+<li><code>..\backup-local-db-20260209-224413</code></li>
+<li><code>..\backup-env-20260209-224413</code></li>
+</ul>
+</li>
 <li>说明：优先确保数据集与配置可回滚。</li>
 </ul>
 <h4>2.3 更新代码并对齐远端</h4>
@@ -73,8 +89,22 @@
 </ul>
 <h4>2.5 端口调整为 1750</h4>
 <ul>
-<li>修改文件：</li>
-<p>- <code>package.json</code> - <code>dev</code>: <code>next dev -p 1750</code> - <code>start</code>: <code>next start -p 1750</code> - <code>electron-dev</code> 等待地址改为 <code>http://localhost:1750</code> - <code>electron/main.js</code> - <code>const port = 1750;</code></p>
+<li>修改文件：
+<ul>
+<li><code>package.json</code>
+<ul>
+<li><code>dev</code>: <code>next dev -p 1750</code></li>
+<li><code>start</code>: <code>next start -p 1750</code></li>
+<li><code>electron-dev</code> 等待地址改为 <code>http://localhost:1750</code></li>
+</ul>
+</li>
+<li><code>electron/main.js</code>
+<ul>
+<li><code>const port = 1750;</code></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <h4>2.6 构建验证</h4>
 <ul>
@@ -87,34 +117,70 @@
 <li>目标项目：<code>Eq3U7TeJ8uq4</code></li>
 <li>源文件：<code>C:\Users\lenovo\Desktop\ACE-099\汇报\dataset\ts_guide\dpo\dpo_structure\dpo_dataset.json</code></li>
 <li>导入前确认：该项目 <code>chunkCount=0</code>、<code>questionCount=0</code></li>
-<li>导入前数据库备份：</li>
-<p>- <code>..\backup-prisma-db-20260209-225919.sqlite</code></p>
+<li>导入前数据库备份：
+<ul>
+<li><code>..\backup-prisma-db-20260209-225919.sqlite</code></li>
+</ul>
+</li>
 <li>导入逻辑：提取每条 <code>instruction</code> 写入 <code>Questions</code>，自动创建占位 chunk。</li>
-<li>导入结果：</li>
-<p>- 源数据：<code>516</code> - 有效 <code>instruction</code>：<code>516</code> - 实际插入：<code>516</code> - 最终问题数：<code>516</code> - 占位 chunk：<code>导入问题占位文本</code>（<code>chunkId: Xl_6pxWYLtlMlCJt9b5L8</code>）</p>
+<li>导入结果：
+<ul>
+<li>源数据：<code>516</code></li>
+<li>有效 <code>instruction</code>：<code>516</code></li>
+<li>实际插入：<code>516</code></li>
+<li>最终问题数：<code>516</code></li>
+<li>占位 chunk：<code>导入问题占位文本</code>（<code>chunkId: Xl_6pxWYLtlMlCJt9b5L8</code>）</li>
+</ul>
+</li>
 </ul>
 <h4>2.8 统一 JSON 渲染格式</h4>
 <ul>
-<li>问题：部分问题是 <code>json\n...</code>，部分是 ``<code>json ... </code>``，前端显示不一致。</li>
-<li>修复前备份：</li>
-<p>- <code>..\backup-prisma-db-20260209-233128-before-format-fix.sqlite</code></p>
-<li>修复结果：</li>
-<p>- 修正条数：<code>98</code> - 项目总数：<code>516</code> - 统一后：<code>516/516</code> 全为 ``<code>json ... </code>`` 格式</p>
+<li>问题：部分问题是 <code>json\n...</code>，部分是 <code>json ... </code>，前端显示不一致。</li>
+<li>修复前备份：
+<ul>
+<li><code>..\backup-prisma-db-20260209-233128-before-format-fix.sqlite</code></li>
+</ul>
+</li>
+<li>修复结果：
+<ul>
+<li>修正条数：<code>98</code></li>
+<li>项目总数：<code>516</code></li>
+<li>统一后：<code>516/516</code> 全为 <code>json ... </code> 格式</li>
+</ul>
+</li>
 </ul>
 <h4>2.9 备份整理</h4>
 <ul>
-<li>新建最新备份：</li>
-<p>- <code>backup-local-db-20260209-235938</code> - <code>backup-env-20260209-235938</code> - <code>backup-prisma-db-20260209-235938.sqlite</code></p>
+<li>新建最新备份：
+<ul>
+<li><code>backup-local-db-20260209-235938</code></li>
+<li><code>backup-env-20260209-235938</code></li>
+<li><code>backup-prisma-db-20260209-235938.sqlite</code></li>
+</ul>
+</li>
 <li>删除旧备份，仅保留最新一组。</li>
-<li>最终归档到同一目录：</li>
-<p>- <code>..\backups-20260209-235938\backup-local-db-20260209-235938</code> - <code>..\backups-20260209-235938\backup-env-20260209-235938</code> - <code>..\backups-20260209-235938\backup-prisma-db-20260209-235938.sqlite</code></p>
+<li>最终归档到同一目录：
+<ul>
+<li><code>..\backups-20260209-235938\backup-local-db-20260209-235938</code></li>
+<li><code>..\backups-20260209-235938\backup-env-20260209-235938</code></li>
+<li><code>..\backups-20260209-235938\backup-prisma-db-20260209-235938.sqlite</code></li>
+</ul>
+</li>
 </ul>
 <h4>2.10 新增自动化脚本</h4>
 <ul>
-<li><code>scripts/import-instruction-to-questions.js</code></li>
-<p>- 用途：批量把 JSON 的 <code>instruction</code> 导入 <code>Questions</code> - 支持：<code>--dry-run</code>、去重、格式统一（<code>--format fenced-json</code>）</p>
-<li><code>scripts/update-safe.ps1</code></li>
-<p>- 用途：安全更新流程自动化（备份 -&gt; 对齐远端 -&gt; 恢复 <code>.env</code> -&gt; install -&gt; build） - 支持：<code>-DryRun</code>、<code>-SkipInstall</code>、<code>-SkipBuild</code>、<code>-Branch</code></p>
+<li><code>scripts/import-instruction-to-questions.js</code>
+<ul>
+<li>用途：批量把 JSON 的 <code>instruction</code> 导入 <code>Questions</code></li>
+<li>支持：<code>--dry-run</code>、去重、格式统一（<code>--format fenced-json</code>）</li>
+</ul>
+</li>
+<li><code>scripts/update-safe.ps1</code>
+<ul>
+<li>用途：安全更新流程自动化（备份 -&gt; 对齐远端 -&gt; 恢复 <code>.env</code> -&gt; install -&gt; build）</li>
+<li>支持：<code>-DryRun</code>、<code>-SkipInstall</code>、<code>-SkipBuild</code>、<code>-Branch</code></li>
+</ul>
+</li>
 </ul>
 <h3>3. 当前状态结论</h3>
 <ul>
@@ -129,7 +195,8 @@
 <li>后续更新建议优先使用：<code>scripts/update-safe.ps1</code></li>
 <li>后续导入问题建议优先使用：<code>scripts/import-instruction-to-questions.js</code> + <code>--dry-run</code></li>
 <li>在确认稳定后再定期清理历史备份目录。</li>
-</ul></div>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

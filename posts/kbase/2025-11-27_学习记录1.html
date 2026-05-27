@@ -41,13 +41,19 @@
       <p class="post-kicker">本地记录</p>
       <h1>学习记录1</h1>
       <div class="post-meta"><span>2025-11-27</span><span>3 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>b-学习记录</span></div>
       <div class="post-content"><p>cuda是平台，一系列包含工具、模型等等，而kernel只是其中编写的函数</p>
 <p>OSI：物理层-&gt;数据链路层-&gt;网络层-&gt;传输层-&gt;会话层-&gt;表示层-&gt;应用层</p>
 <p>TCP/IP：网络接口层_&gt;网络层-&gt;传输层-&gt;应用层</p>
-<p>HTTP/1：一次一件，排队 HTTP/2：一条路上跑多辆车，同时传 HTTP/3：基于UDP开发QUIC，多路复用，加密默认TLS1.3 WebSocket：连接时走的是HTTP/1.1，用 Upgrade: websocket 完成协议升级 gRPC：基于HTTP/2，服务器和服务器之间互相“调用函数”的协议，也用于部分前端-&gt;后端通信</p>
-<p>Shadowsocks： [协议]  Shadowsocks Protocol（规则） [工具]  Shadowsocks 客户端/服务端（执行规则的程序）</p>
-<p>***</p>
+<p>HTTP/1：一次一件，排队
+HTTP/2：一条路上跑多辆车，同时传
+HTTP/3：基于UDP开发QUIC，多路复用，加密默认TLS1.3
+WebSocket：连接时走的是HTTP/1.1，用 Upgrade: websocket 完成协议升级
+gRPC：基于HTTP/2，服务器和服务器之间互相“调用函数”的协议，也用于部分前端-&gt;后端通信</p>
+<p>Shadowsocks：
+[协议]  Shadowsocks Protocol（规则）
+[工具]  Shadowsocks 客户端/服务端（执行规则的程序）</p>
+<hr>
 <pre><code>你的代码（HTTP 文本）
     ↓
 socket API（Python/Go/Java 封装）
@@ -66,7 +72,8 @@ IP 协议（决定往哪台机器发）
     ↓
 对方应用的 socket.recv()
     ↓
-对方解析 HTTP 报文</code></pre>
+对方解析 HTTP 报文
+</code></pre>
 <pre><code>浏览器
   ↓ (HTTP/HTTPS)
 CDN（Cloudflare、Akamai 之类）
@@ -77,34 +84,39 @@ Nginx / Envoy / Traefik（反向代理）
   ↓
 应用服务（你的代码，比如：Flask、Spring、Node）
   ↓
-业务逻辑 / 数据库 / 缓存</code></pre>
-<p>***</p>
+业务逻辑 / 数据库 / 缓存
+</code></pre>
+<hr>
 <h3>① <strong>通用寄存器（General Purpose Registers）</strong></h3>
 <p>保存运算数据、临时变量。</p>
 <p>x86-64 里常见：</p>
 <ul>
-<li>RAX</li>
-</ul>
-<ul>
-<li>RBX</li>
-</ul>
-<ul>
-<li>RCX</li>
-</ul>
-<ul>
-<li>RDX</li>
-</ul>
-<ul>
-<li>RSI</li>
-</ul>
-<ul>
-<li>RDI</li>
-</ul>
-<ul>
-<li>R8 ~ R15</li>
+<li>
+<p>RAX</p>
+</li>
+<li>
+<p>RBX</p>
+</li>
+<li>
+<p>RCX</p>
+</li>
+<li>
+<p>RDX</p>
+</li>
+<li>
+<p>RSI</p>
+</li>
+<li>
+<p>RDI</p>
+</li>
+<li>
+<p>R8 ~ R15</p>
+</li>
 </ul>
 <p>用途类似：</p>
-<blockquote>“我暂存一下这个值等会运算用。”</blockquote>
+<blockquote>
+<p>“我暂存一下这个值等会运算用。”</p>
+</blockquote>
 <h3>② <strong>指令指针寄存器（PC / IP / EIP / RIP）</strong></h3>
 <p>你刚才问的那个 “IP”。</p>
 <p>用途：</p>
@@ -118,56 +130,64 @@ Nginx / Envoy / Traefik（反向代理）
 <h3>⑤ <strong>标志寄存器（FLAGS / EFLAGS / RFLAGS）</strong></h3>
 <p>保存比较运算的结果，例如：</p>
 <ul>
-<li>zero flag（是否为 0）</li>
-</ul>
-<ul>
-<li>carry flag（是否溢出）</li>
-</ul>
-<ul>
-<li>sign flag（是否为负数）</li>
+<li>
+<p>zero flag（是否为 0）</p>
+</li>
+<li>
+<p>carry flag（是否溢出）</p>
+</li>
+<li>
+<p>sign flag（是否为负数）</p>
+</li>
 </ul>
 <p>这些被 CPU 用来决定分支走向（if/else）。</p>
 <h3>⑥ <strong>控制寄存器（CR0 ~ CR4）</strong></h3>
 <p>操作系统才会用，比如：</p>
 <ul>
-<li>开启分页</li>
-</ul>
-<ul>
-<li>控制保护模式</li>
-</ul>
-<ul>
-<li>内核特权控制</li>
+<li>
+<p>开启分页</p>
+</li>
+<li>
+<p>控制保护模式</p>
+</li>
+<li>
+<p>内核特权控制</p>
+</li>
 </ul>
 <p>这是 OS 工作的关键部分。</p>
 <h3>⑦ <strong>段寄存器（CS、DS、SS…）</strong>（x86特有）</h3>
 <p>历史遗留，用于段式内存管理（现在用得少）。</p>
 <h3>⑧ <strong>特殊寄存器（如 MSR）</strong></h3>
 <p>用于 CPU 功能配置、性能计数等。</p>
-<p>***</p>
+<hr>
 <h3>CPU 必须支持：</h3>
 <ul>
-<li><strong>乱序执行（out-of-order execution）</strong></li>
+<li>
+<p><strong>乱序执行（out-of-order execution）</strong></p>
+</li>
+<li>
+<p><strong>指令重排（reordering）</strong></p>
+</li>
+<li>
+<p><strong>推测执行（branch prediction）</strong></p>
+</li>
+<li>
+<p><strong>超级深的流水线（15–25 阶）</strong></p>
+</li>
+<li>
+<p><strong>寄存器重命名（register renaming）</strong></p>
+</li>
+<li>
+<p><strong>多级缓存一致性（cache coherency）</strong></p>
+</li>
+<li>
+<p><strong>异常回滚、乱序恢复（recovery）</strong></p>
+</li>
 </ul>
-<ul>
-<li><strong>指令重排（reordering）</strong></li>
-</ul>
-<ul>
-<li><strong>推测执行（branch prediction）</strong></li>
-</ul>
-<ul>
-<li><strong>超级深的流水线（15–25 阶）</strong></li>
-</ul>
-<ul>
-<li><strong>寄存器重命名（register renaming）</strong></li>
-</ul>
-<ul>
-<li><strong>多级缓存一致性（cache coherency）</strong></li>
-</ul>
-<ul>
-<li><strong>异常回滚、乱序恢复（recovery）</strong></li>
-</ul>
-<p>***</p>
-<p>mmap = 把文件（或匿名内存）直接映射到你的进程虚拟地址空间，让你像读写数组一样操作它。 没有“读/写系统调用”、没有拷贝，非常快。</p></div>
+<hr>
+<p>mmap = 把文件（或匿名内存）直接映射到你的进程虚拟地址空间，让你像读写数组一样操作它。<br>
+没有“读/写系统调用”、没有拷贝，非常快。</p>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

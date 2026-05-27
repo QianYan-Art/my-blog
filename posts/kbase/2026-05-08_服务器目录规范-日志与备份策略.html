@@ -43,7 +43,8 @@
       <div class="post-meta"><span>2026-05-08</span><span>5 min</span></div>
       <div class="article-card__tags"><span>f-NetCup</span></div>
       <div class="post-content"><h3>1. 背景</h3>
-<p>这台服务器后续会承载多个站点。 当前磁盘结构只有一个主要根分区：</p>
+<p>这台服务器后续会承载多个站点。<br>
+当前磁盘结构只有一个主要根分区：</p>
 <ul>
 <li><code>/dev/vda4 -&gt; /</code></li>
 </ul>
@@ -154,14 +155,15 @@
 <li><code>/etc/docker/daemon.json</code></li>
 </ul>
 <p>当前策略：</p>
-<pre><code>{
+<pre><code class="language-json">{
   &quot;live-restore&quot;: true,
   &quot;log-driver&quot;: &quot;json-file&quot;,
   &quot;log-opts&quot;: {
     &quot;max-size&quot;: &quot;20m&quot;,
     &quot;max-file&quot;: &quot;5&quot;
   }
-}</code></pre>
+}
+</code></pre>
 <p>作用：</p>
 <ul>
 <li>每个容器日志最多约 <code>100MB</code></li>
@@ -203,8 +205,9 @@
 </ul>
 <h4>6.6 备份目录结构</h4>
 <p>示例：</p>
-<pre><code>/srv/backups/2026-05-08_06-42-36
-/srv/backups/latest -&gt; /srv/backups/2026-05-08_06-42-36</code></pre>
+<pre><code class="language-text">/srv/backups/2026-05-08_06-42-36
+/srv/backups/latest -&gt; /srv/backups/2026-05-08_06-42-36
+</code></pre>
 <h4>6.7 当前验证状态</h4>
 <p>备份定时器当前已验证可用：</p>
 <ul>
@@ -263,7 +266,8 @@
 <li>多个 Nginx 反代站点</li>
 <li>图床 / 面板 / API / 静态站</li>
 </ul>
-<p>但它不是物理隔离方案。 如果未来出现以下情况，再考虑拆分磁盘或对象存储：</p>
+<p>但它不是物理隔离方案。<br>
+如果未来出现以下情况，再考虑拆分磁盘或对象存储：</p>
 <ul>
 <li>图床上传量很大</li>
 <li>日志量很大</li>
@@ -279,7 +283,9 @@
 <li>自动证书续期</li>
 <li>自动每日备份</li>
 </ul>
-<p>对“建各种站”的用途来说，这已经是一个比较稳的第一版基线。 后续新增站点时，尽量不要再各自散放目录，而是继续沿用这套结构。</p></div>
+<p>对“建各种站”的用途来说，这已经是一个比较稳的第一版基线。<br>
+后续新增站点时，尽量不要再各自散放目录，而是继续沿用这套结构。</p>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

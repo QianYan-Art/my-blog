@@ -41,7 +41,7 @@
       <p class="post-kicker">本地记录</p>
       <h1>MCP-Router开机自启问题修复记录</h1>
       <div class="post-meta"><span>2026-05-14</span><span>4 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>a-本机配置</span></div>
       <div class="post-content"><h3>一、问题现象</h3>
 <ul>
 <li>本机安装 <code>MCP Router</code> 后，每次启动程序都会自动把自己加入 Windows 开机启动项。</li>
@@ -63,8 +63,14 @@
 <h3>三、处理过程</h3>
 <h4>1. 已验证的无效方案</h4>
 <ul>
-<li>启动文件夹脚本：</li>
-<p>- 登录时删除 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code> 中的 <code>com.squirrel.MCP-Router.MCPRouter</code> - 该方案只能在登录时执行一次 - 用户后续手动打开 <code>MCP Router</code> 后，启动项仍会被重新写回</p>
+<li>启动文件夹脚本：
+<ul>
+<li>登录时删除 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code> 中的
+<code>com.squirrel.MCP-Router.MCPRouter</code></li>
+<li>该方案只能在登录时执行一次</li>
+<li>用户后续手动打开 <code>MCP Router</code> 后，启动项仍会被重新写回</li>
+</ul>
+</li>
 </ul>
 <h4>2. 中途尝试但已回滚的方案</h4>
 <ul>
@@ -77,8 +83,12 @@
 <p>采用“外部监视压制”方案，不再修改 <code>MCP Router</code> 安装包：</p>
 <ul>
 <li>创建后台监视脚本，持续监视 <code>MCP Router</code> 的开机自启注册表项</li>
-<li>一旦检测到 <code>com.squirrel.MCP-Router.MCPRouter</code> 被重新写回：</li>
-<p>- 立即删除 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code> 中的对应值 - 同时删除 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run</code> 中的对应值</p>
+<li>一旦检测到 <code>com.squirrel.MCP-Router.MCPRouter</code> 被重新写回：
+<ul>
+<li>立即删除 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code> 中的对应值</li>
+<li>同时删除 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run</code> 中的对应值</li>
+</ul>
+</li>
 <li>对于带 <code>--hidden</code> 或 <code>--minimized</code> 参数启动的隐藏自启进程，脚本会自动结束该进程</li>
 <li>用户手动正常打开的 <code>MCP Router</code> 主进程不会被误杀</li>
 </ul>
@@ -144,7 +154,8 @@
 <li>当前无需继续清理</li>
 <li>维持现状即可</li>
 <li>若后续 <code>MCP Router</code> 官方修复该问题，再考虑移除本地监视脚本</li>
-</ul></div>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

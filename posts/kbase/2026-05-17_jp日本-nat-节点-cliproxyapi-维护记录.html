@@ -42,15 +42,20 @@
       <h1>JP日本 NAT 节点 CLIProxyAPI 维护记录</h1>
       <div class="post-meta"><span>2026-05-17</span><span>12 min</span></div>
       <div class="article-card__tags"><span>b-节点</span></div>
-      <div class="post-content"><blockquote>最后核对：2026-05-17（按服务器本地时间核对）。</blockquote>
-<blockquote>适用节点：<code>nat-jp-3h8e.aproxy.top</code></blockquote>
-<p>这份文档专门记录日本 NAT 节点上的 <code>CLIProxyAPI / cliproxyapi</code> 部署、前置代理、远程管理、图片链路修复和灾难恢复注意事项。</p>
+      <div class="post-content"><blockquote>
+<p>最后核对：2026-05-17（按服务器本地时间核对）。</p>
+</blockquote>
+<blockquote>
+<p>适用节点：<code>nat-jp-3h8e.aproxy.top</code>
+这份文档专门记录日本 NAT 节点上的 <code>CLIProxyAPI / cliproxyapi</code> 部署、前置代理、远程管理、图片链路修复和灾难恢复注意事项。</p>
+</blockquote>
 <h3>1. 当前结构</h3>
-<pre><code>suyuan.4071253.xyz
+<pre><code class="language-text">suyuan.4071253.xyz
   -&gt; NAT 外部映射
   -&gt; cliproxyapi-edge-proxy.service (0.0.0.0:59999)
   -&gt; cliproxyapi-filter.service (127.0.0.1:59997)    ← 2026-05-17 新增 SSE obfuscation 过滤器
-  -&gt; cliproxyapi.service (127.0.0.1:59998)</code></pre>
+  -&gt; cliproxyapi.service (127.0.0.1:59998)
+</code></pre>
 <p>当前关键文件：</p>
 <ul>
 <li><code>/root/cliproxyapi/config.yaml</code></li>
@@ -69,10 +74,11 @@
 </ul>
 <h3>1.1 当前路由策略</h3>
 <p><code>/root/cliproxyapi/config.yaml</code> 当前已启用：</p>
-<pre><code>routing:
+<pre><code class="language-yaml">routing:
   strategy: &quot;fill-first&quot;
   session-affinity: true
-  session-affinity-ttl: &quot;24h&quot;</code></pre>
+  session-affinity-ttl: &quot;24h&quot;
+</code></pre>
 <p>目的：</p>
 <ul>
 <li><code>fill-first</code>：优先把请求压到同一批可用账号，尽量吃满单账号上游缓存。</li>
@@ -102,11 +108,12 @@
 <ul>
 <li>SSE 流过滤器，监听 <code>127.0.0.1:59997</code>，转发到 <code>127.0.0.1:59998</code>。</li>
 <li>实时剥离 cliproxyapi OAuth 路由返回的 <code>&quot;obfuscation&quot;</code> 字段，避免 codex 严格 JSON 解析器报 <code>error decoding response body</code>。</li>
-<li>纯 TCP 转发，不干预 edge-proxy 的长请求保活逻辑。服务文件：<code>/root/cliproxyapi/filter_proxy.py</code>。</li>
-<p><code>/etc/systemd/system/cliproxyapi.service.d/edge-proxy.conf</code>：</p>
+<li>纯 TCP 转发，不干预 edge-proxy 的长请求保活逻辑。服务文件：<code>/root/cliproxyapi/filter_proxy.py</code>。
+<code>/etc/systemd/system/cliproxyapi.service.d/edge-proxy.conf</code>：</li>
 </ul>
-<pre><code>[Unit]
-Wants=cliproxyapi-edge-proxy.service cliproxyapi-filter.service</code></pre>
+<pre><code class="language-ini">[Unit]
+Wants=cliproxyapi-edge-proxy.service cliproxyapi-filter.service
+</code></pre>
 <p>用途：</p>
 <ul>
 <li>每次 <code>cliproxyapi.service</code> 被日更脚本重新 <code>start</code> 后，会顺带把 <code>cliproxyapi-edge-proxy.service</code> 一起拉起。</li>
@@ -204,8 +211,13 @@ Wants=cliproxyapi-edge-proxy.service cliproxyapi-filter.service</code></pre>
 </ul>
 <p>修复：</p>
 <ul>
-<li>前置代理现在对以下长耗时路径都做保活：</li>
-<p>- <code>POST /v1/images/generations</code> - <code>POST /v1/images/edits</code> - <code>POST /v1/images/variations</code></p>
+<li>前置代理现在对以下长耗时路径都做保活：
+<ul>
+<li><code>POST /v1/images/generations</code></li>
+<li><code>POST /v1/images/edits</code></li>
+<li><code>POST /v1/images/variations</code></li>
+</ul>
+</li>
 </ul>
 <h3>5. 验证结论</h3>
 <p>已确认以下链路正常：</p>
@@ -240,7 +252,7 @@ Wants=cliproxyapi-edge-proxy.service cliproxyapi-filter.service</code></pre>
 <li>结果是当上游返回短错误响应（如 <code>401 / 502</code>）时，下游经常只收到响应头，正文不完整，表现为连接提前关闭、<code>curl: (18)</code> 之类的错误</li>
 <li>现已修复为：拆分上游响应头/body，并把首包 body 一并转发</li>
 </ul>
-<ol>
+<ol start="2">
 <li><code>cliproxyapi_edge_proxy.py</code></li>
 </ol>
 <ul>
@@ -308,20 +320,23 @@ Wants=cliproxyapi-edge-proxy.service cliproxyapi-filter.service</code></pre>
 <li>做整机级灾难恢复</li>
 </ul>
 <p>除了恢复 <code>/root/cliproxyapi/config.yaml</code> 与 <code>auths/</code>，还要单独恢复上述文件，然后执行：</p>
-<pre><code>systemctl daemon-reload
+<pre><code class="language-bash">systemctl daemon-reload
 systemctl enable --now cliproxyapi-edge-proxy.service cliproxyapi-filter.service
-systemctl restart cliproxyapi.service</code></pre>
+systemctl restart cliproxyapi.service
+</code></pre>
 <h3>8. 常用检查命令</h3>
-<pre><code>systemctl status cliproxyapi.service cliproxyapi-edge-proxy.service cliproxyapi-filter.service --no-pager
-ss -ltnp | grep -E &#39;:(59997|59998|59999)\b&#39;
+<pre><code class="language-bash">systemctl status cliproxyapi.service cliproxyapi-edge-proxy.service cliproxyapi-filter.service --no-pager
+ss -ltnp | grep -E ':(59997|59998|59999)\b'
 journalctl -u cliproxyapi.service -n 120 --no-pager
 journalctl -u cliproxyapi-edge-proxy.service -n 120 --no-pager
 journalctl -u cliproxyapi-filter.service -n 20 --no-pager
 curl -I https://suyuan.4071253.xyz/management.html
-curl -sS https://suyuan.4071253.xyz/v1/models -H &#39;Authorization: Bearer &lt;API_KEY&gt;&#39;
-curl -sS https://suyuan.4071253.xyz/v1/models -H &#39;Authorization: Bearer &lt;API_KEY&gt;&#39; | grep &#39;vtx/&#39;</code></pre>
+curl -sS https://suyuan.4071253.xyz/v1/models -H 'Authorization: Bearer &lt;API_KEY&gt;'
+curl -sS https://suyuan.4071253.xyz/v1/models -H 'Authorization: Bearer &lt;API_KEY&gt;' | grep 'vtx/'
+</code></pre>
 <h3>9. 一句话原则</h3>
-<p>这台 JP 节点上的 <code>cliproxyapi</code> 现在是“core 只监听 localhost，公网只经过 edge-proxy → filter”的结构。端口 59997=filter, 59998=core, 59999=edge。以后不要再把内部端口直接暴露出去，也不要删掉 edge-proxy 和 filter 的文件而不留恢复记录。</p></div>
+<p>这台 JP 节点上的 <code>cliproxyapi</code> 现在是“core 只监听 localhost，公网只经过 edge-proxy → filter”的结构。端口 59997=filter, 59998=core, 59999=edge。以后不要再把内部端口直接暴露出去，也不要删掉 edge-proxy 和 filter 的文件而不留恢复记录。</p>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

@@ -40,7 +40,7 @@
     <article class="post-body">
       <p class="post-kicker">服务器记录</p>
       <h1>个人博客搭建与自动同步部署记录</h1>
-      <div class="post-meta"><span>2026-05-24</span><span>5 min</span></div>
+      <div class="post-meta"><span>2026-05-24</span><span>6 min</span></div>
       <div class="article-card__tags"><span>d-腾讯云</span></div>
       <div class="post-content"><p>最后更新：2026-05-24</p>
 <h3>1. 目标</h3>
@@ -59,16 +59,58 @@
 <li>线上由 <code>nginx</code> 直接提供静态文件。</li>
 </ul>
 <p>实际分工如下：</p>
-<div class="post-table-wrap"><table><thead><tr><th>模块</th><th>作用</th></tr></thead><tbody><tr><td><code>D:\Answer\blog</code></td><td>博客前端与静态生成脚本项目</td></tr><tr><td><code>D:\Answer\QianYan-KBase\public</code></td><td>公开文章源目录</td></tr><tr><td><code>scripts/sync-kbase.js</code></td><td>将 Markdown 文章生成 <code>articles.json</code> 和静态文章页</td></tr><tr><td><code>/www/wwwroot/blog</code></td><td>腾讯云服务器上的线上站点目录</td></tr><tr><td><code>nginx</code></td><td>对外提供 <code>www.shiqianyan.cn</code> 的静态访问</td></tr></tbody></table></div>
-<h3>3. 文章来源规则</h3>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>模块</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>D:\Answer\blog</code></td>
+<td>博客前端与静态生成脚本项目</td>
+</tr>
+<tr>
+<td><code>D:\Answer\QianYan-KBase\public</code></td>
+<td>公开文章源目录</td>
+</tr>
+<tr>
+<td><code>scripts/sync-kbase.js</code></td>
+<td>将 Markdown 文章生成 <code>articles.json</code> 和静态文章页</td>
+</tr>
+<tr>
+<td><code>/www/wwwroot/blog</code></td>
+<td>腾讯云服务器上的线上站点目录</td>
+</tr>
+<tr>
+<td><code>nginx</code></td>
+<td>对外提供 <code>www.shiqianyan.cn</code> 的静态访问</td>
+</tr>
+</tbody>
+</table></div><h3>3. 文章来源规则</h3>
 <p>博客只展示知识库仓库中的公开文章，即：</p>
 <ul>
 <li>只读取 <code>QianYan-KBase/public</code></li>
 <li>不读取 <code>QianYan-KBase/private</code></li>
 </ul>
 <p>当前公开文章进一步按目录分组：</p>
-<div class="post-table-wrap"><table><thead><tr><th>目录</th><th>博客中的分类</th></tr></thead><tbody><tr><td><code>public/my_local</code></td><td>本地记录</td></tr><tr><td><code>public/my_server</code></td><td>服务器记录</td></tr></tbody></table></div>
-<p>这意味着博客展示的每一篇文章，本质上都来自 <code>public</code> 下的 Markdown 文件，再由同步脚本生成静态结果。</p>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>目录</th>
+<th>博客中的分类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>public/my_local</code></td>
+<td>本地记录</td>
+</tr>
+<tr>
+<td><code>public/my_server</code></td>
+<td>服务器记录</td>
+</tr>
+</tbody>
+</table></div><p>这意味着博客展示的每一篇文章，本质上都来自 <code>public</code> 下的 Markdown 文件，再由同步脚本生成静态结果。</p>
 <h3>4. 文章生成机制</h3>
 <p>同步脚本位置：</p>
 <ul>
@@ -76,12 +118,20 @@
 </ul>
 <p>生成结果有两类：</p>
 <ol>
-<li><code>assets/data/articles.json</code></li>
-<p>- 用于文章列表页读取索引 - 包含标题、摘要、发布日期、分类、标签、跳转地址等元信息</p>
-</ol>
-<ol>
-<li><code>posts/kbase/*.html</code></li>
-<p>- 每篇文章各自对应一个静态详情页 - 浏览器点击文章卡片后，实际打开的就是这里生成出来的静态 HTML</p>
+<li>
+<p><code>assets/data/articles.json</code></p>
+<ul>
+<li>用于文章列表页读取索引</li>
+<li>包含标题、摘要、发布日期、分类、标签、跳转地址等元信息</li>
+</ul>
+</li>
+<li>
+<p><code>posts/kbase/*.html</code></p>
+<ul>
+<li>每篇文章各自对应一个静态详情页</li>
+<li>浏览器点击文章卡片后，实际打开的就是这里生成出来的静态 HTML</li>
+</ul>
+</li>
 </ol>
 <p>也就是说：</p>
 <ul>
@@ -111,8 +161,35 @@
 </ul>
 <h3>6. 当前线上部署位置</h3>
 <p>当前腾讯云服务器信息：</p>
-<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>当前值</th></tr></thead><tbody><tr><td>服务器</td><td><code>81.70.168.127</code></td></tr><tr><td>SSH 端口</td><td><code>22</code></td></tr><tr><td>站点域名</td><td><code>www.shiqianyan.cn</code></td></tr><tr><td>站点目录</td><td><code>/www/wwwroot/blog</code></td></tr><tr><td>Web 服务</td><td><code>nginx</code></td></tr></tbody></table></div>
-<p>线上部署方式为：</p>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>项目</th>
+<th>当前值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>服务器</td>
+<td><code>81.70.168.127</code></td>
+</tr>
+<tr>
+<td>SSH 端口</td>
+<td><code>22</code></td>
+</tr>
+<tr>
+<td>站点域名</td>
+<td><code>www.shiqianyan.cn</code></td>
+</tr>
+<tr>
+<td>站点目录</td>
+<td><code>/www/wwwroot/blog</code></td>
+</tr>
+<tr>
+<td>Web 服务</td>
+<td><code>nginx</code></td>
+</tr>
+</tbody>
+</table></div><p>线上部署方式为：</p>
 <ul>
 <li>直接把本地静态博客项目覆盖到 <code>/www/wwwroot/blog</code></li>
 <li>由 <code>nginx</code> 提供静态访问</li>
@@ -124,21 +201,33 @@
 <ul>
 <li><code>/usr/local/bin/blog-sync-kbase.sh</code></li>
 </ul>
+<p>当前可手动执行同步的用户：</p>
+<ul>
+<li><code>root</code></li>
+<li><code>hermes</code></li>
+</ul>
 <p>当前环境变量文件：</p>
 <ul>
 <li><code>/etc/blog-sync.env</code></li>
 </ul>
 <p>当前计划任务：</p>
 <ul>
-<li>服务器 <code>crontab</code> 中每 15 分钟执行一次同步</li>
+<li>服务器 <code>crontab</code> 中每天 <code>04:00</code> 执行一次同步</li>
+<li>计划任务内容：</li>
 </ul>
+<pre><code class="language-cron">0 4 * * * /usr/local/bin/blog-sync-kbase.sh &gt;&gt; /var/log/blog-sync.log 2&gt;&amp;1
+</code></pre>
 <p>同步流程如下：</p>
 <ol>
 <li>服务器读取 <code>/etc/blog-sync.env</code></li>
 <li>使用 <code>GITHUB_TOKEN</code> 访问 <code>QianYan-KBase</code></li>
 <li>只同步 <code>public</code> 目录下的 Markdown</li>
-<li>重新生成：</li>
-<p>- <code>assets/data/articles.json</code> - <code>posts/kbase/*.html</code></p>
+<li>重新生成：
+<ul>
+<li><code>assets/data/articles.json</code></li>
+<li><code>posts/kbase/*.html</code></li>
+</ul>
+</li>
 <li><code>nginx</code> 继续直接服务这些更新后的静态文件</li>
 <li>GitHub Actions 只保留手动触发，不再承担周期同步</li>
 </ol>
@@ -164,7 +253,29 @@
 <li>平时优先代理，尽量绕开这台腾讯云机器对 GitHub 的直连抖动</li>
 <li>如果代理链路异常，脚本才回退到本机直连作为最后兜底</li>
 </ul>
-<h3>9. 本次博客项目修正项</h3>
+<h3>9. 同步日志与权限整理</h3>
+<p>当前同步日志文件：</p>
+<ul>
+<li><code>/var/log/blog-sync.log</code></li>
+</ul>
+<p>当前日志轮转配置：</p>
+<ul>
+<li><code>/etc/logrotate.d/blog-sync</code></li>
+<li><code>daily</code></li>
+<li>保留 <code>14</code> 份</li>
+<li><code>compress</code></li>
+<li><code>copytruncate</code></li>
+</ul>
+<p>当前同步相关权限模型：</p>
+<ul>
+<li>共享组：<code>blogsync</code></li>
+<li><code>hermes</code> 已加入 <code>blogsync</code></li>
+<li><code>/etc/blog-sync.env</code> 为 <code>root:blogsync 640</code></li>
+<li><code>/etc/blog-sync/proxy.key</code> 为 <code>hermes:blogsync 600</code></li>
+<li><code>/usr/local/bin/blog-sync-kbase.sh</code> 为 <code>root:blogsync 750</code></li>
+<li><code>/www/wwwroot/blog</code> 下同步输出目录采用组写入与 <code>setgid</code></li>
+</ul>
+<h3>10. 本次博客项目修正项</h3>
 <p>本次围绕博客本身还做了这些修正：</p>
 <ol>
 <li>全站 favicon 改为新的个人图标资源。</li>
@@ -173,19 +284,28 @@
 <li>Markdown 同步生成时补充了更完整的日期来源处理。</li>
 <li>同步脚本改成“先生成到临时目录，再整体替换”，避免同步失败把线上文章清空。</li>
 </ol>
-<h3>10. 后续维护规则</h3>
+<h3>11. 后续维护规则</h3>
 <p>以后新增或修改文章时，推荐遵守以下规则：</p>
 <ol>
 <li>只把需要公开展示的文章放进 <code>QianYan-KBase/public</code></li>
 <li>本地文章放 <code>public/my_local</code></li>
 <li>服务器运维文章放 <code>public/my_server</code></li>
-<li>文件名尽量带日期前缀，如：</li>
-<p>- <code>2026-05-24_主题.md</code></p>
-<li>有需要时可在 Front Matter 中显式写：</li>
-<p>- <code>title</code> - <code>date</code> - <code>summary</code> - <code>tags</code></p>
+<li>文件名尽量带日期前缀，如：
+<ul>
+<li><code>2026-05-24_主题.md</code></li>
+</ul>
+</li>
+<li>有需要时可在 Front Matter 中显式写：
+<ul>
+<li><code>title</code></li>
+<li><code>date</code></li>
+<li><code>summary</code></li>
+<li><code>tags</code></li>
+</ul>
+</li>
 </ol>
 <p>这样博客侧的排序、摘要和展示都会更稳定。</p>
-<h3>11. 当前结论</h3>
+<h3>12. 当前结论</h3>
 <p>截至本次记录，博客已经具备以下能力：</p>
 <ul>
 <li>首页与文章页静态展示完成</li>
@@ -194,8 +314,11 @@
 <li>文章详情页使用静态生成结果</li>
 <li>服务器已具备定时同步能力</li>
 <li>同步链路已调整为代理优先、直连兜底</li>
+<li>同步日志已接入 <code>logrotate</code></li>
+<li><code>hermes</code> 已可按既定权限模型手动执行同步</li>
 </ul>
-<p>后续如果只是在 <code>QianYan-KBase/public</code> 中新增文章，并正常推送到 GitHub，博客就可以继续沿用当前链路自动更新。</p></div>
+<p>后续如果只是在 <code>QianYan-KBase/public</code> 中新增文章，并正常推送到 GitHub，博客就可以继续沿用当前链路自动更新。</p>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

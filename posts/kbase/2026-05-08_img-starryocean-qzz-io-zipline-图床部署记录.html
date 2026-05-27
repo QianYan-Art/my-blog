@@ -47,8 +47,14 @@
 <ul>
 <li>域名：<code>img.starryocean.qzz.io</code></li>
 <li>用途：个人自用图床</li>
-<li>要求：</li>
-<p>- 本地存储 - HTTPS - 可持续扩展 - 禁止公开注册，只保留现有账号可用</p>
+<li>要求：
+<ul>
+<li>本地存储</li>
+<li>HTTPS</li>
+<li>可持续扩展</li>
+<li>禁止公开注册，只保留现有账号可用</li>
+</ul>
+</li>
 </ul>
 <h3>2. 图床选型</h3>
 <p>最终选择：</p>
@@ -170,15 +176,19 @@
 </ul>
 <h3>9. 关键维护命令</h3>
 <h4>9.1 查看容器状态</h4>
-<pre><code>docker ps</code></pre>
+<pre><code class="language-bash">docker ps
+</code></pre>
 <h4>9.2 查看图床日志</h4>
-<pre><code>docker logs -f zipline
-docker logs -f zipline-postgres</code></pre>
+<pre><code class="language-bash">docker logs -f zipline
+docker logs -f zipline-postgres
+</code></pre>
 <h4>9.3 重启图床</h4>
-<pre><code>cd /srv/apps/zipline
-docker compose up -d</code></pre>
+<pre><code class="language-bash">cd /srv/apps/zipline
+docker compose up -d
+</code></pre>
 <h4>9.4 重新加载 Nginx</h4>
-<pre><code>nginx -t &amp;&amp; systemctl reload nginx</code></pre>
+<pre><code class="language-bash">nginx -t &amp;&amp; systemctl reload nginx
+</code></pre>
 <h3>10. 关键路径汇总</h3>
 <ul>
 <li>编排文件：<code>/srv/apps/zipline/compose.yaml</code></li>
@@ -190,11 +200,21 @@ docker compose up -d</code></pre>
 </ul>
 <h3>11. 后续可做项</h3>
 <ul>
-<li>在 Zipline 后台继续收紧：</li>
-<p>- 关闭不需要的外链功能 - 限制单文件大小 - 限制单次上传文件数</p>
-<li>如需接入客户端上传：</li>
-<p>- 可后续导出 token - 再配 ShareX / PicGo / 自定义脚本</p>
-</ul></div>
+<li>在 Zipline 后台继续收紧：
+<ul>
+<li>关闭不需要的外链功能</li>
+<li>限制单文件大小</li>
+<li>限制单次上传文件数</li>
+</ul>
+</li>
+<li>如需接入客户端上传：
+<ul>
+<li>可后续导出 token</li>
+<li>再配 ShareX / PicGo / 自定义脚本</li>
+</ul>
+</li>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

@@ -53,15 +53,19 @@ rm -f ~/.local/bin/droid &amp;&amp; echo &quot;Removed droid binary&quot;
 rm -rf ~/.factory &amp;&amp; echo &quot;Removed .factory directory&quot;
 
 echo &quot;Factory CLI uninstalled successfully&quot;
-echo &quot;Note: You may want to manually remove the PATH configuration from your shell RC file&quot;</code></pre>
+echo &quot;Note: You may want to manually remove the PATH configuration from your shell RC file&quot;
+</code></pre>
 <pre><code># 删除主程序
 Remove-Item &quot;$env:USERPROFILE\bin\droid.exe&quot; -Force
 
 # 删除 .factory 目录
-Remove-Item &quot;$env:USERPROFILE\.factory&quot; -Recurse -Force</code></pre>
+Remove-Item &quot;$env:USERPROFILE\.factory&quot; -Recurse -Force
+</code></pre>
 <pre><code>Remove-Item -Recurse -Force ~\.claude\skills\claudeforge-skill
 Remove-Item -Recurse -Force ~\.claude\commands\enhance-claude-md
-Remove-Item -Force ~\.claude\agents\claude-md-guardian.md</code></pre></div>
+Remove-Item -Force ~\.claude\agents\claude-md-guardian.md
+</code></pre>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

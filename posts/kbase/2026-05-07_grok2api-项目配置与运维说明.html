@@ -44,7 +44,8 @@
       <div class="article-card__tags"><span>d-腾讯云</span></div>
       <div class="post-content"><p>最后更新：2026-05-07</p>
 <h3>1. 项目定位</h3>
-<p><code>grok2api</code> 是一个将 Grok Web 侧能力封装为 OpenAI 兼容接口的反向代理项目。 当前用途：</p>
+<p><code>grok2api</code> 是一个将 Grok Web 侧能力封装为 OpenAI 兼容接口的反向代理项目。<br>
+当前用途：</p>
 <ul>
 <li>对外提供 <code>/v1/models</code>、<code>/v1/chat/completions</code> 等兼容接口</li>
 <li>通过导入 Grok 账号令牌，复用网页账号额度</li>
@@ -52,18 +53,65 @@
 </ul>
 <p>本项目当前不是直接调用官方公开 API，而是走 Grok Web 侧链路，因此<strong>出口 IP、Cloudflare 风控、账号状态、Cookie / Token 有效性</strong>都会直接影响可用性。</p>
 <h3>2. 当前服务器信息</h3>
-<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>当前值</th></tr></thead><tbody><tr><td>服务器公网 IP</td><td><code>124.156.206.155</code></td></tr><tr><td>SSH 端口</td><td><code>23333</code></td></tr><tr><td>登录用户</td><td><code>root</code></td></tr><tr><td>系统</td><td>Debian</td></tr><tr><td>项目目录</td><td><code>/opt/grok2api</code></td></tr><tr><td>容器编排</td><td><code>docker compose</code></td></tr><tr><td>对外域名</td><td><code>https://grok.4071253.xyz</code></td></tr><tr><td>本地 API 监听</td><td><code>127.0.0.1:8000</code></td></tr><tr><td>Cloudflare 解挑战组件</td><td><code>flaresolverr</code></td></tr><tr><td>项目级专用代理</td><td><code>shadowsocks-libev-local@grok2api</code></td></tr></tbody></table></div>
-<h3>3. 当前部署结构</h3>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>项目</th>
+<th>当前值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>服务器公网 IP</td>
+<td><code>124.156.206.155</code></td>
+</tr>
+<tr>
+<td>SSH 端口</td>
+<td><code>23333</code></td>
+</tr>
+<tr>
+<td>登录用户</td>
+<td><code>root</code></td>
+</tr>
+<tr>
+<td>系统</td>
+<td>Debian</td>
+</tr>
+<tr>
+<td>项目目录</td>
+<td><code>/opt/grok2api</code></td>
+</tr>
+<tr>
+<td>容器编排</td>
+<td><code>docker compose</code></td>
+</tr>
+<tr>
+<td>对外域名</td>
+<td><code>https://grok.4071253.xyz</code></td>
+</tr>
+<tr>
+<td>本地 API 监听</td>
+<td><code>127.0.0.1:8000</code></td>
+</tr>
+<tr>
+<td>Cloudflare 解挑战组件</td>
+<td><code>flaresolverr</code></td>
+</tr>
+<tr>
+<td>项目级专用代理</td>
+<td><code>shadowsocks-libev-local@grok2api</code></td>
+</tr>
+</tbody>
+</table></div><h3>3. 当前部署结构</h3>
 <p>当前部署由 4 部分组成：</p>
 <ol>
-<li><code>grok2api</code> 主服务容器  </li>
-<p>负责账号加载、OpenAI 兼容接口、请求转发。</p>
-<li><code>flaresolverr</code> 容器  </li>
-<p>负责尝试处理 <code>grok.com</code> 的 Cloudflare 挑战。</p>
-<li>本机 <code>ss-local</code> 服务  </li>
-<p>将一条外部 Shadowsocks 节点转为本机可用的 <code>SOCKS5</code> 代理。</p>
-<li>站点反代层  </li>
-<p>将外部域名请求转发到本机 <code>127.0.0.1:8000</code>。</p>
+<li><code>grok2api</code> 主服务容器<br>
+负责账号加载、OpenAI 兼容接口、请求转发。</li>
+<li><code>flaresolverr</code> 容器<br>
+负责尝试处理 <code>grok.com</code> 的 Cloudflare 挑战。</li>
+<li>本机 <code>ss-local</code> 服务<br>
+将一条外部 Shadowsocks 节点转为本机可用的 <code>SOCKS5</code> 代理。</li>
+<li>站点反代层<br>
+将外部域名请求转发到本机 <code>127.0.0.1:8000</code>。</li>
 </ol>
 <p>可简化理解为：</p>
 <p><code>外部请求 -&gt; 站点反代 -&gt; grok2api -&gt; SOCKS5 代理 -&gt; Grok Web</code></p>
@@ -143,7 +191,7 @@
 <li><code>HTTP/2 403</code></li>
 <li>响应头包含 <code>cf-mitigated: challenge</code></li>
 </ul>
-<p>说明问题不在项目代码本身，而在<strong>服务器出口 IP 被 Cloudflare / grok.com 风控挑战</strong>。</p>
+<p>说明问题不在项目代码本身，而在<strong>服务器出口 IP 被 Cloudflare / <a href="http://grok.com" target="_blank" rel="noopener noreferrer">grok.com</a> 风控挑战</strong>。</p>
 <p>后续验证结论：</p>
 <ul>
 <li>服务器原始出口：新加坡腾讯云 IP</li>
@@ -153,7 +201,8 @@
 <p>因此本项目当前可用性的核心，不是“是否启动成功”，而是“代理出口是否能过 Grok 风控”。</p>
 <h3>8. 当前代理链路</h3>
 <h4>8.1 Shadowsocks 来源</h4>
-<p>当前接入的是一条外部 Shadowsocks 节点。 此节点不是给全机做全局代理，而是只提供给 <code>grok2api</code> 使用。</p>
+<p>当前接入的是一条外部 Shadowsocks 节点。<br>
+此节点不是给全机做全局代理，而是只提供给 <code>grok2api</code> 使用。</p>
 <h4>8.2 本机转换方式</h4>
 <p>由于 <code>grok2api</code> 支持 <code>http / https / socks5</code>，但不直接吃 <code>ss://</code> 链接，因此当前做法是：</p>
 <ol>
@@ -214,20 +263,27 @@
 </ul>
 <h3>11. 常用检查命令</h3>
 <h4>11.1 查看容器状态</h4>
-<pre><code>cd /opt/grok2api
-docker compose ps</code></pre>
+<pre><code class="language-bash">cd /opt/grok2api
+docker compose ps
+</code></pre>
 <h4>11.2 查看主服务日志</h4>
-<pre><code>docker logs --tail 100 grok2api</code></pre>
+<pre><code class="language-bash">docker logs --tail 100 grok2api
+</code></pre>
 <h4>11.3 查看挑战组件日志</h4>
-<pre><code>docker logs --tail 100 flaresolverr</code></pre>
+<pre><code class="language-bash">docker logs --tail 100 flaresolverr
+</code></pre>
 <h4>11.4 查看 SS 本地服务状态</h4>
-<pre><code>systemctl status shadowsocks-libev-local@grok2api</code></pre>
+<pre><code class="language-bash">systemctl status shadowsocks-libev-local@grok2api
+</code></pre>
 <h4>11.5 查看本地代理监听</h4>
-<pre><code>ss -lntp | grep 1080</code></pre>
+<pre><code class="language-bash">ss -lntp | grep 1080
+</code></pre>
 <h4>11.6 验证代理出口 IP</h4>
-<pre><code>curl --socks5-hostname 172.18.0.1:1080 https://api.ipify.org</code></pre>
+<pre><code class="language-bash">curl --socks5-hostname 172.18.0.1:1080 https://api.ipify.org
+</code></pre>
 <h4>11.7 验证项目接口</h4>
-<pre><code>curl -H &quot;Authorization: Bearer &lt;你的API_KEY&gt;&quot; http://127.0.0.1:8000/v1/models</code></pre>
+<pre><code class="language-bash">curl -H &quot;Authorization: Bearer &lt;你的API_KEY&gt;&quot; http://127.0.0.1:8000/v1/models
+</code></pre>
 <h3>12. 常见故障排查</h3>
 <h4>12.1 <code>grok.com</code> 返回 403 challenge</h4>
 <p>现象：</p>
@@ -288,15 +344,18 @@ docker compose ps</code></pre>
 <li><code>/etc/shadowsocks-libev/grok2api.json</code></li>
 </ul>
 <p>改完后重启：</p>
-<pre><code>systemctl restart shadowsocks-libev-local@grok2api</code></pre>
+<pre><code class="language-bash">systemctl restart shadowsocks-libev-local@grok2api
+</code></pre>
 <h4>13.2 验证端口与出口</h4>
-<pre><code>ss -lntp | grep 1080
+<pre><code class="language-bash">ss -lntp | grep 1080
 curl --socks5-hostname 172.18.0.1:1080 https://api.ipify.org
-curl --socks5-hostname 172.18.0.1:1080 -I https://grok.com</code></pre>
+curl --socks5-hostname 172.18.0.1:1080 -I https://grok.com
+</code></pre>
 <p>如果 <code>grok.com</code> 返回 <code>200</code> 或正常页面响应，再继续下一步。</p>
 <h4>13.3 必要时重启项目</h4>
-<pre><code>cd /opt/grok2api
-docker compose restart grok2api</code></pre>
+<pre><code class="language-bash">cd /opt/grok2api
+docker compose restart grok2api
+</code></pre>
 <h3>14. 不建议的做法</h3>
 <p>以下做法不建议继续使用：</p>
 <ul>
@@ -334,7 +393,8 @@ docker compose restart grok2api</code></pre>
 <li><strong>服务已恢复</strong></li>
 <li><strong>代理链路已稳定接入</strong></li>
 <li><strong>后续重点关注代理出口质量与账号有效性</strong></li>
-</ul></div>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

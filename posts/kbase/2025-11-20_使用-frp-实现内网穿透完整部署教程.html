@@ -51,7 +51,7 @@
 </ul>
 <h3>二、服务端部署</h3>
 <h4>1. 下载并解压 frp</h4>
-<pre><code># 进入用户目录
+<pre><code class="language-bash"># 进入用户目录
 cd ~
 
 # 创建项目目录
@@ -62,15 +62,18 @@ wget https://github.com/fatedier/frp/releases/download/v0.65.0/frp_0.65.0_linux_
 
 # 解压
 tar -xzf frp_0.65.0_linux_amd64.tar.gz
-cd frp_0.65.0_linux_amd64</code></pre>
+cd frp_0.65.0_linux_amd64
+</code></pre>
 <h4>2. 配置 frps.toml</h4>
 <p>创建服务端配置文件：</p>
-<pre><code>nano frps.toml</code></pre>
+<pre><code class="language-bash">nano frps.toml
+</code></pre>
 <p>写入以下内容：</p>
-<pre><code>bindPort = 7000          # frp 通信端口
-vhostHTTPPort = 8080     # HTTP 代理端口，用于访问内网服务</code></pre>
+<pre><code class="language-toml">bindPort = 7000          # frp 通信端口
+vhostHTTPPort = 8080     # HTTP 代理端口，用于访问内网服务
+</code></pre>
 <h4>3. 移动文件到系统目录</h4>
-<pre><code># 创建系统目录
+<pre><code class="language-bash"># 创建系统目录
 sudo mkdir -p /etc/frp /usr/local/bin/frp
 
 # 移动配置文件
@@ -78,12 +81,14 @@ sudo cp frps.toml /etc/frp/
 
 # 移动可执行文件并添加权限
 sudo cp frps /usr/local/bin/frp/
-sudo chmod +x /usr/local/bin/frp/frps</code></pre>
+sudo chmod +x /usr/local/bin/frp/frps
+</code></pre>
 <h4>4. 创建 systemd 服务</h4>
 <p>创建服务文件：</p>
-<pre><code>sudo nano /etc/systemd/system/frps.service</code></pre>
+<pre><code class="language-bash">sudo nano /etc/systemd/system/frps.service
+</code></pre>
 <p>写入以下内容：</p>
-<pre><code>[Unit]
+<pre><code class="language-ini">[Unit]
 Description=FRP Server Service
 After=network.target
 
@@ -98,9 +103,10 @@ ExecStart=/usr/local/bin/frp/frps -c /etc/frp/frps.toml
 # StandardError=append:/var/log/frps.log
 
 [Install]
-WantedBy=multi-user.target</code></pre>
+WantedBy=multi-user.target
+</code></pre>
 <h4>5. 启动并设置开机自启</h4>
-<pre><code># 重载 systemd
+<pre><code class="language-bash"># 重载 systemd
 sudo systemctl daemon-reload
 
 # 设置开机自启
@@ -110,19 +116,21 @@ sudo systemctl enable frps
 sudo systemctl start frps
 
 # 查看状态（确认 active running）
-sudo systemctl status frps</code></pre>
+sudo systemctl status frps
+</code></pre>
 <h4>6. 验证服务</h4>
-<pre><code># 检查进程
+<pre><code class="language-bash"># 检查进程
 ps aux | grep frps
 
 # 检查端口监听（7000 和 8080）
-netstat -tlnp | grep -E &#39;7000|8080&#39;</code></pre>
+netstat -tlnp | grep -E '7000|8080'
+</code></pre>
 <h3>三、客户端配置</h3>
 <h4>1. 下载 Windows 版本</h4>
 <p>在本地 Windows 电脑访问 <a href="https://github.com/fatedier/frp/releases" target="_blank" rel="noopener noreferrer">frp releases</a>，下载 <code>frp_0.65.0_windows_amd64.zip</code>，解压到任意目录（如 <code>C:\frp</code>）。</p>
 <h4>2. 配置 frpc.toml</h4>
 <p>在解压目录创建 <code>frpc.toml</code>：</p>
-<pre><code>serverAddr = &quot;101.200.155.141&quot;
+<pre><code class="language-toml">serverAddr = &quot;101.200.155.141&quot;
 serverPort = 7000
 auth.token = &quot;123456&quot;  # 如果服务端设置了 token
 
@@ -133,51 +141,90 @@ localIP = &quot;127.0.0.1&quot;
 localPort = 1717
 customDomains = [&quot;101.200.155.141&quot;]  # 服务端公网IP或域名
 httpUser = &quot;easy-dataset&quot;
-httpPassword = &quot;Woaizuoshujuji&quot;</code></pre>
+httpPassword = &quot;Woaizuoshujuji&quot;
+</code></pre>
 <h4>3. 启动 frpc</h4>
-<pre><code># PowerShell 或 CMD
-frpc -c frpc.toml</code></pre>
+<pre><code class="language-powershell"># PowerShell 或 CMD
+frpc -c frpc.toml
+</code></pre>
 <p>看到 <code>start proxy success</code> 即表示成功。</p>
 <h3>四、防火墙配置</h3>
 <h4>1. 阿里云安全组</h4>
 <p>登录阿里云控制台，为 ECS 实例添加安全组规则：</p>
-<div class="post-table-wrap"><table><thead><tr><th>方向</th><th>协议类型</th><th>端口范围</th><th>授权对象</th></tr></thead><tbody><tr><td>入方向</td><td>自定义 TCP</td><td>7000/7000</td><td>0.0.0.0/0</td></tr><tr><td>入方向</td><td>自定义 TCP</td><td>8080/8080</td><td>0.0.0.0/0</td></tr></tbody></table></div>
-<h4>2. 系统防火墙（如有）</h4>
-<pre><code>sudo ufw allow 7000/tcp
-sudo ufw allow 8080/tcp</code></pre>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>方向</th>
+<th>协议类型</th>
+<th>端口范围</th>
+<th>授权对象</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>入方向</td>
+<td>自定义 TCP</td>
+<td>7000/7000</td>
+<td>0.0.0.0/0</td>
+</tr>
+<tr>
+<td>入方向</td>
+<td>自定义 TCP</td>
+<td>8080/8080</td>
+<td>0.0.0.0/0</td>
+</tr>
+</tbody>
+</table></div><h4>2. 系统防火墙（如有）</h4>
+<pre><code class="language-bash">sudo ufw allow 7000/tcp
+sudo ufw allow 8080/tcp
+</code></pre>
 <h3>五、域名配置（可选）</h3>
 <h4>Cloudflare 配置</h4>
 <ol>
-<li><strong>添加 DNS 记录</strong></li>
-<p>- 类型：A - 名称：<code>dataset</code>（子域名） - IPv4 地址：<code>101.200.155.141</code> - <strong>代理状态：DNS only</strong>（点击橙云图标变灰云） - TTL：Auto</p>
+<li>
+<p><strong>添加 DNS 记录</strong></p>
+<ul>
+<li>类型：A</li>
+<li>名称：<code>dataset</code>（子域名）</li>
+<li>IPv4 地址：<code>101.200.155.141</code></li>
+<li><strong>代理状态：DNS only</strong>（点击橙云图标变灰云）</li>
+<li>TTL：Auto</li>
+</ul>
+</li>
+<li>
+<p><strong>修改 frpc.toml</strong></p>
+<pre><code class="language-toml">customDomains = [&quot;dataset.yourdomain.com&quot;]
+</code></pre>
+</li>
+<li>
+<p><strong>重启 frpc</strong></p>
+<pre><code class="language-powershell">frpc -c frpc.toml
+</code></pre>
+</li>
+<li>
+<p><strong>访问地址</strong></p>
+<pre><code>http://dataset.yourdomain.com:8080
+</code></pre>
+</li>
 </ol>
-<ol>
-<li><strong>修改 frpc.toml</strong></li>
-</ol>
-<pre><code>   customDomains = [&quot;dataset.yourdomain.com&quot;]</code></pre>
-<ol>
-<li><strong>重启 frpc</strong></li>
-</ol>
-<pre><code>   frpc -c frpc.toml</code></pre>
-<ol>
-<li><strong>访问地址</strong></li>
-</ol>
-<pre><code>   http://dataset.yourdomain.com:8080</code></pre>
 <p>⚠️ <strong>重要</strong>：中国大陆服务器需备案域名，否则会被拦截。如未备案，请直接使用 IP 访问。</p>
 <h3>六、服务验证</h3>
 <ol>
-<li><strong>浏览器访问</strong></li>
-</ol>
-<pre><code>   http://101.200.155.141:8080</code></pre>
+<li>
+<p><strong>浏览器访问</strong></p>
+<pre><code>http://101.200.155.141:8080
+</code></pre>
 <p>输入用户名 <code>easy-dataset</code> 和密码 <code>Woaizuoshujuji</code></p>
-<ol>
-<li><strong>检查本地连接</strong></li>
+</li>
+<li>
+<p><strong>检查本地连接</strong></p>
+<pre><code class="language-bash"># 服务器端查看连接状态
+netstat -tnp | grep 8080
+</code></pre>
+</li>
 </ol>
-<pre><code>   # 服务器端查看连接状态
-   netstat -tnp | grep 8080</code></pre>
 <h3>七、管理命令</h3>
 <h4>服务端管理</h4>
-<pre><code># 查看实时日志
+<pre><code class="language-bash"># 查看实时日志
 sudo journalctl -u frps -f
 
 # 查看历史日志
@@ -190,32 +237,39 @@ sudo systemctl restart frps
 sudo systemctl stop frps
 
 # 禁用开机自启
-sudo systemctl disable frps</code></pre>
+sudo systemctl disable frps
+</code></pre>
 <h4>客户端管理</h4>
 <p>Windows 下直接关闭 <code>frpc.exe</code> 窗口即可停止。</p>
 <h3>八、删除 frp 服务</h3>
 <h4>1. 停止并禁用服务</h4>
-<pre><code>sudo systemctl stop frps
-sudo systemctl disable frps</code></pre>
+<pre><code class="language-bash">sudo systemctl stop frps
+sudo systemctl disable frps
+</code></pre>
 <h4>2. 删除服务文件</h4>
-<pre><code>sudo rm /etc/systemd/system/frps.service
-sudo systemctl daemon-reload</code></pre>
+<pre><code class="language-bash">sudo rm /etc/systemd/system/frps.service
+sudo systemctl daemon-reload
+</code></pre>
 <h4>3. 删除程序文件</h4>
-<pre><code># 删除可执行文件和配置
+<pre><code class="language-bash"># 删除可执行文件和配置
 sudo rm -rf /usr/local/bin/frp /etc/frp
 
 # 删除用户目录（可选）
-rm -rf ~/Frp</code></pre>
+rm -rf ~/Frp
+</code></pre>
 <h4>4. 清理防火墙规则</h4>
-<pre><code># 删除安全组规则（阿里云控制台）
+<pre><code class="language-bash"># 删除安全组规则（阿里云控制台）
 # 或删除 ufw 规则
 sudo ufw delete allow 7000/tcp
-sudo ufw delete allow 8080/tcp</code></pre>
+sudo ufw delete allow 8080/tcp
+</code></pre>
 <h4>5. 清理日志（如有）</h4>
-<pre><code>sudo rm /var/log/frps.log</code></pre>
+<pre><code class="language-bash">sudo rm /var/log/frps.log
+</code></pre>
 <h3>九、常见问题</h3>
 <h4>Q1: <code>Permission denied</code> 错误</h4>
-<pre><code>chmod +x /usr/local/bin/frp/frps</code></pre>
+<pre><code class="language-bash">chmod +x /usr/local/bin/frp/frps
+</code></pre>
 <h4>Q2: systemd 启动失败 <code>status=217/USER</code></h4>
 <p>编辑 <code>/etc/systemd/system/frps.service</code>，注释掉 <code>User=</code> 行或创建专用用户。</p>
 <h4>Q3: 浏览器提示 <code>ERR_UNSAFE_PORT</code></h4>
@@ -241,7 +295,8 @@ sudo ufw delete allow 8080/tcp</code></pre>
 <li>✅ HTTP 密码保护生效</li>
 <li>✅ 域名配置（可选）</li>
 </ul>
-<p><strong>核心要点</strong>：frp 是实时通道，不存储数据。本地服务必须保持运行，公网才能访问。</p></div>
+<p><strong>核心要点</strong>：frp 是实时通道，不存储数据。本地服务必须保持运行，公网才能访问。</p>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

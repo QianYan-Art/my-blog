@@ -47,76 +47,92 @@
 <h4>1. 临时修改 DNS (立即生效，重启可能失效)</h4>
 <p>适用于所有 Linux 发行版。</p>
 <p>编辑 <code>/etc/resolv.conf</code> 文件：</p>
-<pre><code>vi /etc/resolv.conf</code></pre>
+<pre><code>vi /etc/resolv.conf
+</code></pre>
 <p>添加或修改 <code>nameserver</code> 行：</p>
 <pre><code>nameserver 8.8.8.8
-nameserver 114.114.114.114</code></pre>
+nameserver 114.114.114.114
+</code></pre>
 <h4>2. 永久修改 DNS 与网关</h4>
-<p>#### A. Ubuntu 18.04+ / Debian 10+ (使用 Netplan)</p>
+<h5>A. Ubuntu 18.04+ / Debian 10+ (使用 Netplan)</h5>
 <p>现代 Debian 系发行版通常使用 Netplan 管理网络。</p>
 <ol>
-<li>查看配置文件名称：</li>
+<li>
+<p>查看配置文件名称：</p>
+<pre><code>ls /etc/netplan/
+# 通常是 00-installer-config.yaml 或 50-cloud-init.yaml
+</code></pre>
+</li>
+<li>
+<p>编辑配置文件：</p>
+<pre><code>sudo vi /etc/netplan/00-installer-config.yaml
+</code></pre>
+</li>
+<li>
+<p>修改如下 (注意 YAML 缩进必须严格对齐)：</p>
+<pre><code>network:
+  ethernets:
+    eth0:  # 网卡名称，通过 ip addr 查看
+      dhcp4: no
+      addresses: [192.168.1.100/24]  # 服务器 IP
+      routes:
+         - to: default
+           via: 192.168.1.1  # 这里是网关地址
+      nameservers:
+        addresses: [8.8.8.8, 114.114.114.114] # 这里是 DNS
+  version: 2
+</code></pre>
+</li>
+<li>
+<p>应用配置：</p>
+<pre><code>sudo netplan apply
+</code></pre>
+</li>
 </ol>
-<pre><code>    ls /etc/netplan/
-    # 通常是 00-installer-config.yaml 或 50-cloud-init.yaml</code></pre>
+<h5>B. CentOS 7/8 / Rocky / AlmaLinux (使用 Network Scripts)</h5>
 <ol>
-<li>编辑配置文件：</li>
+<li>
+<p>找到网卡配置文件：</p>
+<pre><code>cd /etc/sysconfig/network-scripts/
+ls
+# 找到对应网卡文件，如 ifcfg-eth0
+</code></pre>
+</li>
+<li>
+<p>编辑文件：</p>
+<pre><code>vi ifcfg-eth0
+</code></pre>
+</li>
+<li>
+<p>确保包含以下内容：</p>
+<pre><code>BOOTPROTO=static       # 静态 IP
+ONBOOT=yes             # 开机自启
+IPADDR=192.168.1.100   # IP 地址
+NETMASK=255.255.255.0  # 子网掩码
+GATEWAY=192.168.1.1    #网关地址 (修改这里)
+DNS1=8.8.8.8           #主 DNS (修改这里)
+DNS2=114.114.114.114   #备用 DNS
+</code></pre>
+</li>
+<li>
+<p>重启网络服务：</p>
+<pre><code># CentOS 7
+systemctl restart network
+# CentOS 8 / Rocky
+nmcli c reload
+</code></pre>
+</li>
 </ol>
-<pre><code>    sudo vi /etc/netplan/00-installer-config.yaml</code></pre>
-<ol>
-<li>修改如下 (注意 YAML 缩进必须严格对齐)：</li>
-</ol>
-<pre><code>    network:
-      ethernets:
-        eth0:  # 网卡名称，通过 ip addr 查看
-          dhcp4: no
-          addresses: [192.168.1.100/24]  # 服务器 IP
-          routes:
-             - to: default
-               via: 192.168.1.1  # 这里是网关地址
-          nameservers:
-            addresses: [8.8.8.8, 114.114.114.114] # 这里是 DNS
-      version: 2</code></pre>
-<ol>
-<li>应用配置：</li>
-</ol>
-<pre><code>    sudo netplan apply</code></pre>
-<p>#### B. CentOS 7/8 / Rocky / AlmaLinux (使用 Network Scripts)</p>
-<ol>
-<li>找到网卡配置文件：</li>
-</ol>
-<pre><code>    cd /etc/sysconfig/network-scripts/
-    ls
-    # 找到对应网卡文件，如 ifcfg-eth0</code></pre>
-<ol>
-<li>编辑文件：</li>
-</ol>
-<pre><code>    vi ifcfg-eth0</code></pre>
-<ol>
-<li>确保包含以下内容：</li>
-</ol>
-<pre><code>    BOOTPROTO=static       # 静态 IP
-    ONBOOT=yes             # 开机自启
-    IPADDR=192.168.1.100   # IP 地址
-    NETMASK=255.255.255.0  # 子网掩码
-    GATEWAY=192.168.1.1    #网关地址 (修改这里)
-    DNS1=8.8.8.8           #主 DNS (修改这里)
-    DNS2=114.114.114.114   #备用 DNS</code></pre>
-<ol>
-<li>重启网络服务：</li>
-</ol>
-<pre><code>    # CentOS 7
-    systemctl restart network
-    # CentOS 8 / Rocky
-    nmcli c reload</code></pre>
 <h3>第二部分：软件镜像源配置</h3>
 <p>在操作前，<strong>请务必备份当前的源文件</strong>。</p>
 <h4>1. 检查当前源</h4>
 <ul>
-<li><strong>Ubuntu/Debian:</strong> <code>cat /etc/apt/sources.list</code></li>
-</ul>
-<ul>
-<li><strong>CentOS/RHEL:</strong> <code>ls /etc/yum.repos.d/</code></li>
+<li>
+<p><strong>Ubuntu/Debian:</strong> <code>cat /etc/apt/sources.list</code></p>
+</li>
+<li>
+<p><strong>CentOS/RHEL:</strong> <code>ls /etc/yum.repos.d/</code></p>
+</li>
 </ul>
 <h4>2. 备份源文件</h4>
 <pre><code># Ubuntu/Debian
@@ -124,31 +140,34 @@ sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
 
 # CentOS/RHEL
 sudo mkdir /etc/yum.repos.d/backup
-sudo mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/</code></pre>
+sudo mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/backup/
+</code></pre>
 <h4>3. 场景 A：恢复官方源 (如果当前是第三方修改版)</h4>
-<p>#### Ubuntu 官方源内容</p>
+<h5>Ubuntu 官方源内容</h5>
 <p>编辑 <code>/etc/apt/sources.list</code>，根据你的版本代号（如 20.04 是 <code>focal</code>，22.04 是 <code>jammy</code>），替换以下内容：</p>
 <pre><code>deb [http://archive.ubuntu.com/ubuntu/](http://archive.ubuntu.com/ubuntu/) focal main restricted universe multiverse
 deb [http://archive.ubuntu.com/ubuntu/](http://archive.ubuntu.com/ubuntu/) focal-security main restricted universe multiverse
 deb [http://archive.ubuntu.com/ubuntu/](http://archive.ubuntu.com/ubuntu/) focal-updates main restricted universe multiverse
-deb [http://archive.ubuntu.com/ubuntu/](http://archive.ubuntu.com/ubuntu/) focal-backports main restricted universe multiverse</code></pre>
-<p>#### CentOS 官方源</p>
+deb [http://archive.ubuntu.com/ubuntu/](http://archive.ubuntu.com/ubuntu/) focal-backports main restricted universe multiverse
+</code></pre>
+<h5>CentOS 官方源</h5>
 <p>CentOS 7 已停止维护（EOL），官方源已移动到 vault。建议 Centos 用户直接使用国内镜像源或者迁移到 Rocky Linux。</p>
 <p>如果是 CentOS Stream 8/9，通常只需重置 yum 配置即可恢复默认（前提是系统内还有默认的 release 包）。</p>
 <h4>4. 场景 B：更换为国内常用镜像源 (推荐)</h4>
 <p>国内镜像源速度更快，常用的有 <strong>阿里云 (Aliyun)</strong>、<strong>腾讯云 (Tencent)</strong>、<strong>清华大学 (TUNA)</strong>。</p>
-<p>#### 系统一：Ubuntu / Debian</p>
+<h5>系统一：Ubuntu / Debian</h5>
 <p><strong>方法：使用 <code>sed</code> 命令一键替换 (以 Ubuntu 替换为阿里云为例)</strong></p>
 <pre><code># 替换主源
-sudo sed -i &#39;s/[archive.ubuntu.com/mirrors.aliyun.com/g](https://archive.ubuntu.com/mirrors.aliyun.com/g)&#39; /etc/apt/sources.list
-sudo sed -i &#39;s/[security.ubuntu.com/mirrors.aliyun.com/g](https://security.ubuntu.com/mirrors.aliyun.com/g)&#39; /etc/apt/sources.list
-sudo sed -i &#39;s/[ports.ubuntu.com/mirrors.aliyun.com/g](https://ports.ubuntu.com/mirrors.aliyun.com/g)&#39; /etc/apt/sources.list
+sudo sed -i 's/[archive.ubuntu.com/mirrors.aliyun.com/g](https://archive.ubuntu.com/mirrors.aliyun.com/g)' /etc/apt/sources.list
+sudo sed -i 's/[security.ubuntu.com/mirrors.aliyun.com/g](https://security.ubuntu.com/mirrors.aliyun.com/g)' /etc/apt/sources.list
+sudo sed -i 's/[ports.ubuntu.com/mirrors.aliyun.com/g](https://ports.ubuntu.com/mirrors.aliyun.com/g)' /etc/apt/sources.list
 
 # 更新缓存
-sudo apt update</code></pre>
-<p>若要换成清华源，将上面的 mirrors.aliyun.com 改为 mirrors.tuna.tsinghua.edu.cn。</p>
-<p>若要换成腾讯源，改为 mirrors.cloud.tencent.com。</p>
-<p>#### 系统二：CentOS 7 / Rocky Linux / AlmaLinux</p>
+sudo apt update
+</code></pre>
+<p>若要换成清华源，将上面的 <a href="http://mirrors.aliyun.com" target="_blank" rel="noopener noreferrer">mirrors.aliyun.com</a> 改为 <a href="http://mirrors.tuna.tsinghua.edu.cn" target="_blank" rel="noopener noreferrer">mirrors.tuna.tsinghua.edu.cn</a>。</p>
+<p>若要换成腾讯源，改为 <a href="http://mirrors.cloud.tencent.com" target="_blank" rel="noopener noreferrer">mirrors.cloud.tencent.com</a>。</p>
+<h5>系统二：CentOS 7 / Rocky Linux / AlmaLinux</h5>
 <p><strong>方法：下载新的 <code>.repo</code> 文件</strong></p>
 <p>这里以 <strong>CentOS 7</strong> 为例 (注意：CentOS 7 基础源已停止，需使用特定配置，以下为阿里云配置)：</p>
 <pre><code># 1. 下载阿里云的 repo 文件
@@ -159,18 +178,54 @@ curl -o /etc/yum.repos.d/epel.repo [https://mirrors.aliyun.com/repo/epel-7.repo]
 
 # 3. 清理并生成缓存
 yum clean all
-yum makecache</code></pre>
+yum makecache
+</code></pre>
 <p><strong>如果是 Rocky Linux 8/9:</strong></p>
 <pre><code># 替换为阿里云源
-sed -e &#39;s|^mirrorlist=|#mirrorlist=|g&#39; \
-    -e &#39;s|^#baseurl=[http://dl.rockylinux.org/$contentdir](http://dl.rockylinux.org/$contentdir)|baseurl=[https://mirrors.aliyun.com/rockylinux](https://mirrors.aliyun.com/rockylinux)|g&#39; \
+sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+    -e 's|^#baseurl=[http://dl.rockylinux.org/$contentdir](http://dl.rockylinux.org/$contentdir)|baseurl=[https://mirrors.aliyun.com/rockylinux](https://mirrors.aliyun.com/rockylinux)|g' \
     -i.bak \
     /etc/yum.repos.d/rocky*.repo
 
 # 更新缓存
-dnf makecache</code></pre>
+dnf makecache
+</code></pre>
 <h3>附录：常用国内镜像源地址</h3>
-<div class="post-table-wrap"><table><thead><tr><th></th><th></th><th></th></tr></thead><tbody><tr><td><strong>提供商</strong></td><td><strong>基础地址 (Base URL)</strong></td><td><strong>备注</strong></td></tr><tr><td><strong>阿里云</strong></td><td><code>mirrors.aliyun.com</code></td><td>稳定，覆盖面广，大多数云服务器首选</td></tr><tr><td><strong>腾讯云</strong></td><td><code>mirrors.cloud.tencent.com</code></td><td>腾讯云内网速度极快，公网也不错</td></tr><tr><td><strong>清华大学</strong></td><td><code>mirrors.tuna.tsinghua.edu.cn</code></td><td>教育网速度快，软件更新同步非常及时</td></tr><tr><td><strong>华为云</strong></td><td><code>repo.huaweicloud.com</code></td><td>华为云用户推荐</td></tr></tbody></table></div></div>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>提供商</strong></td>
+<td><strong>基础地址 (Base URL)</strong></td>
+<td><strong>备注</strong></td>
+</tr>
+<tr>
+<td><strong>阿里云</strong></td>
+<td><code>mirrors.aliyun.com</code></td>
+<td>稳定，覆盖面广，大多数云服务器首选</td>
+</tr>
+<tr>
+<td><strong>腾讯云</strong></td>
+<td><code>mirrors.cloud.tencent.com</code></td>
+<td>腾讯云内网速度极快，公网也不错</td>
+</tr>
+<tr>
+<td><strong>清华大学</strong></td>
+<td><code>mirrors.tuna.tsinghua.edu.cn</code></td>
+<td>教育网速度快，软件更新同步非常及时</td>
+</tr>
+<tr>
+<td><strong>华为云</strong></td>
+<td><code>repo.huaweicloud.com</code></td>
+<td>华为云用户推荐</td>
+</tr>
+</tbody>
+</table></div></div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

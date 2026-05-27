@@ -41,19 +41,89 @@
       <p class="post-kicker">本地记录</p>
       <h1>屏蔽b站开屏广告</h1>
       <div class="post-meta"><span>2025-11-20</span><span>4 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><p>// 需要屏蔽的用户 ID 列表 const targets = [ 1042653845, 1055149070, 1075400468, 1148923121, 1152997930, 1188004959, 1208114979, 1227735707, 1252039983, 1257852431, 1302669433, 1356882480, 1430439192, 1627242161, 1642531925, 1655279349, 1720634591, 1743345026, 1798118517, 1806922031, 1817661914, 1826766269, 1859459400, 1919627194, 1926952280, 1956866386, 1957313739, 1987938455, 1992873935, 2024349971, 2067273601, 2072500476, 2101682498, 2103756604, 2115931056, 2118239887, 2126699792 ];</p>
-<p>// 读 cookie 中的某个字段值（这里用于拿 bili_jct） const pickCookie = (key) =&gt; { const piece = document.cookie.split(&#39;; &#39;).find(s =&gt; s.startsWith(<code>${encodeURIComponent(key)}=</code>)); return piece ? decodeURIComponent(piece.split(&#39;=&#39;)[1]) : &#39;&#39;; };</p>
-<p>const csrfToken = pickCookie(&#39;bili_jct&#39;); if (!csrfToken) { console.warn(&#39;未找到 CSRF（bili_jct）。请确认已登录并允许站点设置 Cookie。&#39;); }</p>
-<p>// 根据 uid 组装表单数据 const makePayload = (fid) =&gt; { const form = new URLSearchParams(); form.set(&#39;fid&#39;, String(fid));                 // 目标用户 form.set(&#39;act&#39;, &#39;5&#39;);                         // 5 = 拉黑 form.set(&#39;re_src&#39;, &#39;11&#39;); form.set(&#39;gaia_source&#39;, &#39;web_main&#39;); form.set(&#39;extend_content&#39;, JSON.stringify({   // 可选的扩展信息 entity: &#39;user&#39;, entity_id: String(fid) })); form.set(&#39;csrf&#39;, csrfToken);                  // 防 CSRF return form; };</p>
-<p>// 实际执行单个拉黑请求 async function shieldOne(fid) { const endpoint = &#39;https://api.bilibili.com/x/relation/modify?statistics=%7B%22appId%22%3A100%2C%22platform%22%3A5%7D&#39;; try { const res = await fetch(endpoint, { method: &#39;POST&#39;, credentials: &#39;include&#39;, headers: { &#39;content-type&#39;: &#39;application/x-www-form-urlencoded&#39;, &#39;origin&#39;: &#39;https://space.bilibili.com&#39;, &#39;referer&#39;: <code>https://space.bilibili.com/${fid}/dynamic</code> }, body: makePayload(fid).toString() });</p>
-<p>const data = await res.json().catch(() =&gt; null); return { id: fid, ok: res.ok, http: res.status, apiCode: data?.code ?? null, apiMsg: data?.message ?? null, raw: data }; } catch (err) { return { id: fid, ok: false, http: 0, apiCode: null, apiMsg: String(err) }; } }</p>
-<p>// 可选的小延时工具（如需慢速发送请求，取消注释并在循环中使用） const nap = (ms) =&gt; new Promise(r =&gt; setTimeout(r, ms));</p>
-<p>// 顺序执行，打印表格化结果 (async function runShieldTask() { if (!csrfToken) return;</p>
-<p>const results = []; for (const id of targets) { const r = await shieldOne(id); console.log(&#39;shield result:&#39;, r); results.push(r);</p>
-<p>// 若担心过快触发风控，可以打开下一行延时 // await nap(200); }</p>
-<p>// 直观展示关键信息 console.table(results.map(({ id, ok, http, apiCode, apiMsg }) =&gt; ({ uid: id, ok, http, apiCode, apiMsg })));</p>
-<p>console.log(&#39;All done.&#39;); })();</p></div>
+      <div class="article-card__tags"><span>c-项目创建</span></div>
+      <div class="post-content"><p>// 需要屏蔽的用户 ID 列表
+const targets = [
+1042653845, 1055149070, 1075400468, 1148923121, 1152997930, 1188004959,
+1208114979, 1227735707, 1252039983, 1257852431, 1302669433, 1356882480,
+1430439192, 1627242161, 1642531925, 1655279349, 1720634591, 1743345026,
+1798118517, 1806922031, 1817661914, 1826766269, 1859459400, 1919627194,
+1926952280, 1956866386, 1957313739, 1987938455, 1992873935, 2024349971,
+2067273601, 2072500476, 2101682498, 2103756604, 2115931056, 2118239887,
+2126699792
+];</p>
+<p>// 读 cookie 中的某个字段值（这里用于拿 bili_jct）
+const pickCookie = (key) =&gt; {
+const piece = document.cookie.split('; ').find(s =&gt; s.startsWith(<code>${encodeURIComponent(key)}=</code>));
+return piece ? decodeURIComponent(piece.split('=')[1]) : '';
+};</p>
+<p>const csrfToken = pickCookie('bili_jct');
+if (!csrfToken) {
+console.warn('未找到 CSRF（bili_jct）。请确认已登录并允许站点设置 Cookie。');
+}</p>
+<p>// 根据 uid 组装表单数据
+const makePayload = (fid) =&gt; {
+const form = new URLSearchParams();
+form.set('fid', String(fid));                 // 目标用户
+form.set('act', '5');                         // 5 = 拉黑
+form.set('re_src', '11');
+form.set('gaia_source', 'web_main');
+form.set('extend_content', JSON.stringify({   // 可选的扩展信息
+entity: 'user',
+entity_id: String(fid)
+}));
+form.set('csrf', csrfToken);                  // 防 CSRF
+return form;
+};</p>
+<p>// 实际执行单个拉黑请求
+async function shieldOne(fid) {
+const endpoint = '<a href="https://api.bilibili.com/x/relation/modify?statistics=%7B%22appId%22%3A100%2C%22platform%22%3A5%7D" target="_blank" rel="noopener noreferrer">https://api.bilibili.com/x/relation/modify?statistics={&quot;appId&quot;%3A100%2C&quot;platform&quot;%3A5}</a>';
+try {
+const res = await fetch(endpoint, {
+method: 'POST',
+credentials: 'include',
+headers: {
+'content-type': 'application/x-www-form-urlencoded',
+'origin': '<a href="https://space.bilibili.com" target="_blank" rel="noopener noreferrer">https://space.bilibili.com</a>',
+'referer': <code>https://space.bilibili.com/${fid}/dynamic</code>
+},
+body: makePayload(fid).toString()
+});</p>
+<pre><code>const data = await res.json().catch(() =&gt; null);
+return {
+  id: fid,
+  ok: res.ok,
+  http: res.status,
+  apiCode: data?.code ?? null,
+  apiMsg: data?.message ?? null,
+  raw: data
+};
+</code></pre>
+<p>} catch (err) {
+return { id: fid, ok: false, http: 0, apiCode: null, apiMsg: String(err) };
+}
+}</p>
+<p>// 可选的小延时工具（如需慢速发送请求，取消注释并在循环中使用）
+const nap = (ms) =&gt; new Promise(r =&gt; setTimeout(r, ms));</p>
+<p>// 顺序执行，打印表格化结果
+(async function runShieldTask() {
+if (!csrfToken) return;</p>
+<p>const results = [];
+for (const id of targets) {
+const r = await shieldOne(id);
+console.log('shield result:', r);
+results.push(r);</p>
+<pre><code>// 若担心过快触发风控，可以打开下一行延时
+// await nap(200);
+</code></pre>
+<p>}</p>
+<p>// 直观展示关键信息
+console.table(results.map(({ id, ok, http, apiCode, apiMsg }) =&gt; ({
+uid: id, ok, http, apiCode, apiMsg
+})));</p>
+<p>console.log('All done.');
+})();</p>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

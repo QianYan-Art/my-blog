@@ -48,20 +48,23 @@
 <p>确保服务器已安装 Docker。如果你的用户没有 Docker 组权限，请在所有命令前加上 <code>sudo</code>。</p>
 <h4>创建数据持久化目录</h4>
 <p>为了防止重启容器后书签、历史记录和登录状态丢失，我们需要在宿主机创建一个配置文件夹。</p>
-<pre><code>sudo mkdir -p /opt/docker/firefox/config</code></pre>
+<pre><code>sudo mkdir -p /opt/docker/firefox/config
+</code></pre>
 <h3>2. 启动容器 (最佳实践命令)</h3>
 <p>此命令已包含以下优化：</p>
 <ul>
-<li><strong>高性能</strong>：分配 4GB 共享内存，防止浏览器崩溃。</li>
-</ul>
-<ul>
-<li><strong>中文支持</strong>：启动时自动安装 <code>font-noto-cjk</code>（思源黑体）。</li>
-</ul>
-<ul>
-<li><strong>高清画质</strong>：默认分辨率设为 1920x1080。</li>
-</ul>
-<ul>
-<li><strong>安全加固</strong>：设置访问密码。</li>
+<li>
+<p><strong>高性能</strong>：分配 4GB 共享内存，防止浏览器崩溃。</p>
+</li>
+<li>
+<p><strong>中文支持</strong>：启动时自动安装 <code>font-noto-cjk</code>（思源黑体）。</p>
+</li>
+<li>
+<p><strong>高清画质</strong>：默认分辨率设为 1920x1080。</p>
+</li>
+<li>
+<p><strong>安全加固</strong>：设置访问密码。</p>
+</li>
 </ul>
 <p>请修改下方命令中的 <code>你的访问密码</code> 后执行：</p>
 <pre><code>sudo docker run -d \
@@ -74,72 +77,85 @@
     -e INSTALL_DEPENDENCIES=font-noto-cjk \
     -e VNC_PASSWORD=你的访问密码 \
     --restart always \
-    jlesage/firefox</code></pre>
+    jlesage/firefox
+</code></pre>
 <h4>参数详解</h4>
 <ul>
-<li><code>-p 5800:5800</code>: Web 访问端口。</li>
+<li>
+<p><code>-p 5800:5800</code>: Web 访问端口。</p>
+</li>
+<li>
+<p><code>--shm-size 4g</code>: <strong>关键参数</strong>，解决现代浏览器内存不足崩溃的问题。</p>
+</li>
+<li>
+<p><code>-e INSTALL_DEPENDENCIES=font-noto-cjk</code>: 自动安装中文字体包，解决方块乱码。</p>
+</li>
+<li>
+<p><code>-v ...</code>: 将容器内的配置映射到服务器硬盘，保证数据不丢。</p>
+</li>
 </ul>
-<ul>
-<li><code>--shm-size 4g</code>: <strong>关键参数</strong>，解决现代浏览器内存不足崩溃的问题。</li>
-</ul>
-<ul>
-<li><code>-e INSTALL_DEPENDENCIES=font-noto-cjk</code>: 自动安装中文字体包，解决方块乱码。</li>
-</ul>
-<ul>
-<li><code>-v ...</code>: 将容器内的配置映射到服务器硬盘，保证数据不丢。</li>
-</ul>
-<blockquote><strong>⚠️ 注意</strong>：运行命令后，请等待 <strong>1-2 分钟</strong>，容器需要时间在后台下载并安装字体包。</blockquote>
+<blockquote>
+<p><strong>⚠️ 注意</strong>：运行命令后，请等待 <strong>1-2 分钟</strong>，容器需要时间在后台下载并安装字体包。</p>
+</blockquote>
 <h3>3. 防火墙设置</h3>
 <p>如果无法访问，请检查防火墙：</p>
 <ol>
-<li><strong>云厂商安全组</strong>（阿里云/腾讯云/AWS）：在控制台放行 <strong>TCP 5800</strong> 端口。</li>
-</ol>
-<ol>
-<li><strong>面板防火墙</strong>（1Panel/宝塔）：在防火墙设置中放行 <strong>5800</strong> 端口。</li>
-</ol>
-<ol>
-<li><strong>UFW (Ubuntu原生)</strong>: <code>sudo ufw allow 5800/tcp</code></li>
+<li>
+<p><strong>云厂商安全组</strong>（阿里云/腾讯云/AWS）：在控制台放行 <strong>TCP 5800</strong> 端口。</p>
+</li>
+<li>
+<p><strong>面板防火墙</strong>（1Panel/宝塔）：在防火墙设置中放行 <strong>5800</strong> 端口。</p>
+</li>
+<li>
+<p><strong>UFW (Ubuntu原生)</strong>: <code>sudo ufw allow 5800/tcp</code></p>
+</li>
 </ol>
 <h3>4. 浏览器初始化设置</h3>
 <p>访问地址：<code>http://你的服务器IP:5800</code></p>
 <h4>A. 优化字体显示 (必做)</h4>
 <p>为了获得最佳的中文阅读体验：</p>
 <ol>
-<li>打开 Firefox <strong>Settings (设置)</strong> -&gt; 搜索 <strong>Fonts</strong>。</li>
-</ol>
-<ol>
-<li>点击 <strong>Advanced (高级)</strong>。</li>
-</ol>
-<ol>
-<li><strong>Proportional (比例字体)</strong>: 修改为 <strong>Sans-serif</strong> (无衬线体)。</li>
-</ol>
-<ol>
-<li><strong>Sans-serif</strong>: 选择 <strong>Noto Sans CJK SC</strong>。</li>
-</ol>
-<ol>
-<li><strong>Monospace</strong>: 选择 <strong>Noto Sans Mono CJK SC</strong>。</li>
+<li>
+<p>打开 Firefox <strong>Settings (设置)</strong> -&gt; 搜索 <strong>Fonts</strong>。</p>
+</li>
+<li>
+<p>点击 <strong>Advanced (高级)</strong>。</p>
+</li>
+<li>
+<p><strong>Proportional (比例字体)</strong>: 修改为 <strong>Sans-serif</strong> (无衬线体)。</p>
+</li>
+<li>
+<p><strong>Sans-serif</strong>: 选择 <strong>Noto Sans CJK SC</strong>。</p>
+</li>
+<li>
+<p><strong>Monospace</strong>: 选择 <strong>Noto Sans Mono CJK SC</strong>。</p>
+</li>
 </ol>
 <h4>B. 开启无痕/隐私模式 (可选)</h4>
 <p>如果你不希望浏览器记录历史网址：</p>
 <ol>
-<li>Settings -&gt; Privacy &amp; Security -&gt; History。</li>
-</ol>
-<ol>
-<li>选择 <strong>Never remember history</strong>。</li>
-</ol>
-<ol>
-<li>按提示重启浏览器（Restart Firefox）。</li>
+<li>
+<p>Settings -&gt; Privacy &amp; Security -&gt; History。</p>
+</li>
+<li>
+<p>选择 <strong>Never remember history</strong>。</p>
+</li>
+<li>
+<p>按提示重启浏览器（Restart Firefox）。</p>
+</li>
 </ol>
 <h4>C. 侧边栏工具使用</h4>
 <p>点击浏览器左侧的小箭头打开 NoVNC 控制栏：</p>
 <ul>
-<li><strong>Clipboard</strong>: 用于本机与服务器之间的文字复制粘贴中转。</li>
-</ul>
-<ul>
-<li><strong>Quality</strong>: 建议拉满（最右侧），获得最清晰画质。</li>
-</ul>
-<ul>
-<li><strong>Scaling Mode</strong>: 建议选 <strong>Local Scaling</strong>，让画面适应你的浏览器窗口。</li>
+<li>
+<p><strong>Clipboard</strong>: 用于本机与服务器之间的文字复制粘贴中转。</p>
+</li>
+<li>
+<p><strong>Quality</strong>: 建议拉满（最右侧），获得最清晰画质。</p>
+</li>
+<li>
+<p><strong>Scaling Mode</strong>: 建议选 <strong>Local Scaling</strong>，让画面适应你的浏览器窗口。</p>
+</li>
 </ul>
 <h3>5. 维护与管理</h3>
 <h4>停止与启动</h4>
@@ -150,24 +166,36 @@ sudo docker stop firefox
 sudo docker start firefox
 
 # 重启 (如果感觉卡顿)
-sudo docker restart firefox</code></pre>
+sudo docker restart firefox
+</code></pre>
 <h4>彻底删除 (卸载)</h4>
 <p>如果你不想用了，想要彻底清除环境：</p>
 <p><strong>步骤 1：删除容器</strong></p>
-<pre><code>sudo docker rm -f firefox</code></pre>
+<pre><code>sudo docker rm -f firefox
+</code></pre>
 <p><strong>步骤 2：删除镜像 (释放 400MB+ 空间)</strong></p>
-<pre><code>sudo docker rmi jlesage/firefox</code></pre>
+<pre><code>sudo docker rmi jlesage/firefox
+</code></pre>
 <p>步骤 3：删除配置文件 (慎用！会丢失所有书签和数据)</p>
 <p>只有在你确定连数据都不要了的时候才执行：</p>
-<pre><code>sudo rm -rf /opt/docker/firefox</code></pre>
+<pre><code>sudo rm -rf /opt/docker/firefox
+</code></pre>
 <h3>6. 常见问题排查</h3>
 <ul>
-<li><strong>Q: 打开全是方块字乱码？</strong></li>
+<li>
+<p><strong>Q: 打开全是方块字乱码？</strong></p>
+<ul>
+<li>
+<p>A: 可能是自动下载字体失败。执行手动修复命令：</p>
+<pre><code>sudo docker exec firefox apk update
+sudo docker exec firefox apk add font-noto-cjk
+sudo docker restart firefox
+</code></pre>
+</li>
 </ul>
-<p>- A: 可能是自动下载字体失败。执行手动修复命令：</p>
-<pre><code>        sudo docker exec firefox apk update
-        sudo docker exec firefox apk add font-noto-cjk
-        sudo docker restart firefox</code></pre></div>
+</li>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

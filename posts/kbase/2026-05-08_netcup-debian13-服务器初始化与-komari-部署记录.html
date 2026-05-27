@@ -47,15 +47,25 @@
 <li>服务器商家：netcup</li>
 <li>系统：Debian GNU/Linux 13 (trixie)</li>
 <li>主机名：<code>v2202605356414457506</code></li>
-<li>SSH：</li>
-<p>- 用户：<code>root</code> - 端口：<code>22</code> - 登录方式：仅密钥登录</p>
+<li>SSH：
+<ul>
+<li>用户：<code>root</code></li>
+<li>端口：<code>22</code></li>
+<li>登录方式：仅密钥登录</li>
+</ul>
+</li>
 </ul>
 <h3>2. 防火墙与访问策略</h3>
 <h4>2.1 netcup 控制台防火墙</h4>
 <p>在 netcup SCP 中已配置为白名单模式：</p>
 <ul>
-<li>入站允许：</li>
-<p>- <code>22/tcp</code> - <code>80/tcp</code> - <code>443/tcp</code></p>
+<li>入站允许：
+<ul>
+<li><code>22/tcp</code></li>
+<li><code>80/tcp</code></li>
+<li><code>443/tcp</code></li>
+</ul>
+</li>
 <li>入站默认策略：<code>DROP</code></li>
 <li>出站默认策略：<code>ACCEPT</code></li>
 </ul>
@@ -214,8 +224,12 @@
 <p>升级方式：</p>
 <ul>
 <li>进入目录：<code>/opt/komari</code></li>
-<li>执行：</li>
-<p>- <code>docker compose pull</code> - <code>docker compose up -d</code></p>
+<li>执行：
+<ul>
+<li><code>docker compose pull</code></li>
+<li><code>docker compose up -d</code></li>
+</ul>
+</li>
 </ul>
 <p>升级结果：</p>
 <ul>
@@ -254,13 +268,13 @@
 </ul>
 <h4>6.9 favicon 与浏览器标签图标修正</h4>
 <p>后续对面板站点又做了一次 favicon 修复。</p>
-<p>#### 问题现象</p>
+<h5>问题现象</h5>
 <ul>
 <li>面板后台上传 favicon 后，部分浏览器仍显示旧图标</li>
 <li>同一台机器上，不同 Chrome 账号表现不同</li>
 <li>无痕模式不再显示旧图标，但会显示空白图标</li>
 </ul>
-<p>#### 排查结论</p>
+<h5>排查结论</h5>
 <p>根因分两层：</p>
 <ol>
 <li>浏览器 Profile 级 favicon 缓存顽固存在</li>
@@ -272,20 +286,36 @@
 <li>仅包含 <code>512x512</code></li>
 <li>对 Chrome 标签页不够友好</li>
 </ul>
-<p>#### 实际修复</p>
+<h5>实际修复</h5>
 <ol>
-<li>服务器继续保留：</li>
-<p>- <code>/opt/komari/data/favicon.ico</code></p>
-<li>新增更稳的标签图标文件：</li>
-<p>- <code>/opt/komari/data/favicon-32.png</code></p>
-<li>修改当前主题静态入口文件：</li>
-<p>- <code>/opt/komari/data/theme/PurCarte/dist/index.html</code></p>
-<li>页面头部改为优先使用：</li>
-<p>- <code>rel=&quot;icon&quot; type=&quot;image/png&quot; sizes=&quot;32x32&quot; href=&quot;/favicon-32.png?v=20260509b&quot;</code></p>
-<li>同时保留：</li>
-<p>- <code>rel=&quot;shortcut icon&quot;</code> 指向 <code>.ico</code> - <code>rel=&quot;apple-touch-icon&quot;</code> 指向 <code>.png</code></p>
+<li>服务器继续保留：
+<ul>
+<li><code>/opt/komari/data/favicon.ico</code></li>
+</ul>
+</li>
+<li>新增更稳的标签图标文件：
+<ul>
+<li><code>/opt/komari/data/favicon-32.png</code></li>
+</ul>
+</li>
+<li>修改当前主题静态入口文件：
+<ul>
+<li><code>/opt/komari/data/theme/PurCarte/dist/index.html</code></li>
+</ul>
+</li>
+<li>页面头部改为优先使用：
+<ul>
+<li><code>rel=&quot;icon&quot; type=&quot;image/png&quot; sizes=&quot;32x32&quot; href=&quot;/favicon-32.png?v=20260509b&quot;</code></li>
+</ul>
+</li>
+<li>同时保留：
+<ul>
+<li><code>rel=&quot;shortcut icon&quot;</code> 指向 <code>.ico</code></li>
+<li><code>rel=&quot;apple-touch-icon&quot;</code> 指向 <code>.png</code></li>
+</ul>
+</li>
 </ol>
-<p>#### 最终结果</p>
+<h5>最终结果</h5>
 <ul>
 <li>浏览器标签图标已恢复正常显示</li>
 <li>通过新路径与版本号参数绕开旧缓存</li>
@@ -333,11 +363,18 @@
 </ul>
 <h3>10. 后续维护建议</h3>
 <ul>
-<li>如果继续新增站点，优先走：</li>
-<p>- 域名解析 - Docker/应用监听本地端口 - Nginx 反代 - <code>certbot --nginx</code> 签证书</p>
+<li>如果继续新增站点，优先走：
+<ul>
+<li>域名解析</li>
+<li>Docker/应用监听本地端口</li>
+<li>Nginx 反代</li>
+<li><code>certbot --nginx</code> 签证书</li>
+</ul>
+</li>
 <li>尽量避免把应用直接暴露到公网端口。</li>
 <li>新站点一律纳入 <code>/srv/apps</code>、<code>/srv/data</code>、<code>/srv/logs/nginx</code> 的统一管理结构。</li>
-</ul></div>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2026-05-26T14:50:35.078Z",
+  "updatedAt": "2026-05-27T01:58:15.351Z",
   "source": "D:\\Answer\\QianYan-KBase",
   "publicDir": "public",
   "groups": {
-    "local": 23,
+    "local": 24,
     "server": 36
   },
   "articles": [
@@ -13,13 +13,31 @@
       "summary": "记录日期：20260526 最后核查更新：20260526 本文已按当前本机真实配置重新核对，旧文中与当前状态不一致的内容已全部改写。 1. 当前总览 当前结论： Codex 与 OMP 都已接入 contextmode",
       "date": "2026-05-26",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-05-26_codex与omp本机配置调整记录.html",
       "readingTime": "12 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-26_Codex与OMP本机配置调整记录.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-05-26_Codex与OMP本机配置调整记录.md"
+    },
+    {
+      "id": "2026-05-26_rust学习记录1",
+      "title": "rust学习记录1",
+      "summary": "面向有 Python / Java / JS / TS / Vue 背景的开发者，快速掌握 Rust 核心语法。 目录 1. 环境准备与 Hello World 2. 变量与可变性 3. 数据类型 4. 函数 5. 控制",
+      "date": "2026-05-26",
+      "category": "本地记录",
+      "tags": [
+        "b-学习记录"
+      ],
+      "href": "/posts/kbase/2026-05-26_rust学习记录1.html",
+      "readingTime": "37 min",
+      "featured": false,
+      "sourceType": "local",
+      "section": "b-学习记录",
+      "sourcePath": "my_local/b-学习记录/2026-05-26_rust学习记录1.md"
     },
     {
       "id": "2026-05-24_个人博客搭建与自动同步部署记录",
@@ -31,7 +49,7 @@
         "d-腾讯云"
       ],
       "href": "/posts/kbase/2026-05-24_个人博客搭建与自动同步部署记录.html",
-      "readingTime": "5 min",
+      "readingTime": "6 min",
       "featured": false,
       "sourceType": "server",
       "section": "d-腾讯云",
@@ -43,13 +61,15 @@
       "summary": "1. 目标 把 C:\\tmp 下的 Codex 常驻配置压缩到“足够可用、但尽量省上下文”的状态，同时保留关键执行边界。 2. 本次处理对象 C:\\tmp\\AGENTS.md C:\\tmp\\AGENTS.min.md C",
       "date": "2026-05-22",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-05-22_codex上下文配置压缩记录.html",
       "readingTime": "6 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-22_Codex上下文配置压缩记录.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-05-22_Codex上下文配置压缩记录.md"
     },
     {
       "id": "2026-05-22_safetyraise开源版整理与推送记录",
@@ -57,13 +77,15 @@
       "summary": "1. 目标 在不影响私有部署主线的前提下，将 D:\\MCPServer\\TSanalysisreport 当前较新的部署版代码整理为可公开发布的开源版，并推送到开源仓库 QianYanArt/SafetyRAISEOS。",
       "date": "2026-05-22",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "c-项目创建"
+      ],
       "href": "/posts/kbase/2026-05-22_safetyraise开源版整理与推送记录.html",
       "readingTime": "9 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-22_SafetyRAISE开源版整理与推送记录.md"
+      "section": "c-项目创建",
+      "sourcePath": "my_local/c-项目创建/2026-05-22_SafetyRAISE开源版整理与推送记录.md"
     },
     {
       "id": "2026-05-22_实时聊天项目清理修复与推送记录",
@@ -71,13 +93,15 @@
       "summary": "1. 目标 对 D:\\Answer\\realtimeapp 做一次完整收尾，确认项目当前状态，并把真正影响后续维护的遗留问题处理掉。目标包括： 回顾此前对项目的修复与推送上下文 检查仓库是否干净、是否还有未推送内容 验证",
       "date": "2026-05-22",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "c-项目创建"
+      ],
       "href": "/posts/kbase/2026-05-22_实时聊天项目清理修复与推送记录.html",
       "readingTime": "9 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-22_实时聊天项目清理修复与推送记录.md"
+      "section": "c-项目创建",
+      "sourcePath": "my_local/c-项目创建/2026-05-22_实时聊天项目清理修复与推送记录.md"
     },
     {
       "id": "2026-05-22_翻译项目bug修复打包与仓库清理记录",
@@ -85,13 +109,15 @@
       "summary": "1. 目标 对 D:\\MCPServer\\translate 项目做一次完整收尾：全面排查并修复 bug、用 uv 环境重新打包、清理仓库中不应追踪的文件、更新 README，确保远端与本地完全一致。 2. 项目与仓库信",
       "date": "2026-05-22",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "c-项目创建"
+      ],
       "href": "/posts/kbase/2026-05-22_翻译项目bug修复打包与仓库清理记录.html",
       "readingTime": "10 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-22_翻译项目Bug修复打包与仓库清理记录.md"
+      "section": "c-项目创建",
+      "sourcePath": "my_local/c-项目创建/2026-05-22_翻译项目Bug修复打包与仓库清理记录.md"
     },
     {
       "id": "2026-05-22_hermes_唐语歌人格维护说明",
@@ -229,13 +255,15 @@
       "summary": "记录日期：20260517（更新） 本文记录本次修复 CCSwitch 切换 provider 后 Codex 聊天记录丢失问题的完整过程、改动内容与后续维护说明。 1. 问题描述 阿颜在 CCSwitch 中将 Cod",
       "date": "2026-05-16",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-05-16_cc-switch与codex会话记录修复记录.html",
       "readingTime": "11 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-16_CC-Switch与Codex会话记录修复记录.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-05-16_CC-Switch与Codex会话记录修复记录.md"
     },
     {
       "id": "2026-05-16_jp日本-softbank-家宽-clash-链式代理搭建指南",
@@ -259,13 +287,15 @@
       "summary": "更新时间：20260515 目的 本次记录用于说明本机 uv 缓存清理前的核查结果、已补充的依赖记录文件，以及后续环境恢复方式。 本次只处理： C:\\Users\\lenovo\\AppData\\Local\\uv\\cache",
       "date": "2026-05-15",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-05-15_uv缓存清理与环境依赖记录.html",
       "readingTime": "5 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-15_uv缓存清理与环境依赖记录.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-05-15_uv缓存清理与环境依赖记录.md"
     },
     {
       "id": "2026-05-15_本机运行时与家目录依赖体检记录",
@@ -273,13 +303,15 @@
       "summary": "一、检查目标 本次检查主要解决以下问题： 1. 明确当前本机常用运行时、包管理器、CLI 工具的真实安装来源与命中路径。 2. 判断 C:\\Users\\lenovo 家目录是否已经被当成 Node/Bun 项目目录使用。",
       "date": "2026-05-15",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-05-15_本机运行时与家目录依赖体检记录.html",
       "readingTime": "9 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-15_本机运行时与家目录依赖体检记录.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-05-15_本机运行时与家目录依赖体检记录.md"
     },
     {
       "id": "2026-05-14_mcp-router开机自启问题修复记录",
@@ -287,13 +319,15 @@
       "summary": "一、问题现象 本机安装 MCP Router 后，每次启动程序都会自动把自己加入 Windows 开机启动项。 即使在任务管理器中手动禁用启动项，只要再次打开 MCP Router，启动项又会被重新写回。 之前曾临时放置",
       "date": "2026-05-14",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-05-14_mcp-router开机自启问题修复记录.html",
       "readingTime": "4 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-14_MCP-Router开机自启问题修复记录.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-05-14_MCP-Router开机自启问题修复记录.md"
     },
     {
       "id": "2026-05-14_win工作站frpc与lmstudio-api运维记录",
@@ -301,13 +335,15 @@
       "summary": "日期： 20260513 操作者： Claude (via Oh My Pi) 涉及机器： | 角色 | 主机名 | IP | 用户 | ||||| | 本机（操控端） | SUYUAN | 192.168.43.154",
       "date": "2026-05-14",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-05-14_win工作站frpc与lmstudio-api运维记录.html",
       "readingTime": "14 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-14_Win工作站FRPC与LMStudio-API运维记录.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-05-14_Win工作站FRPC与LMStudio-API运维记录.md"
     },
     {
       "id": "2026-05-11_两台家宽基础设置及3x-ui面板更新配置",
@@ -395,13 +431,15 @@
       "summary": "结论 本机 Tabby 已修复“新建 SSH 配置点击保存无反应 / 保存后不出现在列表里”的问题。 当前本机状态已恢复到接近排障前，仅保留必要修复补丁；用户原有壁纸、插件、自定义配置已恢复。 问题现象 当时本机 Tab",
       "date": "2026-05-07",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-05-07_tabby-ssh配置保存问题修复记录.html",
       "readingTime": "6 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-05-07_Tabby-SSH配置保存问题修复记录.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-05-07_Tabby-SSH配置保存问题修复记录.md"
     },
     {
       "id": "2026-05-07_grok2api-项目配置与运维说明",
@@ -458,13 +496,15 @@
       "summary": "1. 当前结论（先看这个） 截至 20260316，本机主力 PowerShell 7 已更新为 Scoop 管理的 pwsh 7.5.5。 当前 pwsh 真实程序路径： C:\\Users\\lenovo\\scoop\\a",
       "date": "2026-04-17",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-04-17_powershell与pwsh现状说明.html",
       "readingTime": "9 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-04-17_PowerShell与pwsh现状说明.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-04-17_PowerShell与pwsh现状说明.md"
     },
     {
       "id": "2026-03-24_mumu依托于watchtower的本次更新",
@@ -488,13 +528,15 @@
       "summary": "文档用途 这份文档用于记录阿颜这台 Windows 机器上命令行相关环境的当前事实，重点覆盖： claude git pwsh node / npm 目标是让后续排障时先看清楚“命令真实入口在哪、为什么能用、为什么有时会",
       "date": "2026-03-19",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-03-19_claude与终端本机环境说明.html",
       "readingTime": "8 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-03-19_Claude与终端本机环境说明.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-03-19_Claude与终端本机环境说明.md"
     },
     {
       "id": "2026-03-17_git本机环境说明与后续操作准则",
@@ -502,13 +544,15 @@
       "summary": "文档用途 这份文档用于给后续接手的大模型或人工维护者快速建立上下文，避免在不了解本机 Git 历史和现状的前提下误改环境。 适用场景： 终端或 IDE 出现 Git 版本、路径、LFS、凭据相关问题 需要升级 Git 需",
       "date": "2026-03-17",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-03-17_git本机环境说明与后续操作准则.html",
       "readingTime": "6 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-03-17_Git本机环境说明与后续操作准则.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-03-17_Git本机环境说明与后续操作准则.md"
     },
     {
       "id": "2026-02-10_easy-dataset-操作记录",
@@ -516,13 +560,15 @@
       "summary": "1. 背景 仓库路径：D:\\MCPServer\\easydataset\\easydataset 主要目标： 解决 git pull 更新冲突问题并完成代码更新 保留本地数据（localdb、.env） 将端口统一为 17",
       "date": "2026-02-10",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "a-本机配置"
+      ],
       "href": "/posts/kbase/2026-02-10_easy-dataset-操作记录.html",
       "readingTime": "4 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-02-10_easy-dataset-操作记录.md"
+      "section": "a-本机配置",
+      "sourcePath": "my_local/a-本机配置/2026-02-10_easy-dataset-操作记录.md"
     },
     {
       "id": "2026-02-03_mc服务器定时备份修复",
@@ -578,13 +624,15 @@
       "summary": "目标：以后快速回忆“专家是什么、topk 是什么、为什么 A3B/active 不等于显存、以及在 LM Studio 里怎么估显存”。 1. 术语速查：专家、共享权重、KV cache、临时 buffer 1.1 专家",
       "date": "2026-01-13",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "b-学习记录"
+      ],
       "href": "/posts/kbase/2026-01-13_学习记录.html",
       "readingTime": "6 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2026-01-13_学习记录.md"
+      "section": "b-学习记录",
+      "sourcePath": "my_local/b-学习记录/2026-01-13_学习记录.md"
     },
     {
       "id": "2025-12-29_节点",
@@ -592,13 +640,15 @@
       "summary": "网络代理科普教程：从VPN、机场到自建节点 面向中国大陆网络小白的科普教程。本系列将系统介绍基础网络知识、各种代理工具与协议（VPN、Socks5、Shadowsocks、V2Ray VMess/VLESS、Trojan",
       "date": "2025-12-29",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "b-学习记录"
+      ],
       "href": "/posts/kbase/2025-12-29_节点.html",
       "readingTime": "39 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2025-12-29_节点.md"
+      "section": "b-学习记录",
+      "sourcePath": "my_local/b-学习记录/2025-12-29_节点.md"
     },
     {
       "id": "2025-12-26_mumuainovel-本次更新与故障处理记录-racknerd-vps-_补充版",
@@ -670,13 +720,15 @@
       "summary": "cuda是平台，一系列包含工具、模型等等，而kernel只是其中编写的函数 OSI：物理层数据链路层网络层传输层会话层表示层应用层 TCP/IP：网络接口层网络层传输层应用层 HTTP/1：一次一件，排队 HTTP/2：",
       "date": "2025-11-27",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "b-学习记录"
+      ],
       "href": "/posts/kbase/2025-11-27_学习记录1.html",
       "readingTime": "3 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2025-11-27_学习记录1.md"
+      "section": "b-学习记录",
+      "sourcePath": "my_local/b-学习记录/2025-11-27_学习记录1.md"
     },
     {
       "id": "2025-11-27_学习记录2",
@@ -684,13 +736,15 @@
       "summary": "核心思想：Linux 内存管理的主权在内核，用户态拿到的往往只是“空头支票”。真正分配物理资源，往往发生在最后一刻（Lazy Allocation）。 1. 核心概念：打破“黑话”壁垒 理解 mmap 的第一步是听懂内核",
       "date": "2025-11-27",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "b-学习记录"
+      ],
       "href": "/posts/kbase/2025-11-27_学习记录2.html",
       "readingTime": "4 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2025-11-27_学习记录2.md"
+      "section": "b-学习记录",
+      "sourcePath": "my_local/b-学习记录/2025-11-27_学习记录2.md"
     },
     {
       "id": "2025-11-27_droid-claudeforge卸载教程",
@@ -746,13 +800,15 @@
       "summary": "1. 执行摘要：数字国境线的技术与地缘政治图景 全球互联网的底层逻辑通常建立在对等互联（Peering）与去中心化的信任基础之上，然而，中华人民共和国（PRC）的网络基础设施呈现出一种独特的、高度集约化的主权网络形态。对",
       "date": "2025-11-22",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "b-学习记录"
+      ],
       "href": "/posts/kbase/2025-11-22_中国跨境网络基础设施深度研究报告-运营商骨干网架构-路由策略与性能经济学.html",
       "readingTime": "16 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2025-11-22_中国跨境网络基础设施深度研究报告：运营商骨干网架构、路由策略与性能经济学.md"
+      "section": "b-学习记录",
+      "sourcePath": "my_local/b-学习记录/2025-11-22_中国跨境网络基础设施深度研究报告：运营商骨干网架构、路由策略与性能经济学.md"
     },
     {
       "id": "2025-11-22_racknerd-vps-初始化配置手册-实战swap操作",
@@ -776,13 +832,15 @@
       "summary": "摘要 在现代软件工程的版图中，版本控制系统（VCS）构成了开发运维（DevOps）的基础骨架。在这一领域中，Git 凭借其分布式的架构设计、高效的分支管理模型以及强大的数据完整性保障，已经实际上淘汰了传统的集中式版本控制",
       "date": "2025-11-21",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "b-学习记录"
+      ],
       "href": "/posts/kbase/2025-11-21_现代分布式版本控制系统-git-与-github-生态架构深度指南.html",
       "readingTime": "25 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2025-11-21_现代分布式版本控制系统 Git 与 GitHub 生态架构深度指南.md"
+      "section": "b-学习记录",
+      "sourcePath": "my_local/b-学习记录/2025-11-21_现代分布式版本控制系统 Git 与 GitHub 生态架构深度指南.md"
     },
     {
       "id": "2025-11-20_openai-s-evals",
@@ -790,13 +848,15 @@
       "summary": "https://openai.com/index/evalsdrivenextchapterofai/ 评估（Evals）如何推动企业 AI 的下一篇章 本指南旨在教导企业领导者如何利用评估框架（简称“Evals”）将业",
       "date": "2025-11-20",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "b-学习记录"
+      ],
       "href": "/posts/kbase/2025-11-20_openai-s-evals.html",
       "readingTime": "5 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2025-11-20_OpenAI's Evals.md"
+      "section": "b-学习记录",
+      "sourcePath": "my_local/b-学习记录/2025-11-20_OpenAI's Evals.md"
     },
     {
       "id": "2025-11-20_屏蔽b站开屏广告",
@@ -804,13 +864,15 @@
       "summary": "// 需要屏蔽的用户 ID 列表 const targets = [ 1042653845, 1055149070, 1075400468, 1148923121, 1152997930, 1188004959, 120",
       "date": "2025-11-20",
       "category": "本地记录",
-      "tags": [],
+      "tags": [
+        "c-项目创建"
+      ],
       "href": "/posts/kbase/2025-11-20_屏蔽b站开屏广告.html",
       "readingTime": "4 min",
       "featured": false,
       "sourceType": "local",
-      "section": "Local Notes",
-      "sourcePath": "my_local/2025-11-20_屏蔽b站开屏广告.md"
+      "section": "c-项目创建",
+      "sourcePath": "my_local/c-项目创建/2025-11-20_屏蔽b站开屏广告.md"
     },
     {
       "id": "2025-11-20_linux-服务器网络配置与镜像源管理指南",

@@ -43,7 +43,7 @@
       <div class="post-meta"><span>2026-05-17</span><span>10 min</span></div>
       <div class="article-card__tags"><span>d-腾讯云</span><span>frp</span></div>
       <div class="post-content"><p>下面是一份“今日操作总结记录（Markdown）”，你可以直接复制保存为 <code>2026-03-11_lmstudio-frp-nginx-https_部署记录.md</code>。</p>
-<p>---</p>
+<hr>
 <h2>2026-03-11 LM Studio 视觉 API 远程访问故障排查与域名 HTTPS 正式化部署记录</h2>
 <p>现状说明（2026-05-18）：</p>
 <ul>
@@ -59,264 +59,423 @@
 </ul>
 <h3>1. 背景与目标</h3>
 <ul>
-<li>本地 Windows 电脑使用 <strong>LM Studio</strong> 部署 GGUF 模型（含视觉能力），本地运行正常。</li>
-</ul>
-<ul>
-<li>使用 <strong>frp</strong>（本地 frpc + 云服务器 frps）将 LM Studio 的 OpenAI 兼容 API 暴露到公网云服务器。</li>
-</ul>
-<ul>
-<li>使用 <code>api.qianyan.me</code> 作为展示用途域名，希望“正式、稳定、可访问”，并且 <strong>图片输入（视觉）也能稳定工作</strong>。</li>
-</ul>
-<ul>
-<li>问题现象：纯文本聊天正常，但在 Cherry Studio 传图片时报 <code>network error</code>（或类似简单错误）。</li>
+<li>
+<p>本地 Windows 电脑使用 <strong>LM Studio</strong> 部署 GGUF 模型（含视觉能力），本地运行正常。</p>
+</li>
+<li>
+<p>使用 <strong>frp</strong>（本地 frpc + 云服务器 frps）将 LM Studio 的 OpenAI 兼容 API 暴露到公网云服务器。</p>
+</li>
+<li>
+<p>使用 <code>api.qianyan.me</code> 作为展示用途域名，希望“正式、稳定、可访问”，并且 <strong>图片输入（视觉）也能稳定工作</strong>。</p>
+</li>
+<li>
+<p>问题现象：纯文本聊天正常，但在 Cherry Studio 传图片时报 <code>network error</code>（或类似简单错误）。</p>
+</li>
 </ul>
 <h3>2. 故障定位思路与关键结论</h3>
 <h4>2.1 采用“三段对比法”定位故障层</h4>
 <p>我们用同一套请求体（含图片 base64）逐层测试：</p>
 <ol>
-<li>直连云服务器 <code>IP:61423</code></li>
-</ol>
-<ol>
-<li>通过 <code>https://api.qianyan.me</code> 域名访问（当时还在 EdgeOne/边缘安全加速代理下）</li>
-</ol>
-<ol>
-<li>对比结果</li>
+<li>
+<p>直连云服务器 <code>IP:61423</code></p>
+</li>
+<li>
+<p>通过 <code>https://api.qianyan.me</code> 域名访问（当时还在 EdgeOne/边缘安全加速代理下）</p>
+</li>
+<li>
+<p>对比结果</p>
+</li>
 </ol>
 <h4>2.2 结论</h4>
 <ul>
-<li>直连 <code>http://云服务器IP:61423/v1/chat/completions</code>：<strong>图片请求成功</strong></li>
-</ul>
-<ul>
-<li>通过域名 <code>https://api.qianyan.me/v1/chat/completions</code>：<strong>报 524（Receive timeout from origin）</strong></li>
+<li>
+<p>直连 <code>http://云服务器IP:61423/v1/chat/completions</code>：<strong>图片请求成功</strong></p>
+</li>
+<li>
+<p>通过域名 <code>https://api.qianyan.me/v1/chat/completions</code>：<strong>报 524（Receive timeout from origin）</strong></p>
+</li>
 </ul>
 <p>因此确认：</p>
-<blockquote>LM Studio 与 frp 隧道本身能支持视觉请求；真正导致“传图失败”的主要原因是 <strong>EdgeOne/边缘代理层回源超时或不兼容大请求/慢响应</strong>（视觉推理耗时明显更长）。</blockquote>
+<blockquote>
+<p>LM Studio 与 frp 隧道本身能支持视觉请求；真正导致“传图失败”的主要原因是 <strong>EdgeOne/边缘代理层回源超时或不兼容大请求/慢响应</strong>（视觉推理耗时明显更长）。</p>
+</blockquote>
 <h3>3. 解决方案总体架构</h3>
 <p>为保留“正式域名 + HTTPS”，同时绕开边缘代理导致的 524：</p>
 <ul>
-<li><code>api.qianyan.me</code> 改为 <strong>DNS Only（仅解析 A 记录）</strong>，不再走 EdgeOne 七层代理。</li>
-</ul>
+<li>
+<p><code>api.qianyan.me</code> 改为 <strong>DNS Only（仅解析 A 记录）</strong>，不再走 EdgeOne 七层代理。</p>
+</li>
+<li>
+<p>云服务器部署 <strong>Nginx</strong>：</p>
 <ul>
-<li>云服务器部署 <strong>Nginx</strong>：</li>
+<li>
+<p>提供 <code>https://api.qianyan.me</code> 的 TLS 终端（Let’s Encrypt 证书）</p>
+</li>
+<li>
+<p>反向代理到本机 <code>127.0.0.1:61423</code>（frps 暴露端口）</p>
+</li>
+<li>
+<p>配置大请求体与长推理超时（视觉请求关键）</p>
+</li>
 </ul>
-<p>- 提供 <code>https://api.qianyan.me</code> 的 TLS 终端（Let’s Encrypt 证书）</p>
-<p>- 反向代理到本机 <code>127.0.0.1:61423</code>（frps 暴露端口）</p>
-<p>- 配置大请求体与长推理超时（视觉请求关键）</p>
-<ul>
-<li>Cherry Studio / PowerShell 端改用 <code>https://api.qianyan.me</code> 访问</li>
+</li>
+<li>
+<p>Cherry Studio / PowerShell 端改用 <code>https://api.qianyan.me</code> 访问</p>
+</li>
 </ul>
 <p>最终链路：</p>
-<p>外部客户端（Cherry/脚本） → <code>api.qianyan.me:443</code>（Nginx） → <code>127.0.0.1:61423</code>（frps 业务暴露端口） → frp 隧道 → Windows 本机 <code>LM Studio API</code></p>
+<p>外部客户端（Cherry/脚本）<br>
+→ <code>api.qianyan.me:443</code>（Nginx）<br>
+→ <code>127.0.0.1:61423</code>（frps 业务暴露端口）<br>
+→ frp 隧道<br>
+→ Windows 本机 <code>LM Studio API</code></p>
 <h3>4. 服务器端操作记录（Ubuntu）</h3>
 <h4>4.1 DNS 与连通性检查</h4>
 <p>在云服务器上确认域名解析与 HTTP 可访问：</p>
 <ul>
-<li>查看权威 NS 与 A 记录：</li>
-</ul>
-<p>- <code>dig NS qianyan.me +short</code></p>
-<p>- <code>dig A api.qianyan.me +short</code></p>
-<p>- <code>dig @1.1.1.1 A api.qianyan.me +short</code></p>
-<p>- <code>dig @8.8.8.8 A api.qianyan.me +short</code></p>
+<li>
+<p>查看权威 NS 与 A 记录：</p>
 <ul>
-<li>验证 80 端口通达性：</li>
+<li>
+<p><code>dig NS qianyan.me +short</code></p>
+</li>
+<li>
+<p><code>dig A api.qianyan.me +short</code></p>
+</li>
+<li>
+<p><code>dig @1.1.1.1 A api.qianyan.me +short</code></p>
+</li>
+<li>
+<p><code>dig @8.8.8.8 A api.qianyan.me +short</code></p>
+</li>
 </ul>
-<p>- <code>curl -I http://api.qianyan.me</code></p>
-<p>- 返回 401 是正常的（LM Studio API 需要 Authorization）</p>
+</li>
+<li>
+<p>验证 80 端口通达性：</p>
+<ul>
+<li>
+<p><code>curl -I http://api.qianyan.me</code></p>
+</li>
+<li>
+<p>返回 401 是正常的（LM Studio API 需要 Authorization）</p>
+</li>
+</ul>
+</li>
+</ul>
 <h4>4.2 安装 Nginx 与 Certbot</h4>
 <ul>
-<li>安装：</li>
+<li>
+<p>安装：</p>
+<ul>
+<li>
+<p><code>apt update</code></p>
+</li>
+<li>
+<p><code>apt install -y nginx certbot python3-certbot-nginx</code></p>
+</li>
 </ul>
-<p>- <code>apt update</code></p>
-<p>- <code>apt install -y nginx certbot python3-certbot-nginx</code></p>
+</li>
+</ul>
 <h4>4.3 创建 ACME webroot 目录，并验证挑战路径不被反代</h4>
 <ul>
-<li>创建并写入测试文件：</li>
-</ul>
-<p>- <code>mkdir -p /var/www/certbot/.well-known/acme-challenge</code></p>
-<p>- <code>echo OK-ACME &gt; /var/www/certbot/.well-known/acme-challenge/ping</code></p>
+<li>
+<p>创建并写入测试文件：</p>
 <ul>
-<li>验证：</li>
+<li>
+<p><code>mkdir -p /var/www/certbot/.well-known/acme-challenge</code></p>
+</li>
+<li>
+<p><code>echo OK-ACME &gt; /var/www/certbot/.well-known/acme-challenge/ping</code></p>
+</li>
 </ul>
-<p>- <code>curl http://api.qianyan.me/.well-known/acme-challenge/ping</code></p>
-<p>- 期望输出 <code>OK-ACME</code></p>
+</li>
+<li>
+<p>验证：</p>
+<ul>
+<li>
+<p><code>curl http://api.qianyan.me/.well-known/acme-challenge/ping</code></p>
+</li>
+<li>
+<p>期望输出 <code>OK-ACME</code></p>
+</li>
+</ul>
+</li>
+</ul>
 <h4>4.4 使用 webroot 方式签发 Let’s Encrypt 证书（成功）</h4>
 <ul>
-<li>签发命令：</li>
-</ul>
-<p>- <code>certbot certonly --webroot -w /var/www/certbot -d api.qianyan.me</code></p>
+<li>
+<p>签发命令：</p>
 <ul>
-<li>证书位置：</li>
+<li><code>certbot certonly --webroot -w /var/www/certbot -d api.qianyan.me</code></li>
 </ul>
-<p>- <code>/etc/letsencrypt/live/api.qianyan.me/fullchain.pem</code></p>
-<p>- <code>/etc/letsencrypt/live/api.qianyan.me/privkey.pem</code></p>
+</li>
+<li>
+<p>证书位置：</p>
+<ul>
+<li>
+<p><code>/etc/letsencrypt/live/api.qianyan.me/fullchain.pem</code></p>
+</li>
+<li>
+<p><code>/etc/letsencrypt/live/api.qianyan.me/privkey.pem</code></p>
+</li>
+</ul>
+</li>
+</ul>
 <h4>4.5 配置 Nginx（80 跳转 HTTPS + 443 反代到 frps）</h4>
 <p>创建并启用站点配置文件：</p>
 <ul>
-<li>文件：<code>/etc/nginx/sites-available/lmstudio-api.conf</code></li>
-</ul>
-<ul>
-<li>建立软链：<code>/etc/nginx/sites-enabled/lmstudio-api.conf</code></li>
+<li>
+<p>文件：<code>/etc/nginx/sites-available/lmstudio-api.conf</code></p>
+</li>
+<li>
+<p>建立软链：<code>/etc/nginx/sites-enabled/lmstudio-api.conf</code></p>
+</li>
 </ul>
 <p>核心点：</p>
 <ul>
-<li>80：</li>
-</ul>
-<p>- 保留 <code>/.well-known/acme-challenge/</code> 走 webroot</p>
-<p>- 其余跳转到 HTTPS</p>
+<li>
+<p>80：</p>
 <ul>
-<li>443：</li>
+<li>
+<p>保留 <code>/.well-known/acme-challenge/</code> 走 webroot</p>
+</li>
+<li>
+<p>其余跳转到 HTTPS</p>
+</li>
 </ul>
-<p>- 绑定证书</p>
-<p>- <code>proxy_pass http://127.0.0.1:61423;</code></p>
-<p>- 工作站/本地 frpc 未在线时，<code>127.0.0.1:61423</code> 不会监听；当前 Nginx 已加入离线兜底：</p>
-<p>- <code>proxy_intercept_errors on</code></p>
-<p>- <code>error_page 502 503 504 = @lmstudio_offline</code></p>
-<p>- 返回 <code>503</code> JSON：<code>{&quot;error&quot;:&quot;lmstudio_upstream_offline&quot;, ...}</code></p>
-<p>- 这只改变上游离线时的响应格式；工作站开机、frpc 和 LM Studio API 正常时，仍按原链路反代。</p>
-<p>- 必须设置：</p>
-<p>- <code>client_max_body_size</code>（支持 base64 图片大请求）</p>
-<p>- <code>proxy_read_timeout / proxy_send_timeout</code>（视觉推理慢，避免 Nginx 超时）</p>
-<p>- <code>proxy_buffering off</code>、<code>proxy_request_buffering off</code>（避免缓冲引发卡顿/异常）</p>
+</li>
+<li>
+<p>443：</p>
+<ul>
+<li>
+<p>绑定证书</p>
+</li>
+<li>
+<p><code>proxy_pass http://127.0.0.1:61423;</code></p>
+</li>
+<li>
+<p>工作站/本地 frpc 未在线时，<code>127.0.0.1:61423</code> 不会监听；当前 Nginx 已加入离线兜底：</p>
+<ul>
+<li>
+<p><code>proxy_intercept_errors on</code></p>
+</li>
+<li>
+<p><code>error_page 502 503 504 = @lmstudio_offline</code></p>
+</li>
+<li>
+<p>返回 <code>503</code> JSON：<code>{&quot;error&quot;:&quot;lmstudio_upstream_offline&quot;, ...}</code></p>
+</li>
+<li>
+<p>这只改变上游离线时的响应格式；工作站开机、frpc 和 LM Studio API 正常时，仍按原链路反代。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>必须设置：</p>
+<ul>
+<li>
+<p><code>client_max_body_size</code>（支持 base64 图片大请求）</p>
+</li>
+<li>
+<p><code>proxy_read_timeout / proxy_send_timeout</code>（视觉推理慢，避免 Nginx 超时）</p>
+</li>
+<li>
+<p><code>proxy_buffering off</code>、<code>proxy_request_buffering off</code>（避免缓冲引发卡顿/异常）</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <p>验证并 reload：</p>
 <ul>
-<li><code>nginx -t</code></li>
-</ul>
-<ul>
-<li><code>systemctl reload nginx</code></li>
+<li>
+<p><code>nginx -t</code></p>
+</li>
+<li>
+<p><code>systemctl reload nginx</code></p>
+</li>
 </ul>
 <p>HTTPS 连通性验证：</p>
 <ul>
-<li><code>curl -I https://api.qianyan.me</code></li>
-</ul>
-<ul>
-<li>返回 <code>HTTP/2 401</code> 属于正常现象（未带 Authorization）。</li>
+<li>
+<p><code>curl -I https://api.qianyan.me</code></p>
+</li>
+<li>
+<p>返回 <code>HTTP/2 401</code> 属于正常现象（未带 Authorization）。</p>
+</li>
 </ul>
 <h4>4.6 证书续期检查（成功）</h4>
 <ul>
-<li><code>systemctl status certbot.timer</code></li>
-</ul>
-<ul>
-<li><code>certbot renew --dry-run</code>（模拟续期成功）</li>
+<li>
+<p><code>systemctl status certbot.timer</code></p>
+</li>
+<li>
+<p><code>certbot renew --dry-run</code>（模拟续期成功）</p>
+</li>
 </ul>
 <h3>5. 客户端（Windows）验证与排障记录</h3>
 <h4>5.1 PowerShell OpenAI 兼容请求验证</h4>
 <ul>
-<li>先用纯文本请求验证链路可用（携带 Authorization: Bearer）</li>
-</ul>
-<ul>
-<li>再用图片（base64 data URL）请求验证视觉可用</li>
+<li>
+<p>先用纯文本请求验证链路可用（携带 Authorization: Bearer）</p>
+</li>
+<li>
+<p>再用图片（base64 data URL）请求验证视觉可用</p>
+</li>
 </ul>
 <p>最终确认：</p>
 <ul>
-<li>直连 IP:61423：图片 OK</li>
-</ul>
-<ul>
-<li>域名 HTTPS：图片 OK（在 Nginx + DNS Only 方案下）</li>
+<li>
+<p>直连 IP:61423：图片 OK</p>
+</li>
+<li>
+<p>域名 HTTPS：图片 OK（在 Nginx + DNS Only 方案下）</p>
+</li>
 </ul>
 <h4>5.2 证书名不匹配问题（RemoteCertificateNameMismatch）</h4>
 <p>曾出现一次 <code>RemoteCertificateNameMismatch</code>，随后恢复正常。推断原因多为：</p>
 <ul>
-<li>Windows DNS 缓存/旧解析尚未更新</li>
-</ul>
-<ul>
-<li>域名刚从代理模式切换到 A 记录直连，缓存短期不一致</li>
+<li>
+<p>Windows DNS 缓存/旧解析尚未更新</p>
+</li>
+<li>
+<p>域名刚从代理模式切换到 A 记录直连，缓存短期不一致</p>
+</li>
 </ul>
 <p>处理方式：</p>
 <ul>
-<li><code>ipconfig /flushdns</code></li>
-</ul>
-<ul>
-<li><code>Clear-DnsClientCache</code></li>
-</ul>
-<ul>
-<li>再次执行请求后正常</li>
+<li>
+<p><code>ipconfig /flushdns</code></p>
+</li>
+<li>
+<p><code>Clear-DnsClientCache</code></p>
+</li>
+<li>
+<p>再次执行请求后正常</p>
+</li>
 </ul>
 <p>（注意：<code>-SkipCertificateCheck</code> 仅可用于临时排障，不建议用于展示环境。）</p>
 <h3>6. frp 端口含义与当前状态确认</h3>
 <h4>6.1 当前 frps 服务信息（云服务器）</h4>
 <ul>
-<li>frps 进程启动命令：</li>
-</ul>
-<p>- <code>/usr/local/bin/frps -c /etc/frp/frps.toml</code></p>
+<li>
+<p>frps 进程启动命令：</p>
 <ul>
-<li>监听端口检查：</li>
+<li><code>/usr/local/bin/frps -c /etc/frp/frps.toml</code></li>
 </ul>
-<p>- <code>ss -lntp | grep -E &#39;frps|:7000|:61423&#39;</code></p>
+</li>
+<li>
+<p>监听端口检查：</p>
+<ul>
+<li><code>ss -lntp | grep -E 'frps|:7000|:61423'</code></li>
+</ul>
+</li>
+</ul>
 <p>解释：</p>
 <ul>
-<li><code>7000</code>：frps <strong>控制端口</strong>（frpc 连接云服务器用，不能随意对公网完全关闭，否则隧道断）</li>
-</ul>
-<ul>
-<li><code>61423</code>：由 frpc 配置的 <code>remotePort</code> 导致 frps 在服务端<strong>额外监听的业务端口</strong>（用来对外提供 LM Studio API 入口）</li>
+<li>
+<p><code>7000</code>：frps <strong>控制端口</strong>（frpc 连接云服务器用，不能随意对公网完全关闭，否则隧道断）</p>
+</li>
+<li>
+<p><code>61423</code>：由 frpc 配置的 <code>remotePort</code> 导致 frps 在服务端<strong>额外监听的业务端口</strong>（用来对外提供 LM Studio API 入口）</p>
+</li>
 </ul>
 <h4>6.2 “61423 能关，7000 不能关”的原因</h4>
 <ul>
-<li><code>61423</code> 是业务暴露端口：外部访问应该统一走 <code>443 → Nginx → 127.0.0.1:61423</code>  </li>
-<p>因此 <strong>61423 公网入站可以关闭</strong>（更安全、更正式）。</p>
-</ul>
-<ul>
-<li><code>7000</code> 是 frpc 连入 frps 的控制端口：如果关掉，frpc 无法建立隧道，业务端口自然失效。  </li>
-<p>因此 <strong>7000 必须可达</strong>（但建议限制来源 IP + 使用 token 等安全手段）。</p>
+<li>
+<p><code>61423</code> 是业务暴露端口：外部访问应该统一走 <code>443 → Nginx → 127.0.0.1:61423</code><br>
+因此 <strong>61423 公网入站可以关闭</strong>（更安全、更正式）。</p>
+</li>
+<li>
+<p><code>7000</code> 是 frpc 连入 frps 的控制端口：如果关掉，frpc 无法建立隧道，业务端口自然失效。<br>
+因此 <strong>7000 必须可达</strong>（但建议限制来源 IP + 使用 token 等安全手段）。</p>
+</li>
 </ul>
 <h4>6.3 今日安全加固动作</h4>
 <ul>
-<li>LM Studio API token 已更换（避免泄露风险）</li>
-</ul>
-<ul>
-<li>关闭 <code>61423</code> 的公网访问（只保留域名 HTTPS 入口）</li>
+<li>
+<p>LM Studio API token 已更换（避免泄露风险）</p>
+</li>
+<li>
+<p>关闭 <code>61423</code> 的公网访问（只保留域名 HTTPS 入口）</p>
+</li>
 </ul>
 <p>（可选进一步加固：让 frps 业务端口只监听 <code>127.0.0.1</code>，以及限制可用端口白名单。）</p>
 <h3>7. 以后复用的检查清单（很实用）</h3>
 <h4>7.1 一键检查服务是否通（服务器侧）</h4>
 <ul>
-<li>Nginx 是否正常：</li>
-</ul>
-<p>- <code>nginx -t &amp;&amp; systemctl reload nginx</code></p>
+<li>
+<p>Nginx 是否正常：</p>
 <ul>
-<li>HTTPS 是否可握手：</li>
+<li><code>nginx -t &amp;&amp; systemctl reload nginx</code></li>
 </ul>
-<p>- <code>curl -I https://api.qianyan.me</code></p>
+</li>
+<li>
+<p>HTTPS 是否可握手：</p>
 <ul>
-<li>frps 是否在：</li>
+<li><code>curl -I https://api.qianyan.me</code></li>
 </ul>
-<p>- <code>systemctl status frps --no-pager</code></p>
+</li>
+<li>
+<p>frps 是否在：</p>
 <ul>
-<li>frps 监听端口：</li>
+<li><code>systemctl status frps --no-pager</code></li>
 </ul>
-<p>- <code>ss -lntp | grep frps</code></p>
+</li>
+<li>
+<p>frps 监听端口：</p>
+<ul>
+<li><code>ss -lntp | grep frps</code></li>
+</ul>
+</li>
+</ul>
 <h4>7.2 Cherry Studio “传图失败”时快速定位</h4>
 <ul>
-<li>先测试 PowerShell 直连域名发图（排除前端问题）</li>
-</ul>
+<li>
+<p>先测试 PowerShell 直连域名发图（排除前端问题）</p>
+</li>
+<li>
+<p>看 Nginx 日志：</p>
 <ul>
-<li>看 Nginx 日志：</li>
+<li>
+<p><code>tail -n 100 /var/log/nginx/error.log</code></p>
+</li>
+<li>
+<p><code>tail -n 50 /var/log/nginx/access.log</code></p>
+</li>
 </ul>
-<p>- <code>tail -n 100 /var/log/nginx/error.log</code></p>
-<p>- <code>tail -n 50 /var/log/nginx/access.log</code></p>
+</li>
+</ul>
 <p>常见错误对策：</p>
 <ul>
-<li>413：调大 <code>client_max_body_size</code></li>
-</ul>
-<ul>
-<li>504：调大 <code>proxy_read_timeout</code></li>
-</ul>
-<ul>
-<li>upstream closed：检查 frp/LM Studio 状态、资源与超时</li>
+<li>
+<p>413：调大 <code>client_max_body_size</code></p>
+</li>
+<li>
+<p>504：调大 <code>proxy_read_timeout</code></p>
+</li>
+<li>
+<p>upstream closed：检查 frp/LM Studio 状态、资源与超时</p>
+</li>
 </ul>
 <h3>8. 今日最终成果</h3>
 <ul>
-<li><code>api.qianyan.me</code> 使用 Let’s Encrypt 证书，HTTPS 正常</li>
+<li>
+<p><code>api.qianyan.me</code> 使用 Let’s Encrypt 证书，HTTPS 正常</p>
+</li>
+<li>
+<p>视觉图片请求通过域名访问稳定可用（避免 EdgeOne 524）</p>
+</li>
+<li>
+<p>Cherry Studio 读取图片恢复正常</p>
+</li>
+<li>
+<p>业务入口统一收敛到 <code>443</code>，<code>61423</code> 公网关闭，更适合正式展示</p>
+</li>
 </ul>
-<ul>
-<li>视觉图片请求通过域名访问稳定可用（避免 EdgeOne 524）</li>
-</ul>
-<ul>
-<li>Cherry Studio 读取图片恢复正常</li>
-</ul>
-<ul>
-<li>业务入口统一收敛到 <code>443</code>，<code>61423</code> 公网关闭，更适合正式展示</li>
-</ul>
-<p>---</p></div>
+<hr>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

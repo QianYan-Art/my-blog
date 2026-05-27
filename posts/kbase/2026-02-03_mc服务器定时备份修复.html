@@ -45,113 +45,133 @@
       <div class="post-content"><h3>背景与问题</h3>
 <p>服务器上的 Minecraft 宝可梦整合包部署后，发现备份文件持续增长导致磁盘压力。目标是：</p>
 <ol>
-<li>关闭/修正“意外的自动备份来源”</li>
+<li>
+<p>关闭/修正“意外的自动备份来源”</p>
+</li>
+<li>
+<p>将备份保留策略改为：最多只保留 <strong>1 份</strong>（或至少仅保留 1 天）</p>
+</li>
+<li>
+<p>自动备份时间改为 <strong>北京时间凌晨 04:00</strong></p>
+</li>
+<li>
+<p>备份过程中确保存档一致性，并避免出现 save-off 残留导致潜在丢档风险</p>
+</li>
+<li>
+<p>解决备份体积偏大（避免把 mods 一起打包）</p>
+</li>
 </ol>
-<ol>
-<li>将备份保留策略改为：最多只保留 <strong>1 份</strong>（或至少仅保留 1 天）</li>
-</ol>
-<ol>
-<li>自动备份时间改为 <strong>北京时间凌晨 04:00</strong></li>
-</ol>
-<ol>
-<li>备份过程中确保存档一致性，并避免出现 save-off 残留导致潜在丢档风险</li>
-</ol>
-<ol>
-<li>解决备份体积偏大（避免把 mods 一起打包）</li>
-</ol>
-<p>---</p>
+<hr>
 <h3>1. 定位自动备份来源</h3>
 <p>最初怀疑是 <code>mcctl cron-install</code> 写入的定时任务，但检查发现：</p>
 <ul>
-<li><code>/etc/cron.d/mcctl-backup</code> 并不存在</li>
-</ul>
-<ul>
-<li><code>root</code> 用户 crontab 仅有 <code>@reboot iptables-restore ...</code></li>
-</ul>
-<ul>
-<li>真正触发自动备份的是 <strong>另一份 cron 文件</strong>：<code>/etc/cron.d/mc-backup</code></li>
+<li>
+<p><code>/etc/cron.d/mcctl-backup</code> 并不存在</p>
+</li>
+<li>
+<p><code>root</code> 用户 crontab 仅有 <code>@reboot iptables-restore ...</code></p>
+</li>
+<li>
+<p>真正触发自动备份的是 <strong>另一份 cron 文件</strong>：<code>/etc/cron.d/mc-backup</code></p>
+</li>
 </ul>
 <p>关键定位命令：</p>
-<pre><code>grep -RInE &#39;mcctl|/opt/mc|minecraft|backup&#39; /etc/cron.d /etc/crontab /var/spool/cron/crontabs 2&gt;/dev/null || true</code></pre>
+<pre><code class="language-bash">grep -RInE 'mcctl|/opt/mc|minecraft|backup' /etc/cron.d /etc/crontab /var/spool/cron/crontabs 2&gt;/dev/null || true
+</code></pre>
 <p>结果确认：系统级 cron 每天执行 <code>mcctl backup</code>，并且存在旧的无效清理命令 <code>prune-backups</code>（mcctl 并不支持该子命令）。</p>
-<p>---</p>
+<hr>
 <h3>2. 修正备份保留策略：永远只保留最新 1 份</h3>
 <p>最终采用“只保留最新 1 份”的策略（比“保留 1 天”更严格、更省心）。</p>
 <p>使用命令：</p>
-<pre><code>bash -lc &#39;cd /opt/mc/backups &amp;&amp; ls -1t *.tar.gz 2&gt;/dev/null | tail -n +2 | xargs -r rm -f --&#39;</code></pre>
+<pre><code class="language-bash">bash -lc 'cd /opt/mc/backups &amp;&amp; ls -1t *.tar.gz 2&gt;/dev/null | tail -n +2 | xargs -r rm -f --'
+</code></pre>
 <p>解释：</p>
 <ul>
-<li><code>ls -1t</code>：按时间从新到旧列出</li>
+<li>
+<p><code>ls -1t</code>：按时间从新到旧列出</p>
+</li>
+<li>
+<p><code>tail -n +2</code>：从第 2 行开始（跳过最新 1 个）</p>
+</li>
+<li>
+<p><code>xargs rm</code>：删除所有旧备份</p>
+</li>
 </ul>
-<ul>
-<li><code>tail -n +2</code>：从第 2 行开始（跳过最新 1 个）</li>
-</ul>
-<ul>
-<li><code>xargs rm</code>：删除所有旧备份</li>
-</ul>
-<p>---</p>
+<hr>
 <h3>3. 调整自动备份时间为北京时间 04:00</h3>
 <p>服务器时区为 UTC，换算关系：</p>
 <ul>
-<li>北京时间（CST）= UTC + 8</li>
-</ul>
-<ul>
-<li>北京时间 04:00 = UTC 20:00</li>
+<li>
+<p>北京时间（CST）= UTC + 8</p>
+</li>
+<li>
+<p>北京时间 04:00 = UTC 20:00</p>
+</li>
 </ul>
 <p>验证时区与换算：</p>
-<pre><code>date
-TZ=Asia/Shanghai date</code></pre>
-<p>---</p>
+<pre><code class="language-bash">date
+TZ=Asia/Shanghai date
+</code></pre>
+<hr>
 <h3>4. 新的 cron 方案：加锁（flock）防止并发冲突</h3>
 <p>为了避免“cron 自动备份”与“手动备份”同时执行导致 IO/CPU 飙升或备份不一致，引入 <code>flock</code> 文件锁。</p>
 <p>最终 cron 文件内容：<code>/etc/cron.d/mc-backup</code></p>
-<pre><code>SHELL=/bin/bash
+<pre><code class="language-bash">SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # 北京时间 04:00 = UTC 20:00
 0 20 * * * root flock /var/lock/mc-backup.lock /usr/local/bin/mcctl backup &gt;&gt;/var/log/mc-backup.log 2&gt;&amp;1
 # 只保留最新 1 份（同一把锁，确保不跟备份并发）
-10 20 * * * root flock /var/lock/mc-backup.lock bash -lc &#39;cd /opt/mc/backups &amp;&amp; ls -1t *.tar.gz 2&gt;/dev/null | tail -n +2 | xargs -r rm -f --&#39; &gt;&gt;/var/log/mc-backup.log 2&gt;&amp;1</code></pre>
+10 20 * * * root flock /var/lock/mc-backup.lock bash -lc 'cd /opt/mc/backups &amp;&amp; ls -1t *.tar.gz 2&gt;/dev/null | tail -n +2 | xargs -r rm -f --' &gt;&gt;/var/log/mc-backup.log 2&gt;&amp;1
+</code></pre>
 <p>生效操作：</p>
-<pre><code>systemctl restart cron</code></pre>
-<p>---</p>
+<pre><code class="language-bash">systemctl restart cron
+</code></pre>
+<hr>
 <h3>5. 优化 mcctl：备份模式改为“slim”，避免打包 mods</h3>
 <p>备份体积过大主要原因是 <code>mods</code> 目录很大（约 1G）且每次备份都重复保存。</p>
 <p>当前目录体积（用于判断备份体积来源）：</p>
-<pre><code>du -sh /opt/mc/data/world /opt/mc/data/config /opt/mc/data/mods 2&gt;/dev/null</code></pre>
+<pre><code class="language-bash">du -sh /opt/mc/data/world /opt/mc/data/config /opt/mc/data/mods 2&gt;/dev/null
+</code></pre>
 <p>示例结果：</p>
 <ul>
-<li><code>world</code>：约 5.7G（主要增长来源）</li>
-</ul>
-<ul>
-<li><code>config</code>：约 26M</li>
-</ul>
-<ul>
-<li><code>mods</code>：约 994M</li>
+<li>
+<p><code>world</code>：约 5.7G（主要增长来源）</p>
+</li>
+<li>
+<p><code>config</code>：约 26M</p>
+</li>
+<li>
+<p><code>mods</code>：约 994M</p>
+</li>
 </ul>
 <p>因此将 <code>mcctl backup</code> 默认改为 <strong>slim 模式</strong>（备份 world/config + 关键文件，不包含 mods）。</p>
 <p>确认备份包不含 mods：</p>
-<pre><code>tar -tzf /opt/mc/backups/backup-*.tar.gz | grep -E &#39;^mods/&#39; || echo &quot;OK: 备份不含 mods&quot;</code></pre>
-<p>---</p>
+<pre><code class="language-bash">tar -tzf /opt/mc/backups/backup-*.tar.gz | grep -E '^mods/' || echo &quot;OK: 备份不含 mods&quot;
+</code></pre>
+<hr>
 <h3>6. 修复 save-off 残留风险：备份末尾强制恢复 save-on</h3>
 <p>备份流程会执行：</p>
 <ul>
-<li><code>save-off</code>（短暂冻结自动保存）</li>
-</ul>
-<ul>
-<li><code>save-all flush</code>（强制刷盘）</li>
-</ul>
-<ul>
-<li>打包备份</li>
-</ul>
-<ul>
-<li>最后必须 <code>save-on</code> 恢复，否则服务器可能长期处于“自动保存关闭”状态（存在丢档风险）</li>
+<li>
+<p><code>save-off</code>（短暂冻结自动保存）</p>
+</li>
+<li>
+<p><code>save-all flush</code>（强制刷盘）</p>
+</li>
+<li>
+<p>打包备份</p>
+</li>
+<li>
+<p>最后必须 <code>save-on</code> 恢复，否则服务器可能长期处于“自动保存关闭”状态（存在丢档风险）</p>
+</li>
 </ul>
 <p>自检确认：</p>
-<pre><code>/usr/local/bin/mcctl rcon &quot;save-on&quot;</code></pre>
+<pre><code class="language-bash">/usr/local/bin/mcctl rcon &quot;save-on&quot;
+</code></pre>
 <p>输出 <code>Saving is already turned on</code> 表示安全。</p>
 <p>并在 <code>mcctl</code> 中加入了“备份收尾强制 save-on”的逻辑，使得每次备份结束都会恢复自动保存。</p>
-<p>---</p>
+<hr>
 <h3>7. 处理 tar exit=1 警告（非致命）</h3>
 <p>备份过程中偶尔会出现：</p>
 <ul>
@@ -159,42 +179,52 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 </ul>
 <p>这通常意味着打包期间有文件变动/读不到某些临时文件等。当前策略是：</p>
 <ul>
-<li><code>exit=1</code> 视作“有警告但备份仍可用”</li>
-</ul>
-<ul>
-<li><code>exit&gt;1</code> 才视作失败（需要进一步排查）</li>
+<li>
+<p><code>exit=1</code> 视作“有警告但备份仍可用”</p>
+</li>
+<li>
+<p><code>exit&gt;1</code> 才视作失败（需要进一步排查）</p>
+</li>
 </ul>
 <p>由于备份文件能正常生成、且 save-on 能正常恢复，因此暂时无需深挖。</p>
-<p>---</p>
+<hr>
 <h3>8. 最终验证结果（今日结论）</h3>
 <p>关键自检结果：</p>
 <ol>
-<li>系统中只有一个备份 cron 来源：<code>/etc/cron.d/mc-backup</code></li>
+<li>
+<p>系统中只有一个备份 cron 来源：<code>/etc/cron.d/mc-backup</code></p>
+</li>
+<li>
+<p>自动备份时间正确：UTC 20:00 = 北京时间 04:00</p>
+</li>
+<li>
+<p>备份目录可收敛到只保留最新 1 份</p>
+</li>
+<li>
+<p><code>mcctl backup</code> 执行后自动保存状态为 ON，不存在 save-off 残留风险</p>
+</li>
+<li>
+<p>cron 使用 <code>flock</code> 避免并发冲突</p>
+</li>
 </ol>
-<ol>
-<li>自动备份时间正确：UTC 20:00 = 北京时间 04:00</li>
-</ol>
-<ol>
-<li>备份目录可收敛到只保留最新 1 份</li>
-</ol>
-<ol>
-<li><code>mcctl backup</code> 执行后自动保存状态为 ON，不存在 save-off 残留风险</li>
-</ol>
-<ol>
-<li>cron 使用 <code>flock</code> 避免并发冲突</li>
-</ol>
-<p>---</p>
+<hr>
 <h3>常用命令速查</h3>
 <p>查看 cron 规则：</p>
-<pre><code>cat /etc/cron.d/mc-backup</code></pre>
+<pre><code class="language-bash">cat /etc/cron.d/mc-backup
+</code></pre>
 <p>手动立即备份（slim）：</p>
-<pre><code>/usr/local/bin/mcctl backup</code></pre>
+<pre><code class="language-bash">/usr/local/bin/mcctl backup
+</code></pre>
 <p>手动只保留最新 1 份备份：</p>
-<pre><code>bash -lc &#39;cd /opt/mc/backups &amp;&amp; ls -1t *.tar.gz 2&gt;/dev/null | tail -n +2 | xargs -r rm -f --&#39;</code></pre>
+<pre><code class="language-bash">bash -lc 'cd /opt/mc/backups &amp;&amp; ls -1t *.tar.gz 2&gt;/dev/null | tail -n +2 | xargs -r rm -f --'
+</code></pre>
 <p>确认备份包是否包含 mods：</p>
-<pre><code>tar -tzf /opt/mc/backups/backup-*.tar.gz | grep -E &#39;^mods/&#39; || echo &quot;OK: 备份不含 mods&quot;</code></pre>
+<pre><code class="language-bash">tar -tzf /opt/mc/backups/backup-*.tar.gz | grep -E '^mods/' || echo &quot;OK: 备份不含 mods&quot;
+</code></pre>
 <p>确认自动保存状态：</p>
-<pre><code>/usr/local/bin/mcctl rcon &quot;save-on&quot;</code></pre></div>
+<pre><code class="language-bash">/usr/local/bin/mcctl rcon &quot;save-on&quot;
+</code></pre>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

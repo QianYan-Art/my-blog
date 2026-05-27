@@ -52,13 +52,15 @@
 curl -sSL [https://install.python-poetry.org](https://install.python-poetry.org) | python3 -
 
 # 2. 添加环境变量 (写入 .bashrc 永久生效)
-echo &#39;export PATH=&quot;/home/qianyan/.local/bin:$PATH&quot;&#39; &gt;&gt; ~/.bashrc
+echo 'export PATH=&quot;/home/qianyan/.local/bin:$PATH&quot;' &gt;&gt; ~/.bashrc
 source ~/.bashrc
 
 # 3. 验证
-poetry --version</code></pre>
+poetry --version
+</code></pre>
 <h4>1.2 安装 PM2 (如果未安装)</h4>
-<pre><code>npm install pm2 -g</code></pre>
+<pre><code>npm install pm2 -g
+</code></pre>
 <h3>2. 项目部署 (全新安装)</h3>
 <h4>2.1 克隆与配置</h4>
 <pre><code>cd ~
@@ -67,28 +69,34 @@ cd AIstudioProxyAPI
 
 # 关键配置：让虚拟环境生成在项目目录下 (.venv)，避免权限问题
 poetry config virtualenvs.create true
-poetry config virtualenvs.in-project true</code></pre>
+poetry config virtualenvs.in-project true
+</code></pre>
 <h4>2.2 安装依赖</h4>
 <p>使用 <code>install</code> 而不是 <code>update</code>，确保与作者环境完全一致。</p>
-<pre><code>poetry install</code></pre>
+<pre><code>poetry install
+</code></pre>
 <h4>2.3 下载浏览器内核</h4>
 <p>必须使用 Poetry 环境内的 Python 来下载，确保版本匹配。</p>
-<pre><code>poetry run python -m camoufox fetch</code></pre>
+<pre><code>poetry run python -m camoufox fetch
+</code></pre>
 <h4>2.4 还原备份 (如果有)</h4>
 <p>如果你之前备份了登录信息：</p>
 <pre><code># 假设备份在 ~/auth_profiles_backup
-cp -r ~/auth_profiles_backup/* ~/AIstudioProxyAPI/auth_profiles/</code></pre>
+cp -r ~/auth_profiles_backup/* ~/AIstudioProxyAPI/auth_profiles/
+</code></pre>
 <h4>2.5 启动服务 (PM2)</h4>
 <p>使用虚拟环境解释器启动，并开启无头模式。</p>
 <pre><code>pm2 start launch_camoufox.py \
   --name aistudio \
   --interpreter ./venv/bin/python \
   -- \
-  --headless</code></pre>
+  --headless
+</code></pre>
 <h3>3. 稳定性加固 (守护与监控)</h3>
 <h4>3.1 设置定时重启</h4>
 <p>防止内存泄漏，设置每小时重启一次。</p>
-<pre><code>pm2 restart aistudio --cron &quot;0 * * * *&quot;</code></pre>
+<pre><code>pm2 restart aistudio --cron &quot;0 * * * *&quot;
+</code></pre>
 <h4>3.2 部署看门狗 (Watchdog)</h4>
 <p>防止 <code>503</code> 或 <code>页面丢失</code> 错误导致服务假死。</p>
 <p>创建脚本 ~/watchdog.py:</p>
@@ -114,11 +122,11 @@ def restart_pm2():
     time.sleep(COOLDOWN)
 
 def follow(file):
-    f = subprocess.Popen([&#39;tail&#39;, &#39;-F&#39;, &#39;-n&#39;, &#39;0&#39;, file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    f = subprocess.Popen(['tail', '-F', '-n', '0', file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     while True:
         line = f.stdout.readline()
         if line:
-            yield line.decode(&#39;utf-8&#39;, errors=&#39;ignore&#39;)
+            yield line.decode('utf-8', errors='ignore')
 
 if __name__ == &quot;__main__&quot;:
     print(f&quot;正在监视日志: {LOG_FILE}&quot;)
@@ -133,10 +141,12 @@ if __name__ == &quot;__main__&quot;:
                     restart_pm2()
                     break
     except KeyboardInterrupt:
-        print(&quot;停止监视。&quot;)</code></pre>
+        print(&quot;停止监视。&quot;)
+</code></pre>
 <p><strong>启动看门狗:</strong></p>
 <pre><code>pm2 start ~/watchdog.py --name log-watcher --interpreter python3
-pm2 save</code></pre>
+pm2 save
+</code></pre>
 <h3>4. 更新维护 (一键脚本)</h3>
 <p><strong>⚠️ 警告</strong>: 不要手动执行 <code>poetry update</code>。请使用以下脚本同步更新代码、依赖和内核。</p>
 <h4>4.1 创建更新脚本 <code>~/update_aistudio.sh</code></h4>
@@ -164,28 +174,35 @@ pm2 restart aistudio
 
 echo &quot;=== 更新完成，正在检查日志 ===&quot;
 sleep 3
-pm2 logs aistudio --lines 10 --nostream</code></pre>
+pm2 logs aistudio --lines 10 --nostream
+</code></pre>
 <h4>4.2 赋予权限与修复格式</h4>
 <pre><code># 赋予执行权限
 chmod +x ~/update_aistudio.sh
 
 # 修复 Windows 换行符问题 (如果你是在 Windows 编辑后上传的)
-sed -i &#39;s/\r$//&#39; ~/update_aistudio.sh</code></pre>
+sed -i 's/\r$//' ~/update_aistudio.sh
+</code></pre>
 <h4>4.3 执行更新</h4>
 <p>以后需要更新时，直接运行：</p>
-<pre><code>~/update_aistudio.sh</code></pre>
+<pre><code>~/update_aistudio.sh
+</code></pre>
 <h3>5. 卸载与清理</h3>
 <p>如果你想彻底删除项目（例如重装）：</p>
 <h4>5.1 备份数据</h4>
-<pre><code>cp -r ~/AIstudioProxyAPI/auth_profiles ~/auth_profiles_backup</code></pre>
+<pre><code>cp -r ~/AIstudioProxyAPI/auth_profiles ~/auth_profiles_backup
+</code></pre>
 <h4>5.2 删除进程</h4>
 <pre><code>pm2 stop aistudio log-watcher
-pm2 delete aistudio log-watcher</code></pre>
+pm2 delete aistudio log-watcher
+</code></pre>
 <h4>5.3 删除文件与缓存</h4>
 <p><strong>注意</strong>: 必须删除 camoufox 缓存，否则下次安装可能会调用旧内核导致版本冲突。</p>
 <pre><code>rm -rf ~/AIstudioProxyAPI      # 删除项目
 rm -rf ~/.cache/camoufox       # 删除浏览器内核缓存
-# rm -rf ~/.cache/pypoetry     # (可选) 删除 pip 包缓存，通常建议保留以加速下次安装</code></pre></div>
+# rm -rf ~/.cache/pypoetry     # (可选) 删除 pip 包缓存，通常建议保留以加速下次安装
+</code></pre>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

@@ -41,9 +41,11 @@
       <p class="post-kicker">本地记录</p>
       <h1>学习记录</h1>
       <div class="post-meta"><span>2026-01-13</span><span>6 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><blockquote>目标：以后快速回忆“专家是什么、top-k 是什么、为什么 A3B/active 不等于显存、以及在 LM Studio 里怎么估显存”。</blockquote>
-<p>---</p>
+      <div class="article-card__tags"><span>b-学习记录</span></div>
+      <div class="post-content"><blockquote>
+<p>目标：以后快速回忆“专家是什么、top-k 是什么、为什么 A3B/active 不等于显存、以及在 LM Studio 里怎么估显存”。</p>
+</blockquote>
+<hr>
 <h3>1. 术语速查：专家、共享权重、KV cache、临时 buffer</h3>
 <h4>1.1 专家（Experts）</h4>
 <ul>
@@ -56,9 +58,11 @@
 <ul>
 <li>Attention（Q/K/V/O 等）</li>
 <li>Embedding / Unembedding（输入嵌入/输出投影）</li>
-<li>Norm、Router 等小模块  </li>
+<li>Norm、Router 等小模块</li>
 </ul>
-<blockquote>直觉：<strong>“不是专家 MLP 的那一部分”</strong>基本都属于共享/非专家权重。</blockquote>
+<blockquote>
+<p>直觉：**“不是专家 MLP 的那一部分”**基本都属于共享/非专家权重。</p>
+</blockquote>
 <h4>1.3 KV cache（最关键的显存大头，和上下文线性相关）</h4>
 <ul>
 <li>为了生成下一个 token 不重算历史，注意力会把每层的 K/V 存起来。</li>
@@ -71,28 +75,40 @@
 <li>大小跟实现、FlashAttention、batch、并发等相关，通常是 <strong>几百 MB 到 1–2GB</strong>量级波动。</li>
 <li>这块也不等于参数量/active 参数量。</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>2. MoE “专家数量”到底指什么？</h3>
 <p>聊天里澄清了：大家口头说“专家数量”可能指两种不同的数：</p>
-<p>1) <strong>每层专家池大小（expert_count / num_experts）</strong></p>
+<ol>
+<li><strong>每层专家池大小（expert_count / num_experts）</strong></li>
+</ol>
 <ul>
 <li>例：GLM-4.6 routed experts = 160（总池），shared = 1（共享专家）</li>
 </ul>
-<p>2) <strong>每 token 激活专家数（top-k / expert_used_count / num_experts_per_tok）</strong> ✅（你最关心的“每次激活多少个”）</p>
+<ol start="2">
+<li><strong>每 token 激活专家数（top-k / expert_used_count / num_experts_per_tok）</strong> ✅（你最关心的“每次激活多少个”）</li>
+</ol>
 <ul>
 <li>gpt-oss-120b：top-4（每 token 每层激活 4 个专家）</li>
 <li>GLM-4.6：top-8（每 token 每层激活 8 个 routed 专家，另有 1 个 shared expert 常驻参与）</li>
 </ul>
-<blockquote>在 LM Studio 的参数里，如果写的是 “Experts per token / top-k”，那就是第 2 种；如果写 “Experts” 且数很大（如 512），多半是第 1 种。</blockquote>
-<p>---</p>
+<blockquote>
+<p>在 LM Studio 的参数里，如果写的是 “Experts per token / top-k”，那就是第 2 种；如果写 “Experts” 且数很大（如 512），多半是第 1 种。</p>
+</blockquote>
+<hr>
 <h3>3. 为什么“上下文长度”设 30000 也行？为啥常见 16384/32768？</h3>
 <ul>
 <li><strong>能不能用：30000 完全可以</strong>，本质就是 KV cache 预留 token 数。</li>
-<li>常用 16384/32768 主要是：</li>
-<p>- 某些实现会做内存块对齐/补齐（可能实际分配略大于设定值） - 服务端并发时可能出现“总 ctx 池被 parallel 均分”的坑（llama.cpp server 常见）</p>
+<li>常用 16384/32768 主要是：
+<ul>
+<li>某些实现会做内存块对齐/补齐（可能实际分配略大于设定值）</li>
+<li>服务端并发时可能出现“总 ctx 池被 parallel 均分”的坑（llama.cpp server 常见）</li>
 </ul>
-<blockquote>实用建议：个人单会话想省事可用 32768；严格按需求设 30000 也没问题。</blockquote>
-<p>---</p>
+</li>
+</ul>
+<blockquote>
+<p>实用建议：个人单会话想省事可用 32768；严格按需求设 30000 也没问题。</p>
+</blockquote>
+<hr>
 <h3>4. 两种“4bit”不是一回事：MXFP4 vs GGUF Q4</h3>
 <h4>4.1 gpt-oss-120b 的 MXFP4（模型自身训练后量化）</h4>
 <ul>
@@ -104,7 +120,7 @@
 <li>对于“专家本来就已经是 MXFP4”的模型：GGUF 的 Q4/Q8 往往主要影响 <strong>非专家部分（embedding/attention/output 等）</strong>。</li>
 <li>Unsloth 的 <code>UD-...</code>（Dynamic）会更“聪明”地对不同张量选不同精度，不是所有都死板 Q4。</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>5. KV 量化会影响什么？企业会开吗？</h3>
 <h4>5.1 KV 量化影响点</h4>
 <ul>
@@ -117,25 +133,37 @@
 <li><strong>会（常见）</strong>：为了更长 ctx、更高吞吐、更低成本，比如 vLLM 提供量化 KV cache（如 FP8 KV cache）。</li>
 <li><strong>也可能不开</strong>：质量极敏感/模型对 KV 量化不鲁棒时，仍用 f16/bf16。</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>6. “120B” 与 “active 5.1B”的构成：为什么 active ≠ 显存</h3>
 <h4>6.1 gpt-oss-120b 参数构成（核心逻辑）</h4>
 <ul>
 <li>总参数（120B 名字实际约 116.83B）</li>
-<li>主要分为：</li>
-<p>- MLP（≈ MoE 专家）超大一坨 - Attention、Embed/Unembed 等共享部分较小</p>
+<li>主要分为：
+<ul>
+<li>MLP（≈ MoE 专家）超大一坨</li>
+<li>Attention、Embed/Unembed 等共享部分较小</li>
+</ul>
+</li>
 </ul>
 <h4>6.2 每 token 激活 5.13B（active）怎么来的？</h4>
 <p>近似理解：</p>
 <ul>
 <li>Attention（全用） + Unembed（生成时要用） + MLP_total × (top-k / expert_count)</li>
-<li>因为 MoE：每层 128 专家里只选 4 个 → 4/128 = 3.125% 的专家 MLP参与计算  </li>
-<p>所以 active 是 “计算路径上被用到的参数量”。</p>
+<li>因为 MoE：每层 128 专家里只选 4 个 → 4/128 = 3.125% 的专家 MLP参与计算<br>
+所以 active 是 “计算路径上被用到的参数量”。</li>
 </ul>
 <h4>6.3 为什么不能用 “active=3B/5B” 直接算显存？</h4>
-<p>因为显存占用还包括： 1) <strong>KV cache</strong>：与 n_ctx 线性相关，和 active 无关 2) <strong>GPU 常驻权重</strong>：取决于你把哪些权重 offload 到 GPU（你把专家放 CPU，那 active 里的“专家权重”就不占显存） 3) <strong>临时 buffer</strong>：workspace/中间张量开销，active 不覆盖 4) <strong>量化元数据/对齐</strong>：GGUF Q8_0 也不是精确 1 byte/param</p>
-<blockquote>结论：active 参数量是“算力路径指标”，不是“显存账单”。</blockquote>
-<p>---</p>
+<p>因为显存占用还包括：</p>
+<ol>
+<li><strong>KV cache</strong>：与 n_ctx 线性相关，和 active 无关</li>
+<li><strong>GPU 常驻权重</strong>：取决于你把哪些权重 offload 到 GPU（你把专家放 CPU，那 active 里的“专家权重”就不占显存）</li>
+<li><strong>临时 buffer</strong>：workspace/中间张量开销，active 不覆盖</li>
+<li><strong>量化元数据/对齐</strong>：GGUF Q8_0 也不是精确 1 byte/param</li>
+</ol>
+<blockquote>
+<p>结论：active 参数量是“算力路径指标”，不是“显存账单”。</p>
+</blockquote>
+<hr>
 <h3>7. 显存估算的通用公式（最实用）</h3>
 <h4>7.1 总显存 = 三块相加</h4>
 <p>显存 ≈ <strong>GPU 常驻权重</strong> + <strong>KV cache</strong> + <strong>临时/预留 buffer</strong></p>
@@ -153,7 +181,9 @@
 <li>每 token 每层元素数 = 2 × Hkv × Dh（K 和 V 两份）</li>
 <li>KV bytes = L × T × (2 × Hkv × Dh) × bytes</li>
 </ul>
-<blockquote>关键点：<strong>KV cache ∝ T（上下文线性）</strong>。</blockquote>
+<blockquote>
+<p>关键点：<strong>KV cache ∝ T（上下文线性）</strong>。</p>
+</blockquote>
 <h4>7.3 Qwen3-Next（80B-A3B）在 Q8_0 + ctx=30000 + KV不量化 的估算思路</h4>
 <ul>
 <li>Qwen3-Next 是“混合注意力”：每 4 层 1 层全注意力 → L_full = 48/4 = 12</li>
@@ -162,10 +192,10 @@
 </ul>
 <p>每 token 每层 bytes：</p>
 <ul>
-<li>2 × 2 × 256 × 2 = 2048 bytes</li>
-<p>整模型每 token：</p>
-<li>2048 × 12 = 24576 bytes</li>
-<p>ctx=30000：</p>
+<li>2 × 2 × 256 × 2 = 2048 bytes
+整模型每 token：</li>
+<li>2048 × 12 = 24576 bytes
+ctx=30000：</li>
 <li>24576 × 30000 ≈ 0.69 GiB（约 0.7GiB）</li>
 </ul>
 <p>然后再加：</p>
@@ -173,17 +203,25 @@
 <li>GPU 常驻“非专家权重”体积（取决于你是否把 experts 放 CPU）</li>
 <li>临时 buffer（通常 1–2GiB 预留更稳）</li>
 </ul>
-<blockquote>这就是为什么最后会得到一个比 “A3B≈3GB” 更大的显存数：KV + buffer 不是 active 能覆盖的。</blockquote>
-<p>---</p>
+<blockquote>
+<p>这就是为什么最后会得到一个比 “A3B≈3GB” 更大的显存数：KV + buffer 不是 active 能覆盖的。</p>
+</blockquote>
+<hr>
 <h3>8. 实操结论（你部署时最该盯的旋钮）</h3>
-<p>1) <strong>n_ctx</strong>：显存杀手，尤其 KV 不量化时 2) <strong>KV cache 是否量化</strong>：长上下文强烈建议至少 q8 3) <strong>MoE experts 放 CPU / GPU</strong>：放 CPU 省显存但可能慢；放 GPU 快但显存压力大 4) <strong>batch/并发/FlashAttention</strong>：影响临时 buffer 和吞吐</p>
-<p>---</p>
+<ol>
+<li><strong>n_ctx</strong>：显存杀手，尤其 KV 不量化时</li>
+<li><strong>KV cache 是否量化</strong>：长上下文强烈建议至少 q8</li>
+<li><strong>MoE experts 放 CPU / GPU</strong>：放 CPU 省显存但可能慢；放 GPU 快但显存压力大</li>
+<li><strong>batch/并发/FlashAttention</strong>：影响临时 buffer 和吞吐</li>
+</ol>
+<hr>
 <h3>9. 本次聊天得到的关键结论一句话版</h3>
 <ul>
 <li>“专家数量”要分清：每层专家池大小 vs 每 token 激活 top-k。</li>
 <li>A3B/active 是“算力路径”，不是“显存占用”；显存主要还看 KV cache 与运行时 buffer。</li>
 <li>长上下文下，KV cache 往往是最大头；KV 量化是常见的工程化降本手段。</li>
-</ul></div>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

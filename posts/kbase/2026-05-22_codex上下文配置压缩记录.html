@@ -41,7 +41,7 @@
       <p class="post-kicker">本地记录</p>
       <h1>Codex上下文配置压缩记录</h1>
       <div class="post-meta"><span>2026-05-22</span><span>6 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>a-本机配置</span></div>
       <div class="post-content"><h3>1. 目标</h3>
 <p>把 <code>C:\tmp</code> 下的 Codex 常驻配置压缩到“足够可用、但尽量省上下文”的状态，同时保留关键执行边界。</p>
 <h3>2. 本次处理对象</h3>
@@ -102,12 +102,25 @@
 </ul>
 <h4>8.2 已执行调整</h4>
 <ol>
-<li>删除 <code>mcp-router</code> 配置块：</li>
-<p>- <code>[mcp_servers.mcp-router]</code> - <code>[mcp_servers.mcp-router.env]</code> - <code>MCPR_TOKEN</code></p>
-<li>关闭以下默认插件：</li>
-<p>- <code>documents@openai-primary-runtime</code> - <code>spreadsheets@openai-primary-runtime</code> - <code>presentations@openai-primary-runtime</code></p>
-<li>保留：</li>
-<p>- <code>browser@openai-bundled</code></p>
+<li>删除 <code>mcp-router</code> 配置块：
+<ul>
+<li><code>[mcp_servers.mcp-router]</code></li>
+<li><code>[mcp_servers.mcp-router.env]</code></li>
+<li><code>MCPR_TOKEN</code></li>
+</ul>
+</li>
+<li>关闭以下默认插件：
+<ul>
+<li><code>documents@openai-primary-runtime</code></li>
+<li><code>spreadsheets@openai-primary-runtime</code></li>
+<li><code>presentations@openai-primary-runtime</code></li>
+</ul>
+</li>
+<li>保留：
+<ul>
+<li><code>browser@openai-bundled</code></li>
+</ul>
+</li>
 </ol>
 <h4>8.3 调整理由</h4>
 <ul>
@@ -156,7 +169,7 @@
 <h4>9.3 Codex 项目配置</h4>
 <p>已在 <code>C:\Users\lenovo\.codex\config.toml</code> 中新增：</p>
 <ul>
-<li><code>[projects.&#39;c:\tmp\rtk&#39;]</code></li>
+<li><code>[projects.'c:\tmp\rtk']</code></li>
 <li><code>trust_level = &quot;trusted&quot;</code></li>
 </ul>
 <p>这样 Codex 对该项目有单独的明确项目信任配置，而不只是依赖更大的 <code>C:\</code> 范围信任。</p>
@@ -226,7 +239,8 @@
 </ul>
 <p>同步替换为与 <code>C:\tmp\AGENTS.md</code> 同风格的精简常驻版，统一默认生效行为。</p>
 <h4>12.3 结果</h4>
-<p>现在全局目录与 <code>C:\tmp</code> 工作目录都使用短版规则，减少因规则文件位置不同导致的行为不一致。</p></div>
+<p>现在全局目录与 <code>C:\tmp</code> 工作目录都使用短版规则，减少因规则文件位置不同导致的行为不一致。</p>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

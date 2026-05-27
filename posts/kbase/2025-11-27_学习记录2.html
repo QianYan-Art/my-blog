@@ -41,26 +41,103 @@
       <p class="post-kicker">本地记录</p>
       <h1>学习记录2</h1>
       <div class="post-meta"><span>2025-11-27</span><span>4 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><blockquote><strong>核心思想</strong>：Linux 内存管理的主权在内核，用户态拿到的往往只是“空头支票”。真正分配物理资源，往往发生在最后一刻（Lazy Allocation）。</blockquote>
+      <div class="article-card__tags"><span>b-学习记录</span></div>
+      <div class="post-content"><blockquote>
+<p><strong>核心思想</strong>：Linux 内存管理的主权在内核，用户态拿到的往往只是“空头支票”。真正分配物理资源，往往发生在最后一刻（Lazy Allocation）。</p>
+</blockquote>
 <h3>1. 核心概念：打破“黑话”壁垒</h3>
 <p>理解 <code>mmap</code> 的第一步是听懂内核的“行话”。</p>
-<div class="post-table-wrap"><table><thead><tr><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td><strong>名词</strong></td><td><strong>别名/比喻</strong></td><td><strong>解释</strong></td><td><strong>场景</strong></td></tr><tr><td><strong>User Space (用户态)</strong></td><td>柜台外 / 凡人</td><td>你的程序运行的地方，权限受限。</td><td>你在银行大堂填单子。</td></tr><tr><td><strong>Kernel Space (内核态)</strong></td><td>柜台内 / 上帝</td><td>操作系统核心，掌管硬件资源。</td><td>柜员在金库操作现金。</td></tr><tr><td><strong>Syscall (系统调用)</strong></td><td>传呼铃</td><td>用户态联系内核态的唯一合法途径。</td><td>你按响柜台铃声求助。</td></tr><tr><td><strong>Virtual Memory (虚拟内存)</strong></td><td>房号 / 空头支票</td><td>程序以为自己有的内存，只是个数字编号。</td><td>酒店给你的房卡（8888号），但房间可能还没建好。</td></tr><tr><td><strong>Physical Memory (物理内存)</strong></td><td>真实的房间 / RAM</td><td>宝贵的硬件资源，插在主板上的内存条。</td><td>真实的、能住人的房间。</td></tr><tr><td><strong>VMA (Virtual Memory Area)</strong></td><td><strong>户口本 / 预订记录</strong></td><td>内核记录“这段地址归谁用”的小账本。</td><td>前台登记簿：“8888号房预留给张三”。</td></tr><tr><td><strong>Page Fault (缺页异常)</strong></td><td><strong>报警器 / 补票机制</strong></td><td>当程序访问“有记录但无物理页”的地址时触发。</td><td>你刷卡进房发现没床，服务员（内核）听到报警赶紧搬床进去。</td></tr></tbody></table></div>
-<h3>2. 机制一：空手套白狼 (Anonymous Mapping)</h3>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>名词</strong></td>
+<td><strong>别名/比喻</strong></td>
+<td><strong>解释</strong></td>
+<td><strong>场景</strong></td>
+</tr>
+<tr>
+<td><strong>User Space (用户态)</strong></td>
+<td>柜台外 / 凡人</td>
+<td>你的程序运行的地方，权限受限。</td>
+<td>你在银行大堂填单子。</td>
+</tr>
+<tr>
+<td><strong>Kernel Space (内核态)</strong></td>
+<td>柜台内 / 上帝</td>
+<td>操作系统核心，掌管硬件资源。</td>
+<td>柜员在金库操作现金。</td>
+</tr>
+<tr>
+<td><strong>Syscall (系统调用)</strong></td>
+<td>传呼铃</td>
+<td>用户态联系内核态的唯一合法途径。</td>
+<td>你按响柜台铃声求助。</td>
+</tr>
+<tr>
+<td><strong>Virtual Memory (虚拟内存)</strong></td>
+<td>房号 / 空头支票</td>
+<td>程序以为自己有的内存，只是个数字编号。</td>
+<td>酒店给你的房卡（8888号），但房间可能还没建好。</td>
+</tr>
+<tr>
+<td><strong>Physical Memory (物理内存)</strong></td>
+<td>真实的房间 / RAM</td>
+<td>宝贵的硬件资源，插在主板上的内存条。</td>
+<td>真实的、能住人的房间。</td>
+</tr>
+<tr>
+<td><strong>VMA (Virtual Memory Area)</strong></td>
+<td><strong>户口本 / 预订记录</strong></td>
+<td>内核记录“这段地址归谁用”的小账本。</td>
+<td>前台登记簿：“8888号房预留给张三”。</td>
+</tr>
+<tr>
+<td><strong>Page Fault (缺页异常)</strong></td>
+<td><strong>报警器 / 补票机制</strong></td>
+<td>当程序访问“有记录但无物理页”的地址时触发。</td>
+<td>你刷卡进房发现没床，服务员（内核）听到报警赶紧搬床进去。</td>
+</tr>
+</tbody>
+</table></div><h3>2. 机制一：空手套白狼 (Anonymous Mapping)</h3>
 <p>当我们申请大内存（如 100MB）时，内核并没有立刻给我们物理内存。</p>
 <h4>实验现象</h4>
 <ol>
-<li><strong>调用 <code>mmap</code> 后</strong>：</li>
+<li>
+<p><strong>调用 <code>mmap</code> 后</strong>：</p>
+<ul>
+<li>
+<p><code>VmSize</code> (虚拟内存) <strong>暴涨</strong> 100MB。</p>
+</li>
+<li>
+<p><code>VmRSS</code> (物理内存) <strong>纹丝不动</strong>。</p>
+</li>
+<li>
+<p><em>含义：内核只在 VMA 账本上记了一笔，没给真东西。</em></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>写入数据 (<code>memset</code>) 后</strong>：</p>
+<ul>
+<li>
+<p>触发 <strong>Page Fault</strong>（缺页中断）。</p>
+</li>
+<li>
+<p>内核被迫分配物理页。</p>
+</li>
+<li>
+<p><code>VmRSS</code> 终于涨了 100MB。</p>
+</li>
+</ul>
+</li>
 </ol>
-<p>- <code>VmSize</code> (虚拟内存) <strong>暴涨</strong> 100MB。</p>
-<p>- <code>VmRSS</code> (物理内存) <strong>纹丝不动</strong>。</p>
-<p>- _含义：内核只在 VMA 账本上记了一笔，没给真东西。_</p>
-<ol>
-<li><strong>写入数据 (<code>memset</code>) 后</strong>：</li>
-</ol>
-<p>- 触发 <strong>Page Fault</strong>（缺页中断）。</p>
-<p>- 内核被迫分配物理页。</p>
-<p>- <code>VmRSS</code> 终于涨了 100MB。</p>
 <h4>代码回顾</h4>
 <pre><code>// 申请 100MB 匿名内存 (MAP_ANONYMOUS)
 char *p = mmap(NULL, 100*1024*1024, PROT_READ|PROT_WRITE, 
@@ -69,55 +146,77 @@ char *p = mmap(NULL, 100*1024*1024, PROT_READ|PROT_WRITE,
 // 此时物理内存未分配！
 
 // 强制写入，触发 Page Fault，内核分配物理 RAM
-memset(p, 1, 100*1024*1024); </code></pre>
+memset(p, 1, 100*1024*1024); 
+</code></pre>
 <h3>3. 机制二：文件即内存 (File Mapping)</h3>
 <p>这是 <code>mmap</code> 最强大的功能，也是数据库和 AI 模型高效加载的秘诀。</p>
 <h4>核心逻辑</h4>
 <ul>
-<li><strong>传统 IO</strong>：<code>硬盘</code> -&gt; <code>内核缓冲区</code> -&gt; <code>用户缓冲区</code> (慢，两次拷贝)。</li>
-</ul>
+<li>
+<p><strong>传统 IO</strong>：<code>硬盘</code> -&gt; <code>内核缓冲区</code> -&gt; <code>用户缓冲区</code> (慢，两次拷贝)。</p>
+</li>
+<li>
+<p><strong>mmap</strong>：直接把文件“投影”到内存地址。</p>
 <ul>
-<li><strong>mmap</strong>：直接把文件“投影”到内存地址。</li>
+<li>
+<p>读内存 = 读文件。</p>
+</li>
+<li>
+<p>改内存 = 改文件。</p>
+</li>
 </ul>
-<p>- 读内存 = 读文件。</p>
-<p>- 改内存 = 改文件。</p>
+</li>
+</ul>
 <h4>实验现象</h4>
 <ol>
-<li>打开文件 <code>test_data.txt</code>。</li>
-</ol>
-<ol>
-<li><code>mmap</code> 映射到指针 <code>p</code>。</li>
-</ol>
-<ol>
-<li>执行 <code>p[0] = &#39;Y&#39;</code>。</li>
-</ol>
-<ol>
-<li><strong>结果</strong>：硬盘上的文件内容自动变了！无需调用 <code>write()</code>。</li>
+<li>
+<p>打开文件 <code>test_data.txt</code>。</p>
+</li>
+<li>
+<p><code>mmap</code> 映射到指针 <code>p</code>。</p>
+</li>
+<li>
+<p>执行 <code>p[0] = 'Y'</code>。</p>
+</li>
+<li>
+<p><strong>结果</strong>：硬盘上的文件内容自动变了！无需调用 <code>write()</code>。</p>
+</li>
 </ol>
 <h4>关键代码 (Pointer vs IO)</h4>
 <pre><code>// 1. 映射文件 (注意 MAP_SHARED 才能同步回硬盘)
 char *p = mmap(NULL, len, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
 // 2. 像操作数组一样修改文件
-p[0] = &#39;Y&#39;; // 修改内存，操作系统自动同步到磁盘
+p[0] = 'Y'; // 修改内存，操作系统自动同步到磁盘
 
 // 3. (对比) 传统验证方式
 FILE *f = fopen(&quot;test.txt&quot;, &quot;r&quot;);
-fgets(buffer, 100, f); // 用“勺子”去硬盘里舀数据验证</code></pre>
+fgets(buffer, 100, f); // 用“勺子”去硬盘里舀数据验证
+</code></pre>
 <h3>4. C 语言基础补课</h3>
 <h4>指针 (Pointer)</h4>
 <ul>
-<li><strong>定义</strong>：指针不是数据本身，它是数据的<strong>坐标/地址</strong>。</li>
-</ul>
+<li>
+<p><strong>定义</strong>：指针不是数据本身，它是数据的<strong>坐标/地址</strong>。</p>
+</li>
+<li>
+<p><strong>比喻</strong>：指针是一张写着“储物柜编号”的纸条。</p>
+</li>
+<li>
+<p><strong>操作</strong>：</p>
 <ul>
-<li><strong>比喻</strong>：指针是一张写着“储物柜编号”的纸条。</li>
+<li>
+<p><code>p</code>: 纸条本身（地址）。</p>
+</li>
+<li>
+<p><code>*p</code> 或 <code>p[0]</code>: 顺着地址找到柜子，拿出里面的东西。</p>
+</li>
+<li>
+<p><code>p + 7</code>: 把手指往后移 7 个柜子。</p>
+</li>
 </ul>
-<ul>
-<li><strong>操作</strong>：</li>
+</li>
 </ul>
-<p>- <code>p</code>: 纸条本身（地址）。</p>
-<p>- <code>*p</code> 或 <code>p[0]</code>: 顺着地址找到柜子，拿出里面的东西。</p>
-<p>- <code>p + 7</code>: 把手指往后移 7 个柜子。</p>
 <h4>文件读取四部曲</h4>
 <pre><code>// 1. 拿个杯子 (准备缓冲区)
 char buffer[100]; 
@@ -129,23 +228,27 @@ FILE *f = fopen(&quot;file.txt&quot;, &quot;r&quot;);
 fgets(buffer, sizeof(buffer), f); 
 
 // 4. 关水龙头 (释放资源)
-fclose(f); </code></pre>
+fclose(f); 
+</code></pre>
 <h3>5. 为什么这很重要？</h3>
 <p>你在 AI / 后端领域会反复遇到 <code>mmap</code>：</p>
 <ol>
-<li><strong>LLM 加载</strong>：加载 70GB 的 LLaMA 模型时，使用 <code>mmap</code> 可以瞬间完成（只建立映射），实际推理算到哪一层，才从硬盘读哪一层（Page Fault）。</li>
+<li>
+<p><strong>LLM 加载</strong>：加载 70GB 的 LLaMA 模型时，使用 <code>mmap</code> 可以瞬间完成（只建立映射），实际推理算到哪一层，才从硬盘读哪一层（Page Fault）。</p>
+</li>
+<li>
+<p><strong>数据库 (MongoDB/LMDB)</strong>：利用操作系统的内存管理机制来做数据缓存，极其高效。</p>
+</li>
+<li>
+<p><strong>零拷贝 (Zero Copy)</strong>：Kafka 等高性能消息队列利用类似机制减少数据搬运。</p>
+</li>
 </ol>
-<ol>
-<li><strong>数据库 (MongoDB/LMDB)</strong>：利用操作系统的内存管理机制来做数据缓存，极其高效。</li>
-</ol>
-<ol>
-<li><strong>零拷贝 (Zero Copy)</strong>：Kafka 等高性能消息队列利用类似机制减少数据搬运。</li>
-</ol>
-<blockquote>总结：</blockquote>
-<p>&gt;</p>
-<blockquote>mmap 是打通 硬盘、物理内存、虚拟内存 的桥梁。</blockquote>
-<p>&gt;</p>
-<blockquote>它教会我们：操作系统是“懒惰”的（Lazy Allocation），而这种“懒惰”正是高效的源泉。</blockquote></div>
+<blockquote>
+<p>总结：</p>
+<p>mmap 是打通 硬盘、物理内存、虚拟内存 的桥梁。</p>
+<p>它教会我们：操作系统是“懒惰”的（Lazy Allocation），而这种“懒惰”正是高效的源泉。</p>
+</blockquote>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

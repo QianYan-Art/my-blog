@@ -107,7 +107,7 @@
 <li>角色：建站机</li>
 </ul>
 <p>最终链路：</p>
-<pre><code>客户端
+<pre><code class="language-text">客户端
   -&gt; https://suyuan.4071253.xyz
   -&gt; EdgeOne 边缘 HTTPS
   -&gt; 回源 HTTP 80
@@ -115,7 +115,8 @@
   -&gt; 127.0.0.1:59999
   -&gt; cliproxyapi-edge-proxy
   -&gt; 127.0.0.1:59998
-  -&gt; cliproxyapi core</code></pre>
+  -&gt; cliproxyapi core
+</code></pre>
 <p>特点：</p>
 <ul>
 <li>公网仅使用 <code>80/443</code></li>
@@ -131,8 +132,13 @@
 </ul>
 <p>保留逻辑：</p>
 <ul>
-<li>对以下路径的 <code>POST</code> 请求做长耗时保活：</li>
-<p>- <code>/v1/images/generations</code> - <code>/v1/images/edits</code> - <code>/v1/images/variations</code></p>
+<li>对以下路径的 <code>POST</code> 请求做长耗时保活：
+<ul>
+<li><code>/v1/images/generations</code></li>
+<li><code>/v1/images/edits</code></li>
+<li><code>/v1/images/variations</code></li>
+</ul>
+</li>
 <li>若上游在短时间内未返回首字节，先回 <code>200</code></li>
 <li>后续定期写空格 keepalive</li>
 <li>等待上游真正完成后，再把实际响应流继续转发</li>
@@ -300,12 +306,13 @@
 <p>这不代表 <code>cliproxyapi</code> 有故障。</p>
 <h3>11. 通过旧 JP 节点作为新机出站代理</h3>
 <p>为避免新机直接以自身机房 IP 对外访问上游，同时保留当前建站机的整洁入口结构，本次又增加了一层“<strong>仅本机可见</strong>”的出站代理：</p>
-<pre><code>新机 cliproxyapi
+<pre><code class="language-text">新机 cliproxyapi
   -&gt; proxy-url = socks5://127.0.0.1:24080
   -&gt; 新机 sing-box 本地 socks 入站
   -&gt; sing-box Shadowsocks 出站
   -&gt; 旧 JP NAT 节点 SS 服务
-  -&gt; 上游服务</code></pre>
+  -&gt; 上游服务
+</code></pre>
 <h4>11.1 新机 sing-box 新增内容</h4>
 <p>新增配置分片：</p>
 <ul>
@@ -351,12 +358,25 @@
 </ul>
 <p>新增与调整：</p>
 <ul>
-<li><code>/etc/sing-box/conf/local-socks-inbound.json</code></li>
-<p>- <code>127.0.0.1:24080</code>：<code>cliproxyapi</code> 实际使用的本地 socks - <code>127.0.0.1:24081</code>：仅供健康检查脚本验证旧 JP SS 是否可用</p>
-<li><code>/etc/sing-box/conf/route-cliproxyapi-proxy.json</code></li>
-<p>- 默认将 <code>cliproxyapi-local-socks</code> 路由到 <code>oldjp-ss-out</code> - 健康检查口固定路由到 <code>oldjp-ss-out</code></p>
-<li><code>/root/check-cliproxyapi-proxy.py</code></li>
-<p>- 通过 <code>127.0.0.1:24081</code> 检测旧 JP SS - 若不可用，则把 <code>cliproxyapi-local-socks</code> 切到 <code>direct</code> - 若恢复可用，则切回 <code>oldjp-ss-out</code></p>
+<li><code>/etc/sing-box/conf/local-socks-inbound.json</code>
+<ul>
+<li><code>127.0.0.1:24080</code>：<code>cliproxyapi</code> 实际使用的本地 socks</li>
+<li><code>127.0.0.1:24081</code>：仅供健康检查脚本验证旧 JP SS 是否可用</li>
+</ul>
+</li>
+<li><code>/etc/sing-box/conf/route-cliproxyapi-proxy.json</code>
+<ul>
+<li>默认将 <code>cliproxyapi-local-socks</code> 路由到 <code>oldjp-ss-out</code></li>
+<li>健康检查口固定路由到 <code>oldjp-ss-out</code></li>
+</ul>
+</li>
+<li><code>/root/check-cliproxyapi-proxy.py</code>
+<ul>
+<li>通过 <code>127.0.0.1:24081</code> 检测旧 JP SS</li>
+<li>若不可用，则把 <code>cliproxyapi-local-socks</code> 切到 <code>direct</code></li>
+<li>若恢复可用，则切回 <code>oldjp-ss-out</code></li>
+</ul>
+</li>
 <li><code>/etc/systemd/system/cliproxyapi-proxy-failover.service</code></li>
 <li><code>/etc/systemd/system/cliproxyapi-proxy-failover.timer</code></li>
 </ul>
@@ -400,7 +420,7 @@
 </ul>
 <p>新增：</p>
 <ul>
-<li><code>26 5 <em> </em> * /root/cleanup-xui-backups.sh &gt;&gt; /var/log/cleanup-xui-backups.log 2&gt;&amp;1</code></li>
+<li><code>26 5 * * * /root/cleanup-xui-backups.sh &gt;&gt; /var/log/cleanup-xui-backups.log 2&gt;&amp;1</code></li>
 </ul>
 <p>对应脚本：</p>
 <ul>
@@ -417,17 +437,29 @@
 <p>问题现象：</p>
 <ul>
 <li>Vertex 原始 service account JSON 本身可用</li>
-<li>但通过管理页导入后，生成的 auth 文件被写成：</li>
-<p>- <code>location: &quot;asia-northeast1&quot;</code></p>
-<li>调用 <code>vtx/gemini-3.1-pro-preview</code> 时会报：</li>
-<p>- <code>Publisher Model ... was not found or your project does not have access to it</code></p>
+<li>但通过管理页导入后，生成的 auth 文件被写成：
+<ul>
+<li><code>location: &quot;asia-northeast1&quot;</code></li>
+</ul>
+</li>
+<li>调用 <code>vtx/gemini-3.1-pro-preview</code> 时会报：
+<ul>
+<li><code>Publisher Model ... was not found or your project does not have access to it</code></li>
+</ul>
+</li>
 </ul>
 <p>最终修复：</p>
 <ul>
-<li>将 <code>/root/cliproxyapi/auths/vertex-project-74ecad93-9ffc-48c4-a8d.json</code> 中的：</li>
-<p>- <code>location: &quot;asia-northeast1&quot;</code></p>
-<li>改为：</li>
-<p>- <code>location: &quot;global&quot;</code></p>
+<li>将 <code>/root/cliproxyapi/auths/vertex-project-74ecad93-9ffc-48c4-a8d.json</code> 中的：
+<ul>
+<li><code>location: &quot;asia-northeast1&quot;</code></li>
+</ul>
+</li>
+<li>改为：
+<ul>
+<li><code>location: &quot;global&quot;</code></li>
+</ul>
+</li>
 </ul>
 <p>结论：</p>
 <ul>
@@ -441,8 +473,12 @@
 </ul>
 <p>根因：</p>
 <ul>
-<li>当前正式配置 <code>/root/cliproxyapi/config.yaml</code> 中，以下两项的 <code>prefix: &quot;manual&quot;</code> 在迁移后丢失：</li>
-<p>- <code>claude-api-key</code> - <code>codex-api-key</code></p>
+<li>当前正式配置 <code>/root/cliproxyapi/config.yaml</code> 中，以下两项的 <code>prefix: &quot;manual&quot;</code> 在迁移后丢失：
+<ul>
+<li><code>claude-api-key</code></li>
+<li><code>codex-api-key</code></li>
+</ul>
+</li>
 </ul>
 <p>修复方式：</p>
 <ul>
@@ -451,19 +487,26 @@
 </ul>
 <p>恢复结果：</p>
 <ul>
-<li><code>/v1/models</code> 中重新出现：</li>
-<p>- <code>manual/gpt-<em></code> - <code>manual/gpt-image-2</code> - <code>manual/claude-</em></code></p>
+<li><code>/v1/models</code> 中重新出现：
+<ul>
+<li><code>manual/gpt-*</code></li>
+<li><code>manual/gpt-image-2</code></li>
+<li><code>manual/claude-*</code></li>
+</ul>
+</li>
 </ul>
 <h3>13. 后续维护建议</h3>
 <h4>13.1 新机日常只关心这三个服务</h4>
-<pre><code>systemctl status sing-box.service
+<pre><code class="language-bash">systemctl status sing-box.service
 systemctl status cliproxyapi.service
-systemctl status cliproxyapi-edge-proxy.service</code></pre>
+systemctl status cliproxyapi-edge-proxy.service
+</code></pre>
 <h4>13.1.1 新机定时任务</h4>
 <p>当前 root <code>crontab</code>：</p>
-<pre><code>@reboot iptables-restore &lt; /etc/iptables/rules.v4
+<pre><code class="language-bash">@reboot iptables-restore &lt; /etc/iptables/rules.v4
 0 5 * * * /usr/bin/flock -n /tmp/update-cliproxyapi.lock /root/update-cliproxyapi.sh &gt;&gt; /var/log/cliproxyapi_update.log 2&gt;&amp;1
-35 5 * * * /root/cleanup-cliproxyapi-backups.sh &gt;&gt; /var/log/cleanup-cliproxyapi-backups.log 2&gt;&amp;1</code></pre>
+35 5 * * * /root/cleanup-cliproxyapi-backups.sh &gt;&gt; /var/log/cleanup-cliproxyapi-backups.log 2&gt;&amp;1
+</code></pre>
 <p>说明：</p>
 <ul>
 <li>每天 <code>05:00</code> 自动更新 <code>cliproxyapi</code></li>
@@ -475,9 +518,10 @@ systemctl status cliproxyapi-edge-proxy.service</code></pre>
 <li><code>/root/cleanup-cliproxyapi-backups.sh</code></li>
 </ul>
 <h4>13.2 常用日志命令</h4>
-<pre><code>journalctl -u sing-box.service -n 120 --no-pager
+<pre><code class="language-bash">journalctl -u sing-box.service -n 120 --no-pager
 journalctl -u cliproxyapi.service -n 120 --no-pager
-journalctl -u cliproxyapi-edge-proxy.service -n 120 --no-pager</code></pre>
+journalctl -u cliproxyapi-edge-proxy.service -n 120 --no-pager
+</code></pre>
 <h4>13.2.1 日志轮转</h4>
 <p>已新增：</p>
 <ul>
@@ -513,7 +557,7 @@ journalctl -u cliproxyapi-edge-proxy.service -n 120 --no-pager</code></pre>
 </ul>
 <h4>13.2.2 全机日志管理现状</h4>
 <p>当前新机日志管理已收口为三层：</p>
-<p>#### 1. systemd / journald</p>
+<h5>1. systemd / journald</h5>
 <p>适用服务：</p>
 <ul>
 <li><code>cliproxyapi.service</code></li>
@@ -543,16 +587,20 @@ journalctl -u cliproxyapi-edge-proxy.service -n 120 --no-pager</code></pre>
 <li><code>LogRateLimitIntervalSec=60s</code></li>
 <li><code>LogRateLimitBurst=200</code></li>
 </ul>
-<p>#### 2. 文件日志 + logrotate</p>
+<h5>2. 文件日志 + logrotate</h5>
 <p>适用：</p>
 <ul>
 <li><code>nginx</code> 默认日志：<code>/var/log/nginx/*.log</code></li>
 <li>站点自定义日志：<code>/srv/logs/nginx/*.log</code></li>
 <li><code>sing-box</code> 文件日志：<code>/var/log/sing-box/*.log</code></li>
-<li>维护脚本日志：</li>
-<p>- <code>/var/log/cliproxyapi_update.log</code> - <code>/var/log/cleanup-cliproxyapi-backups.log</code></p>
+<li>维护脚本日志：
+<ul>
+<li><code>/var/log/cliproxyapi_update.log</code></li>
+<li><code>/var/log/cleanup-cliproxyapi-backups.log</code></li>
 </ul>
-<p>#### 3. Docker 容器日志</p>
+</li>
+</ul>
+<h5>3. Docker 容器日志</h5>
 <p>当前 Docker 守护进程已配置：</p>
 <ul>
 <li><code>log-driver = json-file</code></li>
@@ -567,7 +615,8 @@ journalctl -u cliproxyapi-edge-proxy.service -n 120 --no-pager</code></pre>
 </ul>
 <p>都继承了这一日志轮转策略。</p>
 <h4>13.3 域名链路快速验证</h4>
-<pre><code>curl -sS https://suyuan.4071253.xyz/v1/models -H &#39;Authorization: Bearer &lt;API_KEY&gt;&#39;</code></pre>
+<pre><code class="language-bash">curl -sS https://suyuan.4071253.xyz/v1/models -H 'Authorization: Bearer &lt;API_KEY&gt;'
+</code></pre>
 <h4>13.4 若以后还要重新启用 Codex 反代</h4>
 <p>建议做法：</p>
 <ul>
@@ -585,7 +634,8 @@ journalctl -u cliproxyapi-edge-proxy.service -n 120 --no-pager</code></pre>
 <li><strong>不部署 <code>newapi</code></strong></li>
 <li><strong>新机上游已具备“旧 JP 节点 SS / 本机 direct”自动切换能力</strong></li>
 </ul>
-<p>这是当前最符合“建站机、端口少、结构整洁、运行稳定”的方案。</p></div>
+<p>这是当前最符合“建站机、端口少、结构整洁、运行稳定”的方案。</p>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

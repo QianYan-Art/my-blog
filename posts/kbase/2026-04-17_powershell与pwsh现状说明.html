@@ -41,31 +41,56 @@
       <p class="post-kicker">本地记录</p>
       <h1>PowerShell与pwsh现状说明</h1>
       <div class="post-meta"><span>2026-04-17</span><span>9 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>a-本机配置</span></div>
       <div class="post-content"><h3>1. 当前结论（先看这个）</h3>
 <ul>
 <li>截至 2026-03-16，本机主力 PowerShell 7 已更新为 Scoop 管理的 <code>pwsh 7.5.5</code>。</li>
-<li>当前 <code>pwsh</code> 真实程序路径：</li>
-<p>- <code>C:\Users\lenovo\scoop\apps\pwsh\current\pwsh.exe</code></p>
-<li>当前 <code>pwsh</code> 启动入口（shim）路径：</li>
-<p>- <code>C:\Users\lenovo\scoop\shims\pwsh.exe</code></p>
-<li>当前 <code>pwsh</code> shim 配置文件路径：</li>
-<p>- <code>C:\Users\lenovo\scoop\shims\pwsh.shim</code></p>
-<li>Windows 自带的 <code>powershell.exe</code>（Windows PowerShell 5.1）仍然保留，作为系统兜底：</li>
-<p>- <code>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</code></p>
+<li>当前 <code>pwsh</code> 真实程序路径：
+<ul>
+<li><code>C:\Users\lenovo\scoop\apps\pwsh\current\pwsh.exe</code></li>
+</ul>
+</li>
+<li>当前 <code>pwsh</code> 启动入口（shim）路径：
+<ul>
+<li><code>C:\Users\lenovo\scoop\shims\pwsh.exe</code></li>
+</ul>
+</li>
+<li>当前 <code>pwsh</code> shim 配置文件路径：
+<ul>
+<li><code>C:\Users\lenovo\scoop\shims\pwsh.shim</code></li>
+</ul>
+</li>
+<li>Windows 自带的 <code>powershell.exe</code>（Windows PowerShell 5.1）仍然保留，作为系统兜底：
+<ul>
+<li><code>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</code></li>
+</ul>
+</li>
 <li><code>winget</code> 管理的 <code>Microsoft.PowerShell</code> 仍然不是当前方案，主方案已经统一到 Scoop。</li>
 <li>本次 <code>pwsh 7.5.4 -&gt; 7.5.5</code> 更新已经完成，旧版本 <code>7.5.4</code> 也已完成清理。</li>
-<li>更新日志固定写入：</li>
-<p>- <code>C:\Users\lenovo\scoop\logs\update-pwsh.log</code></p>
+<li>更新日志固定写入：
+<ul>
+<li><code>C:\Users\lenovo\scoop\logs\update-pwsh.log</code></li>
+</ul>
+</li>
 </ul>
 <h3>2. PowerShell / pwsh 区分说明</h3>
 <ul>
-<li><code>powershell.exe</code></li>
-<p>- 指 Windows PowerShell 5.1。 - 系统自带。 - 适合做兼容兜底，尤其是更新 Scoop 管理的 <code>pwsh</code> 时很有用。</p>
-</ul>
+<li>
+<p><code>powershell.exe</code></p>
 <ul>
-<li><code>pwsh.exe</code></li>
-<p>- 指 PowerShell 7+。 - 现在由 Scoop 管理。 - 作为日常主力终端使用。</p>
+<li>指 Windows PowerShell 5.1。</li>
+<li>系统自带。</li>
+<li>适合做兼容兜底，尤其是更新 Scoop 管理的 <code>pwsh</code> 时很有用。</li>
+</ul>
+</li>
+<li>
+<p><code>pwsh.exe</code></p>
+<ul>
+<li>指 PowerShell 7+。</li>
+<li>现在由 Scoop 管理。</li>
+<li>作为日常主力终端使用。</li>
+</ul>
+</li>
 </ul>
 <p>你当前是标准双栈结构：</p>
 <ul>
@@ -75,33 +100,67 @@
 <h3>3. 安装来源与包管理状态</h3>
 <h4>3.1 <code>winget</code> 状态</h4>
 <ul>
-<li>目标状态仍然是：</li>
-<p>- 不依赖 <code>winget</code> 管理 PowerShell 7 - 主力 <code>pwsh</code> 统一由 Scoop 管理</p>
+<li>目标状态仍然是：
+<ul>
+<li>不依赖 <code>winget</code> 管理 PowerShell 7</li>
+<li>主力 <code>pwsh</code> 统一由 Scoop 管理</li>
+</ul>
+</li>
 </ul>
 <h4>3.2 <code>scoop</code> 状态</h4>
 <ul>
-<li>当前 <code>pwsh</code> 版本：</li>
-<p>- <code>7.5.5</code></p>
-<li>当前 <code>pwsh</code> 安装目录结构应为：</li>
-<p>- <code>C:\Users\lenovo\scoop\apps\pwsh\7.5.5</code> - <code>C:\Users\lenovo\scoop\apps\pwsh\current</code></p>
-<li>当前 <code>pwsh</code> 的 shim 入口应为：</li>
-<p>- <code>C:\Users\lenovo\scoop\shims\pwsh.exe</code> - <code>C:\Users\lenovo\scoop\shims\pwsh.shim</code></p>
+<li>当前 <code>pwsh</code> 版本：
+<ul>
+<li><code>7.5.5</code></li>
+</ul>
+</li>
+<li>当前 <code>pwsh</code> 安装目录结构应为：
+<ul>
+<li><code>C:\Users\lenovo\scoop\apps\pwsh\7.5.5</code></li>
+<li><code>C:\Users\lenovo\scoop\apps\pwsh\current</code></li>
+</ul>
+</li>
+<li>当前 <code>pwsh</code> 的 shim 入口应为：
+<ul>
+<li><code>C:\Users\lenovo\scoop\shims\pwsh.exe</code></li>
+<li><code>C:\Users\lenovo\scoop\shims\pwsh.shim</code></li>
+</ul>
+</li>
 </ul>
 <h4>3.3 本次升级事件的最终结果</h4>
 <ul>
-<li>升级前版本：</li>
-<p>- <code>pwsh 7.5.4</code></p>
-<li>升级后版本：</li>
-<p>- <code>pwsh 7.5.5</code></p>
-<li>过程中的关键问题：</li>
-<p>- 不能在运行中的 <code>pwsh</code> 里直接安全更新 <code>pwsh</code> - <code>scoop.cmd</code> 会优先再拉起 <code>pwsh</code>，不适合作为 <code>update-pwsh</code> 的实际执行入口 - 一次半更新导致 <code>pwsh.shim</code> 损坏，出现 <code>Cannot open shim file for read</code></p>
-<li>最终状态：</li>
-<p>- shim 已修复 - <code>pwsh</code> 可正常启动 - <code>7.5.4</code> 已清理</p>
+<li>升级前版本：
+<ul>
+<li><code>pwsh 7.5.4</code></li>
+</ul>
+</li>
+<li>升级后版本：
+<ul>
+<li><code>pwsh 7.5.5</code></li>
+</ul>
+</li>
+<li>过程中的关键问题：
+<ul>
+<li>不能在运行中的 <code>pwsh</code> 里直接安全更新 <code>pwsh</code></li>
+<li><code>scoop.cmd</code> 会优先再拉起 <code>pwsh</code>，不适合作为 <code>update-pwsh</code> 的实际执行入口</li>
+<li>一次半更新导致 <code>pwsh.shim</code> 损坏，出现 <code>Cannot open shim file for read</code></li>
+</ul>
+</li>
+<li>最终状态：
+<ul>
+<li>shim 已修复</li>
+<li><code>pwsh</code> 可正常启动</li>
+<li><code>7.5.4</code> 已清理</li>
+</ul>
+</li>
 </ul>
 <h3>4. <code>$PROFILE</code> 文件位置与作用</h3>
 <ul>
-<li>当前主力 profile 文件：</li>
-<p>- <code>C:\Users\lenovo\Documents\PowerShell\Microsoft.PowerShell_profile.ps1</code></p>
+<li>当前主力 profile 文件：
+<ul>
+<li><code>C:\Users\lenovo\Documents\PowerShell\Microsoft.PowerShell_profile.ps1</code></li>
+</ul>
+</li>
 </ul>
 <p>作用：</p>
 <ul>
@@ -163,21 +222,32 @@
 <h4>5.6 <code>update-pwsh</code> 的现状与设计原因</h4>
 <p>这是本次变更最大的部分。</p>
 <p>当前 <code>update-pwsh</code> 不再在当前 <code>pwsh</code> 会话里直接执行：</p>
-<pre><code>scoop update
+<pre><code class="language-powershell">scoop update
 scoop update pwsh
-scoop cleanup pwsh</code></pre>
+scoop cleanup pwsh
+</code></pre>
 <p>而是改成：</p>
 <ol>
-<li>在当前 <code>pwsh</code> 中生成一个临时辅助脚本  </li>
-<p>路径：<code>%TEMP%\update-pwsh-helper.ps1</code></p>
+<li>在当前 <code>pwsh</code> 中生成一个临时辅助脚本<br>
+路径：<code>%TEMP%\update-pwsh-helper.ps1</code></li>
 <li>使用 <code>powershell.exe -NoProfile -NoExit -ExecutionPolicy Bypass -File &lt;helper&gt;</code> 启动独立更新窗口</li>
 <li>独立窗口等待所有 <code>pwsh</code> 进程退出</li>
-<li>独立窗口直接调用：</li>
-<p>- <code>C:\Users\lenovo\scoop\apps\scoop\current\bin\scoop.ps1</code></p>
-<li>独立窗口执行：</li>
-<p>- <code>scoop.ps1 update pwsh</code> - <code>scoop.ps1 cleanup pwsh</code></p>
-<li>全过程写日志到：</li>
-<p>- <code>C:\Users\lenovo\scoop\logs\update-pwsh.log</code></p>
+<li>独立窗口直接调用：
+<ul>
+<li><code>C:\Users\lenovo\scoop\apps\scoop\current\bin\scoop.ps1</code></li>
+</ul>
+</li>
+<li>独立窗口执行：
+<ul>
+<li><code>scoop.ps1 update pwsh</code></li>
+<li><code>scoop.ps1 cleanup pwsh</code></li>
+</ul>
+</li>
+<li>全过程写日志到：
+<ul>
+<li><code>C:\Users\lenovo\scoop\logs\update-pwsh.log</code></li>
+</ul>
+</li>
 </ol>
 <p>这样设计的原因：</p>
 <ul>
@@ -200,38 +270,77 @@ scoop cleanup pwsh</code></pre>
 <h4>5.8 清理与跳转辅助命令</h4>
 <p>保留以下命令：</p>
 <ul>
-<li><code>scup</code></li>
-<p>- <code>scoop cleanup *</code></p>
-<li><code>scrm</code></li>
-<p>- <code>scoop cache rm *</code></p>
-<li><code>sbc</code></li>
-<p>- 跳到 <code>C:\Users\lenovo\scoop\buckets</code></p>
+<li><code>scup</code>
+<ul>
+<li><code>scoop cleanup *</code></li>
+</ul>
+</li>
+<li><code>scrm</code>
+<ul>
+<li><code>scoop cache rm *</code></li>
+</ul>
+</li>
+<li><code>sbc</code>
+<ul>
+<li>跳到 <code>C:\Users\lenovo\scoop\buckets</code></li>
+</ul>
+</li>
 </ul>
 <h3>6. 你后续最常用的维护命令</h3>
 <ul>
-<li>更新 Scoop 本体：</li>
-<p>- <code>update-scoop</code></p>
-<li>更新 PowerShell 7：</li>
-<p>- <code>update-pwsh</code></p>
-<li>查看代理状态：</li>
-<p>- <code>proxy-status</code></p>
-<li>清理所有 Scoop 旧版本：</li>
-<p>- <code>scup</code></p>
-<li>清理下载缓存：</li>
-<p>- <code>scrm</code></p>
-<li>查看 <code>pwsh</code> 更新日志：</li>
-<p>- <code>Get-Content $HOME\scoop\logs\update-pwsh.log -Tail 200</code></p>
+<li>更新 Scoop 本体：
+<ul>
+<li><code>update-scoop</code></li>
+</ul>
+</li>
+<li>更新 PowerShell 7：
+<ul>
+<li><code>update-pwsh</code></li>
+</ul>
+</li>
+<li>查看代理状态：
+<ul>
+<li><code>proxy-status</code></li>
+</ul>
+</li>
+<li>清理所有 Scoop 旧版本：
+<ul>
+<li><code>scup</code></li>
+</ul>
+</li>
+<li>清理下载缓存：
+<ul>
+<li><code>scrm</code></li>
+</ul>
+</li>
+<li>查看 <code>pwsh</code> 更新日志：
+<ul>
+<li><code>Get-Content $HOME\scoop\logs\update-pwsh.log -Tail 200</code></li>
+</ul>
+</li>
 </ul>
 <h3>7. 快速自检命令</h3>
 <ul>
-<li>看当前 <code>pwsh</code> 版本：</li>
-<p>- <code>pwsh -v</code></p>
-<li>看当前 <code>pwsh</code> 来源：</li>
-<p>- <code>Get-Command pwsh -All | Select Source,Version</code></p>
-<li>看当前 <code>pwsh</code> 安装状态：</li>
-<p>- <code>scoop list pwsh</code></p>
-<li>看 <code>winget</code> 是否还保留 <code>Microsoft.PowerShell</code>：</li>
-<p>- <code>winget list --id Microsoft.PowerShell</code></p>
+<li>看当前 <code>pwsh</code> 版本：
+<ul>
+<li><code>pwsh -v</code></li>
+</ul>
+</li>
+<li>看当前 <code>pwsh</code> 来源：
+<ul>
+<li><code>Get-Command pwsh -All | Select Source,Version</code></li>
+</ul>
+</li>
+<li>看当前 <code>pwsh</code> 安装状态：
+<ul>
+<li><code>scoop list pwsh</code></li>
+</ul>
+</li>
+<li>看 <code>winget</code> 是否还保留 <code>Microsoft.PowerShell</code>：
+<ul>
+<li><code>winget list --id Microsoft.PowerShell</code></li>
+</ul>
+</li>
 </ul>
 <h3>8. 应急修复经验（这次很重要）</h3>
 <h4>8.1 如果出现 <code>Cannot open shim file for read</code></h4>
@@ -241,11 +350,14 @@ scoop cleanup pwsh</code></pre>
 <li>但它旁边的 <code>C:\Users\lenovo\scoop\shims\pwsh.shim</code> 丢失或损坏了</li>
 </ul>
 <p>本机这次的直接修复方式是重建：</p>
-<pre><code>C:\Users\lenovo\scoop\shims\pwsh.shim</code></pre>
+<pre><code class="language-text">C:\Users\lenovo\scoop\shims\pwsh.shim
+</code></pre>
 <p>内容为：</p>
-<pre><code>path = &quot;C:\Users\lenovo\scoop\apps\pwsh\current\pwsh.exe&quot;</code></pre>
+<pre><code class="language-text">path = &quot;C:\Users\lenovo\scoop\apps\pwsh\current\pwsh.exe&quot;
+</code></pre>
 <p>修复后再执行：</p>
-<pre><code>pwsh -v</code></pre>
+<pre><code class="language-powershell">pwsh -v
+</code></pre>
 <p>若能正常输出版本号，说明 shim 启动链路已恢复。</p>
 <h4>8.2 如果 <code>pwsh</code> 能启动但更新卡住</h4>
 <p>优先检查：</p>
@@ -265,13 +377,16 @@ scoop cleanup pwsh</code></pre>
 <li>关闭旧 <code>pwsh</code> 进程</li>
 <li>再执行：</li>
 </ol>
-<pre><code>scoop cleanup pwsh</code></pre>
+<pre><code class="language-powershell">scoop cleanup pwsh
+</code></pre>
 <h3>9. 推荐月度维护流程（5 分钟版）</h3>
 <p>建议每月固定一次执行下面流程：</p>
 <h4>第 1 步：更新 Scoop 本体</h4>
-<pre><code>update-scoop</code></pre>
+<pre><code class="language-powershell">update-scoop
+</code></pre>
 <h4>第 2 步：更新 <code>pwsh</code></h4>
-<pre><code>update-pwsh</code></pre>
+<pre><code class="language-powershell">update-pwsh
+</code></pre>
 <p>执行时注意：</p>
 <ul>
 <li><code>update-pwsh</code> 会新开一个 Windows PowerShell 窗口</li>
@@ -279,13 +394,15 @@ scoop cleanup pwsh</code></pre>
 <li>新窗口检测到系统里没有 <code>pwsh</code> 后，才会继续真正更新</li>
 </ul>
 <h4>第 3 步：全局清理</h4>
-<pre><code>scup
-scrm</code></pre>
+<pre><code class="language-powershell">scup
+scrm
+</code></pre>
 <h4>第 4 步：快速健康检查</h4>
-<pre><code>pwsh -v
+<pre><code class="language-powershell">pwsh -v
 Get-Command pwsh -All | Select Source,Version
 scoop list pwsh
-winget list --id Microsoft.PowerShell</code></pre>
+winget list --id Microsoft.PowerShell
+</code></pre>
 <p>检查标准：</p>
 <ul>
 <li><code>pwsh -v</code> 返回当前期望版本</li>
@@ -306,9 +423,13 @@ winget list --id Microsoft.PowerShell</code></pre>
 <li>辅助脚本已补充 <code>Get-FileHash</code> 兼容后备实现</li>
 <li>处理过一次 <code>pwsh.shim</code> 损坏问题，并确认恢复成功</li>
 <li><code>pwsh 7.5.4</code> 旧版本目录已经清理完成</li>
-<li>当前 <code>pwsh -v</code> 应返回：</li>
-<p>- <code>PowerShell 7.5.5</code></p>
-</ul></div>
+<li>当前 <code>pwsh -v</code> 应返回：
+<ul>
+<li><code>PowerShell 7.5.5</code></li>
+</ul>
+</li>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

@@ -41,7 +41,7 @@
       <p class="post-kicker">本地记录</p>
       <h1>Git本机环境说明与后续操作准则</h1>
       <div class="post-meta"><span>2026-03-17</span><span>6 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>a-本机配置</span></div>
       <div class="post-content"><h3>文档用途</h3>
 <p>这份文档用于给后续接手的大模型或人工维护者快速建立上下文，避免在不了解本机 Git 历史和现状的前提下误改环境。</p>
 <p>适用场景：</p>
@@ -72,9 +72,10 @@
 <li><code>2.53.0.2</code></li>
 </ul>
 <p>后续标准升级方式：</p>
-<pre><code>scoop status
+<pre><code class="language-powershell">scoop status
 scoop update git
-scoop cleanup git</code></pre>
+scoop cleanup git
+</code></pre>
 <h4>2. PowerShell 会话优先命中 Scoop Git</h4>
 <p>已修改 PowerShell 启动配置文件：</p>
 <ul>
@@ -107,20 +108,23 @@ scoop cleanup git</code></pre>
 <h3>当前推荐的事实判断方式</h3>
 <p>后续排查时，不要只看单一命令结果，要分层判断。</p>
 <h4>第一层：看当前终端实际命中哪个 Git</h4>
-<pre><code>where.exe git
-git --version</code></pre>
+<pre><code class="language-powershell">where.exe git
+git --version
+</code></pre>
 <h4>第二层：看注册表中的真实 PATH</h4>
-<pre><code>reg.exe query &quot;HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment&quot; /v Path
-reg.exe query HKCU\Environment /v Path</code></pre>
+<pre><code class="language-powershell">reg.exe query &quot;HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment&quot; /v Path
+reg.exe query HKCU\Environment /v Path
+</code></pre>
 <h4>第三层：看 PowerShell 启动脚本是否覆盖了 PATH 顺序</h4>
 <p>检查文件：</p>
 <ul>
 <li><code>C:\Users\lenovo\Documents\PowerShell\Microsoft.PowerShell_profile.ps1</code></li>
 </ul>
 <h4>第四层：看 Git 配置来源</h4>
-<pre><code>git config --show-origin --list
+<pre><code class="language-powershell">git config --show-origin --list
 git config --show-origin --get credential.helper
-git lfs version</code></pre>
+git lfs version
+</code></pre>
 <h3>已确认的 Git 配置情况</h3>
 <p>截至本次处理完成时，已确认：</p>
 <ul>
@@ -162,7 +166,8 @@ git lfs version</code></pre>
 </ul>
 <h4>准则 3：默认优先维护 Scoop 这套 Git</h4>
 <p>后续如果需要升级 Git，默认应优先使用：</p>
-<pre><code>scoop update git</code></pre>
+<pre><code class="language-powershell">scoop update git
+</code></pre>
 <p>不要优先回到 <code>D:\jetbrains\git\Git\cmd\git.exe</code> 那套手动 Git。</p>
 <h4>准则 4：删除旧 Git 前先完成三项验证</h4>
 <p>如果以后要彻底删除旧 Git 目录，先确认：</p>
@@ -199,17 +204,19 @@ git lfs version</code></pre>
 <li>或者填 <code>git</code>，前提是 IDE 启动时继承的是正确 PATH</li>
 </ul>
 <h3>推荐的最小排障命令集</h3>
-<pre><code>where.exe git
+<pre><code class="language-powershell">where.exe git
 git --version
 git lfs version
 git config --show-origin --list
 git config --show-origin --get credential.helper
 reg.exe query &quot;HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment&quot; /v Path
-reg.exe query HKCU\Environment /v Path</code></pre>
+reg.exe query HKCU\Environment /v Path
+</code></pre>
 <p>如果是项目内排查，再补：</p>
-<pre><code>git status
+<pre><code class="language-powershell">git status
 git remote -v
-git branch -vv</code></pre>
+git branch -vv
+</code></pre>
 <h3>不建议的危险操作</h3>
 <p>后续若无充分证据，不建议直接做下面这些事：</p>
 <ul>
@@ -235,7 +242,8 @@ git branch -vv</code></pre>
 <li>先验证 PATH、注册表、PowerShell profile、IDE 配置</li>
 <li>默认维护 <code>Scoop</code> 这套 Git</li>
 <li>做系统级修改前先备份</li>
-</ul></div>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

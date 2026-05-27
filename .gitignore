@@ -7,3 +7,4 @@ tmp-*.json
 tmp-*.csv
 *.log
 微信图片_*.png
+node_modules/

@@ -41,7 +41,7 @@
       <p class="post-kicker">本地记录</p>
       <h1>Claude与终端本机环境说明</h1>
       <div class="post-meta"><span>2026-03-19</span><span>8 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>a-本机配置</span></div>
       <div class="post-content"><h3>文档用途</h3>
 <p>这份文档用于记录阿颜这台 Windows 机器上命令行相关环境的当前事实，重点覆盖：</p>
 <ul>
@@ -58,18 +58,36 @@
 <h3>一句话结论</h3>
 <p>截至 <code>2026-03-18</code>，本机终端环境已经稳定为：</p>
 <ul>
-<li><code>claude</code> 使用官方独立可执行文件：</li>
-<p>- <code>C:\Users\lenovo\.local\bin\claude.exe</code></p>
-<li><code>claude</code> 运行所需的 Git Bash 已固定指向：</li>
-<p>- <code>C:\Users\lenovo\scoop\apps\git\current\bin\bash.exe</code></p>
-<li><code>git</code> 主入口仍为 Scoop 管理：</li>
-<p>- <code>C:\Users\lenovo\scoop\shims\git.exe</code></p>
-<li><code>pwsh</code> 主入口仍为 Scoop 管理：</li>
-<p>- <code>C:\Users\lenovo\scoop\shims\pwsh.exe</code></p>
-<li><code>node</code> 当前主入口来自：</li>
-<p>- <code>D:\jetbrains\node\nodejs\node.exe</code></p>
-<li><code>npm</code> 全局前缀仍为：</li>
-<p>- <code>D:\Develop\nodejs\node_global</code></p>
+<li><code>claude</code> 使用官方独立可执行文件：
+<ul>
+<li><code>C:\Users\lenovo\.local\bin\claude.exe</code></li>
+</ul>
+</li>
+<li><code>claude</code> 运行所需的 Git Bash 已固定指向：
+<ul>
+<li><code>C:\Users\lenovo\scoop\apps\git\current\bin\bash.exe</code></li>
+</ul>
+</li>
+<li><code>git</code> 主入口仍为 Scoop 管理：
+<ul>
+<li><code>C:\Users\lenovo\scoop\shims\git.exe</code></li>
+</ul>
+</li>
+<li><code>pwsh</code> 主入口仍为 Scoop 管理：
+<ul>
+<li><code>C:\Users\lenovo\scoop\shims\pwsh.exe</code></li>
+</ul>
+</li>
+<li><code>node</code> 当前主入口来自：
+<ul>
+<li><code>D:\jetbrains\node\nodejs\node.exe</code></li>
+</ul>
+</li>
+<li><code>npm</code> 全局前缀仍为：
+<ul>
+<li><code>D:\Develop\nodejs\node_global</code></li>
+</ul>
+</li>
 </ul>
 <p>核心判断：</p>
 <ul>
@@ -80,10 +98,16 @@
 <h3>当前已确认的版本与入口</h3>
 <h4>1. Claude Code</h4>
 <ul>
-<li>真实入口：</li>
-<p>- <code>C:\Users\lenovo\.local\bin\claude.exe</code></p>
-<li>当前版本：</li>
-<p>- <code>2.1.74 (Claude Code)</code></p>
+<li>真实入口：
+<ul>
+<li><code>C:\Users\lenovo\.local\bin\claude.exe</code></li>
+</ul>
+</li>
+<li>当前版本：
+<ul>
+<li><code>2.1.74 (Claude Code)</code></li>
+</ul>
+</li>
 </ul>
 <p>说明：</p>
 <ul>
@@ -93,12 +117,21 @@
 </ul>
 <h4>2. Git</h4>
 <ul>
-<li>当前命令命中：</li>
-<p>- <code>C:\Users\lenovo\scoop\shims\git.exe</code></p>
-<li>当前版本：</li>
-<p>- <code>2.53.0.windows.2</code></p>
-<li><code>git lfs</code>：</li>
-<p>- <code>3.7.1</code></p>
+<li>当前命令命中：
+<ul>
+<li><code>C:\Users\lenovo\scoop\shims\git.exe</code></li>
+</ul>
+</li>
+<li>当前版本：
+<ul>
+<li><code>2.53.0.windows.2</code></li>
+</ul>
+</li>
+<li><code>git lfs</code>：
+<ul>
+<li><code>3.7.1</code></li>
+</ul>
+</li>
 </ul>
 <p>说明：</p>
 <ul>
@@ -107,23 +140,44 @@
 </ul>
 <h4>3. PowerShell</h4>
 <ul>
-<li>当前 <code>pwsh</code> 入口：</li>
-<p>- <code>C:\Users\lenovo\scoop\shims\pwsh.exe</code></p>
-<li>实际程序路径：</li>
-<p>- <code>C:\Users\lenovo\scoop\apps\pwsh\current\pwsh.exe</code></p>
-<li>当前版本：</li>
-<p>- <code>7.5.5</code></p>
+<li>当前 <code>pwsh</code> 入口：
+<ul>
+<li><code>C:\Users\lenovo\scoop\shims\pwsh.exe</code></li>
+</ul>
+</li>
+<li>实际程序路径：
+<ul>
+<li><code>C:\Users\lenovo\scoop\apps\pwsh\current\pwsh.exe</code></li>
+</ul>
+</li>
+<li>当前版本：
+<ul>
+<li><code>7.5.5</code></li>
+</ul>
+</li>
 </ul>
 <h4>4. Node / npm</h4>
 <ul>
-<li>当前 <code>node</code> 入口：</li>
-<p>- <code>D:\jetbrains\node\nodejs\node.exe</code></p>
-<li>当前版本：</li>
-<p>- <code>v22.17.1</code></p>
-<li>当前 <code>npm</code> 版本：</li>
-<p>- <code>9.5.1</code></p>
-<li>全局前缀：</li>
-<p>- <code>D:\Develop\nodejs\node_global</code></p>
+<li>当前 <code>node</code> 入口：
+<ul>
+<li><code>D:\jetbrains\node\nodejs\node.exe</code></li>
+</ul>
+</li>
+<li>当前版本：
+<ul>
+<li><code>v22.17.1</code></li>
+</ul>
+</li>
+<li>当前 <code>npm</code> 版本：
+<ul>
+<li><code>9.5.1</code></li>
+</ul>
+</li>
+<li>全局前缀：
+<ul>
+<li><code>D:\Develop\nodejs\node_global</code></li>
+</ul>
+</li>
 </ul>
 <p>说明：</p>
 <ul>
@@ -141,7 +195,8 @@
 <h4>第二层：Claude 还需要 Git Bash，不是任意 bash 都行</h4>
 <p>在 Windows 上，<code>claude</code> 不能只找到 <code>git.exe</code>，还需要可用的 Git Bash。</p>
 <p>本机里如果直接执行：</p>
-<pre><code>where.exe bash</code></pre>
+<pre><code class="language-powershell">where.exe bash
+</code></pre>
 <p>很可能先命中的是：</p>
 <ul>
 <li><code>C:\Windows\System32\bash.exe</code></li>
@@ -179,12 +234,18 @@
 <h4>3. 用户级环境变量已落盘</h4>
 <p>真实用户注册表 <code>HKCU\Environment</code> 已确认存在：</p>
 <ul>
-<li><code>CLAUDE_CODE_GIT_BASH_PATH</code></li>
-<p>- <code>C:\Users\lenovo\scoop\apps\git\current\bin\bash.exe</code></p>
-</ul>
+<li>
+<p><code>CLAUDE_CODE_GIT_BASH_PATH</code></p>
 <ul>
-<li><code>Path</code></li>
-<p>- <code>%USERPROFILE%\AppData\Local\Microsoft\WindowsApps;%USERPROFILE%\.local\bin</code></p>
+<li><code>C:\Users\lenovo\scoop\apps\git\current\bin\bash.exe</code></li>
+</ul>
+</li>
+<li>
+<p><code>Path</code></p>
+<ul>
+<li><code>%USERPROFILE%\AppData\Local\Microsoft\WindowsApps;%USERPROFILE%\.local\bin</code></li>
+</ul>
+</li>
 </ul>
 <p>作用：</p>
 <ul>
@@ -200,25 +261,28 @@
 <h3>当前推荐的事实判断方式</h3>
 <p>排查 <code>claude</code> 问题时，不要只看单一命令，要分层判断。</p>
 <h4>第一层：Claude 命令是否存在</h4>
-<pre><code>where.exe claude
+<pre><code class="language-powershell">where.exe claude
 claude --version
-Get-Command claude -All | Select Source,Version</code></pre>
+Get-Command claude -All | Select Source,Version
+</code></pre>
 <p>预期：</p>
 <ul>
 <li>命中 <code>C:\Users\lenovo\.local\bin\claude.exe</code></li>
 </ul>
 <h4>第二层：Claude 依赖的 Git Bash 是否已绑定</h4>
-<pre><code>echo $env:CLAUDE_CODE_GIT_BASH_PATH
-Test-Path $env:CLAUDE_CODE_GIT_BASH_PATH</code></pre>
+<pre><code class="language-powershell">echo $env:CLAUDE_CODE_GIT_BASH_PATH
+Test-Path $env:CLAUDE_CODE_GIT_BASH_PATH
+</code></pre>
 <p>预期：</p>
 <ul>
 <li>环境变量存在</li>
 <li>指向 <code>C:\Users\lenovo\scoop\apps\git\current\bin\bash.exe</code></li>
 </ul>
 <h4>第三层：Git 主链路是否正常</h4>
-<pre><code>where.exe git
+<pre><code class="language-powershell">where.exe git
 git --version
-git lfs version</code></pre>
+git lfs version
+</code></pre>
 <p>预期：</p>
 <ul>
 <li>命中 <code>C:\Users\lenovo\scoop\shims\git.exe</code></li>
@@ -245,8 +309,9 @@ git lfs version</code></pre>
 </ul>
 <p>先不要误判为 Claude 被删了。</p>
 <p>优先检查：</p>
-<pre><code>where.exe claude
-claude --version</code></pre>
+<pre><code class="language-powershell">where.exe claude
+claude --version
+</code></pre>
 <h4>准则 2：Claude 升级后优先检查两个位置</h4>
 <p>优先检查：</p>
 <ul>
@@ -269,7 +334,7 @@ claude --version</code></pre>
 <li>再执行验证命令</li>
 </ol>
 <h3>推荐的最小自检命令集</h3>
-<pre><code>where.exe claude
+<pre><code class="language-powershell">where.exe claude
 claude --version
 echo $env:CLAUDE_CODE_GIT_BASH_PATH
 where.exe git
@@ -280,7 +345,8 @@ pwsh -v
 where.exe node
 node -v
 npm -v
-npm config get prefix</code></pre>
+npm config get prefix
+</code></pre>
 <h3>不建议的危险操作</h3>
 <p>在没有新证据前，不建议直接做这些事：</p>
 <ul>
@@ -293,18 +359,36 @@ npm config get prefix</code></pre>
 <h3>本次处理后的目标状态</h3>
 <p>理想状态应长期保持为：</p>
 <ul>
-<li><code>claude</code> 主入口：</li>
-<p>- <code>C:\Users\lenovo\.local\bin\claude.exe</code></p>
-<li><code>claude</code> 的 Git Bash：</li>
-<p>- <code>C:\Users\lenovo\scoop\apps\git\current\bin\bash.exe</code></p>
-<li><code>git</code> 主入口：</li>
-<p>- <code>C:\Users\lenovo\scoop\shims\git.exe</code></p>
-<li><code>pwsh</code> 主入口：</li>
-<p>- <code>C:\Users\lenovo\scoop\shims\pwsh.exe</code></p>
-<li><code>node</code> 主入口：</li>
-<p>- <code>D:\jetbrains\node\nodejs\node.exe</code></p>
-<li>用户级 <code>Path</code> 包含：</li>
-<p>- <code>%USERPROFILE%\.local\bin</code></p>
+<li><code>claude</code> 主入口：
+<ul>
+<li><code>C:\Users\lenovo\.local\bin\claude.exe</code></li>
+</ul>
+</li>
+<li><code>claude</code> 的 Git Bash：
+<ul>
+<li><code>C:\Users\lenovo\scoop\apps\git\current\bin\bash.exe</code></li>
+</ul>
+</li>
+<li><code>git</code> 主入口：
+<ul>
+<li><code>C:\Users\lenovo\scoop\shims\git.exe</code></li>
+</ul>
+</li>
+<li><code>pwsh</code> 主入口：
+<ul>
+<li><code>C:\Users\lenovo\scoop\shims\pwsh.exe</code></li>
+</ul>
+</li>
+<li><code>node</code> 主入口：
+<ul>
+<li><code>D:\jetbrains\node\nodejs\node.exe</code></li>
+</ul>
+</li>
+<li>用户级 <code>Path</code> 包含：
+<ul>
+<li><code>%USERPROFILE%\.local\bin</code></li>
+</ul>
+</li>
 </ul>
 <h3>给后续模型或维护者的简短指令</h3>
 <p>如果你是后续接手的模型或人工维护者，请先接受以下前提：</p>
@@ -312,10 +396,18 @@ npm config get prefix</code></pre>
 <li>不要默认假设 Claude 仍然是 <code>npm -g</code> 安装</li>
 <li>不要把 <code>claude</code> 找不到和 <code>git.exe</code> 找不到混为一谈</li>
 <li>在 Windows 上，Claude 需要单独确认 Git Bash</li>
-<li>优先检查：</li>
-<p>- <code>where.exe claude</code> - <code>claude --version</code> - <code>CLAUDE_CODE_GIT_BASH_PATH</code> - <code>where.exe git</code> - <code>git --version</code></p>
+<li>优先检查：
+<ul>
+<li><code>where.exe claude</code></li>
+<li><code>claude --version</code></li>
+<li><code>CLAUDE_CODE_GIT_BASH_PATH</code></li>
+<li><code>where.exe git</code></li>
+<li><code>git --version</code></li>
+</ul>
+</li>
 <li>只有在这几层证据都不成立时，才考虑更大范围的重装或回滚</li>
-</ul></div>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

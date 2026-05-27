@@ -52,7 +52,7 @@
 <li>不影响原有 <code>komari-agent</code></li>
 <li>客户端尽量少改配置</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>最终设计总览</h3>
 <h4>设计原则</h4>
 <p>现有节点已经由 <code>sing-box</code> 监听 <code>443</code>，因此不直接把 HTTPS 站部署到 <code>443</code>，而是采用下面的分工：</p>
@@ -78,7 +78,7 @@
 <h4>为什么 <code>address</code> 不一定要改成域名</h4>
 <p><code>address</code> 只是客户端真正连接 VPS 的入口。</p>
 <p>如果当前 VPS 的 IP 稳定，继续使用 IP 作为连接入口没有问题。这次改造的核心目标是把 Reality 握手所用的 <code>SNI</code> 从第三方域名切换为自有域名，而不是强制替换客户端连接入口。</p>
-<p>---</p>
+<hr>
 <h3>机器一</h3>
 <h4>基本信息</h4>
 <ul>
@@ -92,32 +92,58 @@
 <ol>
 <li>保持 <code>sing-box</code> 继续监听 <code>443</code></li>
 <li>安装 <code>Caddy</code></li>
-<li>新建最简静态站目录：</li>
-<p>- <code>/var/www/sni.4071253.xyz/index.html</code></p>
-<li>新建 <code>Caddy</code> 配置：</li>
-<p>- <code>/etc/caddy/Caddyfile</code></p>
-<li>站点端口规划：</li>
-<p>- <code>80</code>：仅用于 HTTP/ACME - <code>8443</code>：最简 HTTPS 站</p>
-<li>修改 Reality 配置文件：</li>
-<p>- <code>/etc/sing-box/conf/VLESS-REALITY-443.json</code></p>
-<li>保留原有节点身份信息不变，仅切换：</li>
-<p>- <code>tls.server_name</code> - <code>tls.reality.handshake.server</code> - <code>tls.reality.handshake.server_port = 8443</code></p>
+<li>新建最简静态站目录：
+<ul>
+<li><code>/var/www/sni.4071253.xyz/index.html</code></li>
+</ul>
+</li>
+<li>新建 <code>Caddy</code> 配置：
+<ul>
+<li><code>/etc/caddy/Caddyfile</code></li>
+</ul>
+</li>
+<li>站点端口规划：
+<ul>
+<li><code>80</code>：仅用于 HTTP/ACME</li>
+<li><code>8443</code>：最简 HTTPS 站</li>
+</ul>
+</li>
+<li>修改 Reality 配置文件：
+<ul>
+<li><code>/etc/sing-box/conf/VLESS-REALITY-443.json</code></li>
+</ul>
+</li>
+<li>保留原有节点身份信息不变，仅切换：
+<ul>
+<li><code>tls.server_name</code></li>
+<li><code>tls.reality.handshake.server</code></li>
+<li><code>tls.reality.handshake.server_port = 8443</code></li>
+</ul>
+</li>
 </ol>
 <h4>证书方案</h4>
 <p>机器一使用 <code>Caddy</code> 自动签发并自动续期证书：</p>
 <ul>
 <li>域名：<code>sni.4071253.xyz</code></li>
-<li>签发机构：<code>Let&#39;s Encrypt</code></li>
+<li>签发机构：<code>Let's Encrypt</code></li>
 <li>证书由 <code>Caddy</code> 自动管理</li>
 </ul>
 <h4>当前核心状态</h4>
 <ul>
 <li><code>sing-box</code> 监听 <code>443</code></li>
 <li><code>Caddy</code> 监听 <code>80</code> 和 <code>8443</code></li>
-<li>HTTPS 站访问地址：</li>
-<p>- <code>https://sni.4071253.xyz:8443</code></p>
-<li>Reality 配置结果：</li>
-<p>- <code>server_name = sni.4071253.xyz</code> - <code>handshake.server = sni.4071253.xyz</code> - <code>handshake.server_port = 8443</code></p>
+<li>HTTPS 站访问地址：
+<ul>
+<li><code>https://sni.4071253.xyz:8443</code></li>
+</ul>
+</li>
+<li>Reality 配置结果：
+<ul>
+<li><code>server_name = sni.4071253.xyz</code></li>
+<li><code>handshake.server = sni.4071253.xyz</code></li>
+<li><code>handshake.server_port = 8443</code></li>
+</ul>
+</li>
 </ul>
 <h4>维护要点</h4>
 <ul>
@@ -127,7 +153,7 @@
 <li>不要删除 <code>Caddy</code> 的证书存储目录</li>
 <li>VPS 重启后无需额外人工操作，<code>caddy</code> 和 <code>sing-box</code> 可自动拉起</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>机器二</h3>
 <h4>基本信息</h4>
 <ul>
@@ -141,16 +167,34 @@
 <ol>
 <li>保持 <code>sing-box</code> 继续监听 <code>443</code></li>
 <li>安装 <code>Caddy</code></li>
-<li>新建最简静态站目录：</li>
-<p>- <code>/var/www/sni.starryocean.qzz.io/index.html</code></p>
-<li>新建 <code>Caddy</code> 配置：</li>
-<p>- <code>/etc/caddy/Caddyfile</code></p>
-<li>站点端口规划：</li>
-<p>- <code>80</code>：用于 HTTP/ACME - <code>8443</code>：用于 HTTPS 握手站</p>
-<li>修改 Reality 配置文件：</li>
-<p>- <code>/etc/sing-box/conf/VLESS-REALITY-443.json</code></p>
-<li>保留原有节点身份信息不变，仅切换：</li>
-<p>- <code>tls.server_name</code> - <code>tls.reality.handshake.server</code> - <code>tls.reality.handshake.server_port = 8443</code></p>
+<li>新建最简静态站目录：
+<ul>
+<li><code>/var/www/sni.starryocean.qzz.io/index.html</code></li>
+</ul>
+</li>
+<li>新建 <code>Caddy</code> 配置：
+<ul>
+<li><code>/etc/caddy/Caddyfile</code></li>
+</ul>
+</li>
+<li>站点端口规划：
+<ul>
+<li><code>80</code>：用于 HTTP/ACME</li>
+<li><code>8443</code>：用于 HTTPS 握手站</li>
+</ul>
+</li>
+<li>修改 Reality 配置文件：
+<ul>
+<li><code>/etc/sing-box/conf/VLESS-REALITY-443.json</code></li>
+</ul>
+</li>
+<li>保留原有节点身份信息不变，仅切换：
+<ul>
+<li><code>tls.server_name</code></li>
+<li><code>tls.reality.handshake.server</code></li>
+<li><code>tls.reality.handshake.server_port = 8443</code></li>
+</ul>
+</li>
 </ol>
 <h4>证书方案</h4>
 <p>机器二没有继续使用 <code>Caddy</code> 自动签发，而是改为 <code>acme.sh + webroot</code> 方案。</p>
@@ -161,35 +205,57 @@
 </ul>
 <p>最终方案：</p>
 <ul>
-<li>使用 <code>acme.sh</code> 为 <code>sni.starryocean.qzz.io</code> 申请 <code>Let&#39;s Encrypt</code> 证书</li>
-<li><code>webroot</code> 使用：</li>
-<p>- <code>/var/www/sni.starryocean.qzz.io</code></p>
-<li>证书部署到：</li>
-<p>- <code>/etc/ssl/starryocean/sni.starryocean.qzz.io.crt</code> - <code>/etc/ssl/starryocean/sni.starryocean.qzz.io.key</code></p>
+<li>使用 <code>acme.sh</code> 为 <code>sni.starryocean.qzz.io</code> 申请 <code>Let's Encrypt</code> 证书</li>
+<li><code>webroot</code> 使用：
+<ul>
+<li><code>/var/www/sni.starryocean.qzz.io</code></li>
+</ul>
+</li>
+<li>证书部署到：
+<ul>
+<li><code>/etc/ssl/starryocean/sni.starryocean.qzz.io.crt</code></li>
+<li><code>/etc/ssl/starryocean/sni.starryocean.qzz.io.key</code></li>
+</ul>
+</li>
 <li><code>Caddy</code> 读取上述证书文件提供 HTTPS</li>
 <li><code>acme.sh</code> 续期任务保存在 <code>root</code> 的 <code>crontab</code></li>
-<li>续期后执行：</li>
-<p>- <code>systemctl restart caddy</code></p>
+<li>续期后执行：
+<ul>
+<li><code>systemctl restart caddy</code></li>
+</ul>
+</li>
 </ul>
 <h4>当前核心状态</h4>
 <ul>
 <li><code>sing-box</code> 监听 <code>443</code></li>
 <li><code>Caddy</code> 监听 <code>80</code> 和 <code>8443</code></li>
-<li>HTTPS 站访问地址：</li>
-<p>- <code>https://sni.starryocean.qzz.io:8443</code></p>
-<li>Reality 配置结果：</li>
-<p>- <code>server_name = sni.starryocean.qzz.io</code> - <code>handshake.server = sni.starryocean.qzz.io</code> - <code>handshake.server_port = 8443</code></p>
+<li>HTTPS 站访问地址：
+<ul>
+<li><code>https://sni.starryocean.qzz.io:8443</code></li>
+</ul>
+</li>
+<li>Reality 配置结果：
+<ul>
+<li><code>server_name = sni.starryocean.qzz.io</code></li>
+<li><code>handshake.server = sni.starryocean.qzz.io</code></li>
+<li><code>handshake.server_port = 8443</code></li>
+</ul>
+</li>
 </ul>
 <h4>维护要点</h4>
 <ul>
 <li>域名必须保持 <strong>仅 DNS</strong></li>
 <li>不要切到 CDN 或代理模式</li>
 <li><code>80</code> 必须保持可访问，用于 <code>acme.sh</code> 续期</li>
-<li>不要删除：</li>
-<p>- <code>/root/.acme.sh</code> - <code>/etc/ssl/starryocean/</code></p>
+<li>不要删除：
+<ul>
+<li><code>/root/.acme.sh</code></li>
+<li><code>/etc/ssl/starryocean/</code></li>
+</ul>
+</li>
 <li>VPS 重启后无需手动干预，<code>caddy</code> 和 <code>sing-box</code> 可自动恢复</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>与需求的对应关系</h3>
 <p>本方案满足你的实际需求：</p>
 <ol>
@@ -200,7 +266,7 @@
 <li>不破坏现有 <code>komari-agent</code></li>
 <li>支持证书自动续期与重启自动恢复</li>
 </ol>
-<p>---</p>
+<hr>
 <h3>当前配置核验结论</h3>
 <p>截至 <code>2026-05-08</code> 复查，两个节点当前状态正常。</p>
 <h4>机器一核验结果</h4>
@@ -209,8 +275,13 @@
 <li><code>caddy</code> 服务状态：<code>active</code></li>
 <li><code>sing-box</code> 监听：<code>443</code></li>
 <li><code>caddy</code> 监听：<code>80</code>、<code>8443</code></li>
-<li>Reality 配置中：</li>
-<p>- <code>server_name = sni.4071253.xyz</code> - <code>handshake.server = sni.4071253.xyz</code> - <code>handshake.server_port = 8443</code></p>
+<li>Reality 配置中：
+<ul>
+<li><code>server_name = sni.4071253.xyz</code></li>
+<li><code>handshake.server = sni.4071253.xyz</code></li>
+<li><code>handshake.server_port = 8443</code></li>
+</ul>
+</li>
 <li><code>https://sni.4071253.xyz:8443</code> 返回 <code>HTTP 200</code></li>
 <li>对 <code>127.0.0.1:443</code> 指定 <code>SNI=sni.4071253.xyz</code> 时，返回证书为该域名证书</li>
 </ul>
@@ -220,8 +291,13 @@
 <li><code>caddy</code> 服务状态：<code>active</code></li>
 <li><code>sing-box</code> 监听：<code>443</code></li>
 <li><code>caddy</code> 监听：<code>80</code>、<code>8443</code></li>
-<li>Reality 配置中：</li>
-<p>- <code>server_name = sni.starryocean.qzz.io</code> - <code>handshake.server = sni.starryocean.qzz.io</code> - <code>handshake.server_port = 8443</code></p>
+<li>Reality 配置中：
+<ul>
+<li><code>server_name = sni.starryocean.qzz.io</code></li>
+<li><code>handshake.server = sni.starryocean.qzz.io</code></li>
+<li><code>handshake.server_port = 8443</code></li>
+</ul>
+</li>
 <li><code>https://sni.starryocean.qzz.io:8443</code> 返回 <code>HTTP 200</code></li>
 <li>对 <code>127.0.0.1:443</code> 指定 <code>SNI=sni.starryocean.qzz.io</code> 时，返回证书为该域名证书</li>
 </ul>
@@ -233,20 +309,28 @@
 <li>两台机器的 HTTPS 握手站工作正常</li>
 <li>Reality 握手链路与文档设计一致</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>Komari 自检结论</h3>
 <p>两台机器的 <code>komari-agent</code> 均未被本次改造破坏。</p>
 <h4>机器一</h4>
 <ul>
 <li>服务状态：<code>active (running)</code></li>
-<li>最近可见正常上报迹象：</li>
-<p>- <code>Get IPV4 Success: 82.40.32.123</code></p>
+<li>最近可见正常上报迹象：
+<ul>
+<li><code>Get IPV4 Success: 82.40.32.123</code></li>
+</ul>
+</li>
 </ul>
 <h4>机器二</h4>
 <ul>
 <li>服务状态：<code>active (running)</code></li>
-<li>最近可见正常上报迹象：</li>
-<p>- <code>WebSocket connected</code> - <code>Get IPV4 Success: 69.63.211.129</code> - <code>Get IPV6 Success: ...</code></p>
+<li>最近可见正常上报迹象：
+<ul>
+<li><code>WebSocket connected</code></li>
+<li><code>Get IPV4 Success: 69.63.211.129</code></li>
+<li><code>Get IPV6 Success: ...</code></li>
+</ul>
+</li>
 </ul>
 <h4>关于 <code>curl https://komari.starryocean.qzz.io</code></h4>
 <p>从 VPS 上直接访问面板根路径返回 <code>404</code>，不代表 <code>komari-agent</code> 异常。</p>
@@ -257,7 +341,7 @@
 <li><code>komari-agent</code> 的 WebSocket 与上报链路仍然正常</li>
 </ul>
 <p>也就是说，本次 Reality / Caddy / 证书改造 <strong>没有影响 Komari 正常工作</strong>。</p>
-<p>---</p>
+<hr>
 <h3>清理记录</h3>
 <p>为避免额外占用内存或磁盘，只做了低风险清理：</p>
 <ul>
@@ -273,25 +357,28 @@
 </ul>
 <p>原因：</p>
 <p>Linux 页缓存本身可回收，强制清缓存对长期稳定运行帮助很小，反而可能引入额外抖动。</p>
-<p>---</p>
+<hr>
 <h3>建议保留的自检命令</h3>
 <p>下面这些命令适合作为手工核验命令使用，但只建议临时执行，不建议做成后台常驻脚本。</p>
 <h4>机器一</h4>
-<pre><code>systemctl is-active caddy
+<pre><code class="language-bash">systemctl is-active caddy
 systemctl is-active sing-box
-ss -lntp | grep -E &#39;:80 |:443 |:8443 &#39;
+ss -lntp | grep -E ':80 |:443 |:8443 '
 curl -I https://sni.4071253.xyz:8443
-echo | openssl s_client -connect 127.0.0.1:443 -servername sni.4071253.xyz 2&gt;/dev/null | openssl x509 -noout -subject -issuer -dates</code></pre>
+echo | openssl s_client -connect 127.0.0.1:443 -servername sni.4071253.xyz 2&gt;/dev/null | openssl x509 -noout -subject -issuer -dates
+</code></pre>
 <h4>机器二</h4>
-<pre><code>systemctl is-active caddy
+<pre><code class="language-bash">systemctl is-active caddy
 systemctl is-active sing-box
-ss -lntp | grep -E &#39;:80 |:443 |:8443 &#39;
+ss -lntp | grep -E ':80 |:443 |:8443 '
 curl -I https://sni.starryocean.qzz.io:8443
 echo | openssl s_client -connect 127.0.0.1:443 -servername sni.starryocean.qzz.io 2&gt;/dev/null | openssl x509 -noout -subject -issuer -dates
-crontab -l</code></pre>
+crontab -l
+</code></pre>
 <h4>关于 <code>127.0.0.1:8443</code> 的说明</h4>
 <p>不要把下面这种命令的报错误判为站点故障：</p>
-<pre><code>curl https://127.0.0.1:8443</code></pre>
+<pre><code class="language-bash">curl https://127.0.0.1:8443
+</code></pre>
 <p>原因是：</p>
 <ul>
 <li>该 HTTPS 站是按域名签发证书的</li>
@@ -299,7 +386,7 @@ crontab -l</code></pre>
 <li>因此可能出现 TLS 握手错误</li>
 </ul>
 <p>更可靠的检查方式是使用真实域名访问，或者显式带 <code>SNI</code> 的 <code>openssl s_client</code> 检查。</p>
-<p>---</p>
+<hr>
 <h3>风险提醒</h3>
 <ol>
 <li>用于 Reality 握手的域名必须保持 <strong>仅 DNS</strong></li>
@@ -310,19 +397,19 @@ crontab -l</code></pre>
 <li>不要随意删除机器二的 <code>/etc/ssl/starryocean/</code></li>
 <li>不要无确认地改动 <code>sing-box</code> 的 <code>server_name</code>、<code>handshake.server</code>、<code>handshake.server_port</code></li>
 </ol>
-<p>---</p>
+<hr>
 <h3>2026-05-08 故障排查补充</h3>
 <h4>现象</h4>
 <p>探针显示两台 VPS 的单核 CPU 长时间打满。</p>
 <h4>根因</h4>
 <p>根因不是 <code>sing-box</code> 主进程异常，也不是 <code>caddy</code> 或 <code>komari-agent</code> 异常，而是自检类探测命令被长期挂在后台运行。</p>
-<p>#### 机器一发现的残留进程</p>
+<h5>机器一发现的残留进程</h5>
 <ul>
 <li><code>/bin/sh /root/update-reality.sh</code></li>
 <li><code>/bin/bash /etc/sing-box/sh/sing-box.sh info VLESS-REALITY-443</code></li>
-<li><code>zsh -c /etc/sing-box/sh/sing-box.sh info VLESS-REALITY-443 | sed -n &#39;1,20p&#39;</code></li>
+<li><code>zsh -c /etc/sing-box/sh/sing-box.sh info VLESS-REALITY-443 | sed -n '1,20p'</code></li>
 </ul>
-<p>#### 机器二发现的残留进程</p>
+<h5>机器二发现的残留进程</h5>
 <ul>
 <li><code>bash -c echo | openssl s_client -connect 127.0.0.1:443 -servername sni.starryocean.qzz.io ...</code></li>
 <li><code>/bin/bash /etc/sing-box/sh/sing-box.sh info VLESS-REALITY-443.json</code></li>
@@ -365,7 +452,7 @@ crontab -l</code></pre>
 <li><code>openssl s_client -connect 127.0.0.1:443 ...</code></li>
 <li>自定义 <code>update-reality.sh</code></li>
 </ul>
-<p>---</p>
+<hr>
 <h3>最终结论</h3>
 <p>截至 <code>2026-05-08</code>，这套方案已经满足原始目标：</p>
 <ul>
@@ -383,7 +470,8 @@ crontab -l</code></pre>
 <li>保持 <code>80</code> 和 <code>8443</code> 可用</li>
 <li>不要误删证书目录</li>
 <li>不要把自检命令挂成常驻探针</li>
-</ul></div>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

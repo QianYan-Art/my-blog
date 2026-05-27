@@ -41,7 +41,7 @@
       <p class="post-kicker">本地记录</p>
       <h1>uv缓存清理与环境依赖记录</h1>
       <div class="post-meta"><span>2026-05-15</span><span>5 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>a-本机配置</span></div>
       <div class="post-content"><p>更新时间：2026-05-15</p>
 <h3>目的</h3>
 <p>本次记录用于说明本机 <code>uv</code> 缓存清理前的核查结果、已补充的依赖记录文件，以及后续环境恢复方式。</p>
@@ -101,17 +101,21 @@
 <h3>后续如何恢复环境</h3>
 <h4>情况 1：项目根目录已有 <code>pyproject.toml</code> / <code>uv.lock</code></h4>
 <p>优先使用项目自己的声明文件恢复：</p>
-<pre><code>uv sync</code></pre>
+<pre><code class="language-powershell">uv sync
+</code></pre>
 <p>如果项目使用 <code>requirements.txt</code>：</p>
-<pre><code>uv venv
-uv pip install -r requirements.txt</code></pre>
+<pre><code class="language-powershell">uv venv
+uv pip install -r requirements.txt
+</code></pre>
 <h4>情况 2：项目只有环境，没有正式依赖清单</h4>
 <p>使用本次补的 <code>requirements.freeze.txt</code>：</p>
-<pre><code>uv venv
-uv pip install -r requirements.freeze.txt</code></pre>
+<pre><code class="language-powershell">uv venv
+uv pip install -r requirements.freeze.txt
+</code></pre>
 <p>如果不用 <code>uv</code>，也可以用标准 <code>venv + pip</code>：</p>
-<pre><code>python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.freeze.txt</code></pre>
+<pre><code class="language-powershell">python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.freeze.txt
+</code></pre>
 <h3>关于 uv cache</h3>
 <p>本次清理对象主要包括：</p>
 <ul>
@@ -142,8 +146,13 @@ uv pip install -r requirements.freeze.txt</code></pre>
 <ol>
 <li><code>uv cache</code> 可以清理。</li>
 <li><code>Docker</code> 的 WSL 数据盘暂时不要动，除非确认不再需要本地 Docker 数据。</li>
-<li>以后新建项目，尽量补齐以下至少一种依赖声明：</li>
-<p>- <code>uv.lock</code> - <code>pyproject.toml</code> - <code>requirements.txt</code></p>
+<li>以后新建项目，尽量补齐以下至少一种依赖声明：
+<ul>
+<li><code>uv.lock</code></li>
+<li><code>pyproject.toml</code></li>
+<li><code>requirements.txt</code></li>
+</ul>
+</li>
 </ol>
 <h3>本次未改动项</h3>
 <ul>
@@ -151,7 +160,8 @@ uv pip install -r requirements.freeze.txt</code></pre>
 <li>未删除任何项目源码</li>
 <li>未处理 Docker 数据</li>
 <li>未处理 Conda、Ollama、LM Studio 模型或环境</li>
-</ul></div>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

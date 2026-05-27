@@ -57,7 +57,8 @@
 </ul>
 <h3>背景</h3>
 <p>本次调整围绕 <code>api.qianyan.me</code> 的远程 LM Studio API 访问链路展开。当前链路为：</p>
-<pre><code>调用方 -&gt; api.qianyan.me -&gt; 服务器 Nginx -&gt; frps TCP 代理端口 -&gt; 本地 Windows 工作站 frpc -&gt; LM Studio</code></pre>
+<pre><code class="language-text">调用方 -&gt; api.qianyan.me -&gt; 服务器 Nginx -&gt; frps TCP 代理端口 -&gt; 本地 Windows 工作站 frpc -&gt; LM Studio
+</code></pre>
 <p>主要目标：</p>
 <ul>
 <li>降低大提示词、图片、视频请求上传时的代理层阻塞风险。</li>
@@ -69,9 +70,10 @@
 <p>本文不记录 SSH 私钥、frp token、API key 等敏感信息。</p>
 <h3>服务器端 Nginx 调整</h3>
 <p>配置文件：</p>
-<pre><code>/etc/nginx/sites-enabled/lmstudio-api.conf</code></pre>
+<pre><code class="language-text">/etc/nginx/sites-enabled/lmstudio-api.conf
+</code></pre>
 <p>已确认或保留的关键配置：</p>
-<pre><code>client_max_body_size 200m;
+<pre><code class="language-nginx">client_max_body_size 200m;
 client_body_timeout 1800s;
 send_timeout 1800s;
 
@@ -81,7 +83,8 @@ proxy_read_timeout 1800s;
 
 proxy_buffering off;
 proxy_request_buffering off;
-add_header X-Accel-Buffering no;</code></pre>
+add_header X-Accel-Buffering no;
+</code></pre>
 <p>含义：</p>
 <ul>
 <li>单次 HTTP 请求体上限当前为 200MB。</li>
@@ -90,9 +93,10 @@ add_header X-Accel-Buffering no;</code></pre>
 <li><code>proxy_buffering off</code> 与 <code>X-Accel-Buffering no</code> 有利于流式响应实时返回。</li>
 </ul>
 <p>本次实际修改：</p>
-<pre><code>proxy_set_header Host $proxy_host;
+<pre><code class="language-nginx">proxy_set_header Host $proxy_host;
 proxy_set_header X-Real-IP $remote_addr;
-proxy_set_header Connection &quot;&quot;;</code></pre>
+proxy_set_header Connection &quot;&quot;;
+</code></pre>
 <p>调整原因：</p>
 <ul>
 <li>测试发现上游收到 <code>Host: api.qianyan.me</code> 时存在偶发 10 秒以上慢响应。</li>
@@ -101,18 +105,23 @@ proxy_set_header Connection &quot;&quot;;</code></pre>
 <li>清空 <code>Connection</code> 头，避免不必要的 hop-by-hop 头影响代理链路。</li>
 </ul>
 <p>备份位置：</p>
-<pre><code>/root/nginx-backups/</code></pre>
+<pre><code class="language-text">/root/nginx-backups/
+</code></pre>
 <h3>frp 服务端更新与脚本化</h3>
 <p>服务器端 frp 已从 <code>0.67.0</code> 更新到 <code>0.68.1</code>。</p>
 <p>当前二进制：</p>
-<pre><code>/usr/local/bin/frps
-/usr/local/bin/frpc</code></pre>
+<pre><code class="language-text">/usr/local/bin/frps
+/usr/local/bin/frpc
+</code></pre>
 <p>systemd 服务：</p>
-<pre><code>/etc/systemd/system/frps.service</code></pre>
+<pre><code class="language-text">/etc/systemd/system/frps.service
+</code></pre>
 <p>服务启动方式：</p>
-<pre><code>/usr/local/bin/frps -c /etc/frp/frps.toml</code></pre>
+<pre><code class="language-text">/usr/local/bin/frps -c /etc/frp/frps.toml
+</code></pre>
 <p>新增服务器端更新脚本：</p>
-<pre><code>/usr/local/sbin/update-frp.sh</code></pre>
+<pre><code class="language-text">/usr/local/sbin/update-frp.sh
+</code></pre>
 <p>脚本能力：</p>
 <ul>
 <li>从 GitHub 官方 <code>fatedier/frp</code> release 获取最新稳定版或指定版本。</li>
@@ -124,11 +133,13 @@ proxy_set_header Connection &quot;&quot;;</code></pre>
 <li>如果重启失败，尝试恢复旧二进制。</li>
 </ul>
 <p>常用命令：</p>
-<pre><code>/usr/local/sbin/update-frp.sh
+<pre><code class="language-bash">/usr/local/sbin/update-frp.sh
 /usr/local/sbin/update-frp.sh v0.68.1
-FRP_FORCE=1 /usr/local/sbin/update-frp.sh</code></pre>
+FRP_FORCE=1 /usr/local/sbin/update-frp.sh
+</code></pre>
 <p>frp 回滚备份目录：</p>
-<pre><code>/root/frp-backups/</code></pre>
+<pre><code class="language-text">/root/frp-backups/
+</code></pre>
 <p>当前连接状态记录：</p>
 <ul>
 <li>Windows 工作站 <code>frpc</code> 已以 <code>0.68.1</code> 登录服务器。</li>
@@ -139,9 +150,11 @@ FRP_FORCE=1 /usr/local/sbin/update-frp.sh</code></pre>
 <h3>服务器 IPv4 优先</h3>
 <p>服务器当前没有公网 IPv6 能力，但系统之前存在 IPv6 优先风险。已改为 IPv4 优先，不禁用 IPv6。</p>
 <p>配置文件：</p>
-<pre><code>/etc/gai.conf</code></pre>
+<pre><code class="language-text">/etc/gai.conf
+</code></pre>
 <p>已启用配置：</p>
-<pre><code>precedence ::ffff:0:0/96  100</code></pre>
+<pre><code class="language-conf">precedence ::ffff:0:0/96  100
+</code></pre>
 <p>作用：</p>
 <ul>
 <li>服务器主动访问双栈域名时优先使用 IPv4。</li>
@@ -149,7 +162,8 @@ FRP_FORCE=1 /usr/local/sbin/update-frp.sh</code></pre>
 <li>不影响未来服务器获得 IPv6 后继续使用 IPv6。</li>
 </ul>
 <p>备份位置：</p>
-<pre><code>/root/nginx-backups/gai.conf.bak-20260423-ipv4-priority</code></pre>
+<pre><code class="language-text">/root/nginx-backups/gai.conf.bak-20260423-ipv4-priority
+</code></pre>
 <h3>服务器服务盘点</h3>
 <p>确认正在运行的主要业务服务：</p>
 <ul>
@@ -164,13 +178,14 @@ FRP_FORCE=1 /usr/local/sbin/update-frp.sh</code></pre>
 <li><code>ssh</code>：监听 <code>23333</code>。</li>
 </ul>
 <p>需要关注的外部监听端口：</p>
-<pre><code>80      nginx
+<pre><code class="language-text">80      nginx
 443     nginx
 23333   ssh
 7000    frps
 25774   komari docker-proxy
 37721   1panel-core
-61423   lmstudio-api frp tcp proxy</code></pre>
+61423   lmstudio-api frp tcp proxy
+</code></pre>
 <p>建议：</p>
 <ul>
 <li><code>1Panel</code> 的 <code>37721</code> 与 Komari 的 <code>25774</code> 尽量通过安全组或防火墙限制来源 IP。</li>
@@ -178,9 +193,10 @@ FRP_FORCE=1 /usr/local/sbin/update-frp.sh</code></pre>
 </ul>
 <h3>历史残留清理</h3>
 <p>已清理的低风险残留：</p>
-<pre><code>/root/frp_0.67.0_linux_amd64
+<pre><code class="language-text">/root/frp_0.67.0_linux_amd64
 /root/1panel-v2.0.13-linux-amd64
-/var/cache/apt</code></pre>
+/var/cache/apt
+</code></pre>
 <p>清理结果：</p>
 <ul>
 <li>删除旧 frp 解压目录，约 35MB。</li>
@@ -189,13 +205,14 @@ FRP_FORCE=1 /usr/local/sbin/update-frp.sh</code></pre>
 <li>Docker prune 执行后无可回收对象。</li>
 </ul>
 <p>保留未动：</p>
-<pre><code>/root/frp-backups
+<pre><code class="language-text">/root/frp-backups
 /root/nginx-backups
 /root/data
 /opt/1panel
 /opt/komari
 /root/.vscode-server
-snap / lxd / snapd</code></pre>
+snap / lxd / snapd
+</code></pre>
 <p>保留原因：</p>
 <ul>
 <li><code>frp-backups</code> 与 <code>nginx-backups</code> 用于回滚。</li>
@@ -208,7 +225,8 @@ snap / lxd / snapd</code></pre>
 <p>API 域名与普通网站域名应拆分规则，不要用泛域名规则统一处理。</p>
 <h4>API 域名规则</h4>
 <p>匹配条件：</p>
-<pre><code>HOST 等于 api.qianyan.me</code></pre>
+<pre><code class="language-text">HOST 等于 api.qianyan.me
+</code></pre>
 <p>建议动作：</p>
 <ul>
 <li>缓存：不缓存。</li>
@@ -223,8 +241,9 @@ snap / lxd / snapd</code></pre>
 <p>传图和传视频通常通过 HTTP POST 请求体完成，不依赖 WebSocket。WebSocket 只在实时双向协议、Realtime API、实时语音/视频流等场景才需要。</p>
 <h4>普通网站 WebSocket 规则</h4>
 <p>匹配条件建议：</p>
-<pre><code>HOST 等于 huohu.qianyan.me
-HTTP 请求头 Upgrade 等于 websocket</code></pre>
+<pre><code class="language-text">HOST 等于 huohu.qianyan.me
+HTTP 请求头 Upgrade 等于 websocket
+</code></pre>
 <p>建议动作：</p>
 <ul>
 <li>开启 WebSocket。</li>
@@ -280,9 +299,10 @@ HTTP 请求头 Upgrade 等于 websocket</code></pre>
 </ul>
 <h3>当前验证结果摘要</h3>
 <p>frp 恢复后链路采样：</p>
-<pre><code>frp 直连 127.0.0.1:61423/v1/models：约 0.06s ~ 0.69s
+<pre><code class="language-text">frp 直连 127.0.0.1:61423/v1/models：约 0.06s ~ 0.69s
 Nginx 本地 https://api.qianyan.me/v1/models：约 0.58s ~ 1.29s
-HTTP 返回码：401</code></pre>
+HTTP 返回码：401
+</code></pre>
 <p>说明：</p>
 <ul>
 <li><code>401</code> 表示链路可达且进入 API 鉴权层，符合预期。</li>
@@ -296,7 +316,8 @@ HTTP 返回码：401</code></pre>
 <li>评估是否为 <code>61423</code> 增加更严格的访问限制，避免绕过 Nginx 直接访问 frp 暴露端口。</li>
 <li>如果确认不用 LXD，可进一步卸载 <code>snap/lxd/snapd</code> 相关残留。</li>
 <li>如果 Nginx 旧 worker 长期处于 <code>shutting down</code>，可在低峰期重启 Nginx 清理旧进程。</li>
-</ul></div>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

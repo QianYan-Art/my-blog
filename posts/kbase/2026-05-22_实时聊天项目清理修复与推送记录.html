@@ -41,7 +41,7 @@
       <p class="post-kicker">本地记录</p>
       <h1>实时聊天项目清理修复与推送记录</h1>
       <div class="post-meta"><span>2026-05-22</span><span>9 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>c-项目创建</span></div>
       <div class="post-content"><h3>1. 目标</h3>
 <p>对 <code>D:\Answer\real-time-app</code> 做一次完整收尾，确认项目当前状态，并把真正影响后续维护的遗留问题处理掉。目标包括：</p>
 <ul>
@@ -69,13 +69,35 @@
 <p>结合上下文，项目此前已经完成过一轮大修，核心成果包括：</p>
 <ol>
 <li>独立初始化 <code>real-time-app</code> 子目录 git 仓库，避免把上级目录一并推送。</li>
-<li>增加 <code>.gitignore</code>，覆盖：</li>
-<p>- <code>.env</code> - <code>logs/</code> - <code>backend/logs/</code> - <code>backend/target/</code> - <code>backend/data/</code> - <code>data/</code> - <code>node_modules/</code> - <code>frontend/dist/</code> - <code>*.pid</code></p>
+<li>增加 <code>.gitignore</code>，覆盖：
+<ul>
+<li><code>.env</code></li>
+<li><code>logs/</code></li>
+<li><code>backend/logs/</code></li>
+<li><code>backend/target/</code></li>
+<li><code>backend/data/</code></li>
+<li><code>data/</code></li>
+<li><code>node_modules/</code></li>
+<li><code>frontend/dist/</code></li>
+<li><code>*.pid</code></li>
+</ul>
+</li>
 <li>清理 README、配置文件、环境变量模板中的敏感值与错误说明。</li>
-<li>新增认证与安全相关后端代码：</li>
-<p>- <code>SecurityConfig.java</code> - <code>JwtAuthenticationFilter.java</code> - <code>WebSocketAuthInterceptor.java</code> - <code>AuthController.java</code></p>
-<li>新增聊天与 WebRTC 信令相关代码：</li>
-<p>- <code>ChatController.java</code> - <code>ChatMessage.java</code> - <code>WebRTCSignalingController.java</code></p>
+<li>新增认证与安全相关后端代码：
+<ul>
+<li><code>SecurityConfig.java</code></li>
+<li><code>JwtAuthenticationFilter.java</code></li>
+<li><code>WebSocketAuthInterceptor.java</code></li>
+<li><code>AuthController.java</code></li>
+</ul>
+</li>
+<li>新增聊天与 WebRTC 信令相关代码：
+<ul>
+<li><code>ChatController.java</code></li>
+<li><code>ChatMessage.java</code></li>
+<li><code>WebRTCSignalingController.java</code></li>
+</ul>
+</li>
 <li>前端改为原生 WebSocket + 手写 STOMP 帧，不再依赖 SockJS 客户端。</li>
 <li>修复登录、登出、聊天、消息订阅、WebRTC 信令的主流程问题。</li>
 <li>已多次推送到 GitHub，并在此前完成过工作区清理。</li>
@@ -102,26 +124,32 @@
 <ol>
 <li>README 基本已经跟当前实现对齐。</li>
 <li><code>.gitignore</code> 已经写对，但<strong>仅写 ignore 还不够</strong>，因为部分运行产物此前已经被 git 追踪。</li>
-<li><code>frontend/js/config.js</code> 中，本地 WebSocket 实际走的是：</li>
-<p>- <code>ws://localhost:8083/ws</code></p>
-<li><code>frontend/server.js</code> 中却还留着 <code>/ws</code> 代理：</li>
-<p>- 这是<strong>无效残留</strong>，因为当前前端本地并不通过该代理走 WebSocket。</p>
+<li><code>frontend/js/config.js</code> 中，本地 WebSocket 实际走的是：
+<ul>
+<li><code>ws://localhost:8083/ws</code></li>
+</ul>
+</li>
+<li><code>frontend/server.js</code> 中却还留着 <code>/ws</code> 代理：
+<ul>
+<li>这是<strong>无效残留</strong>，因为当前前端本地并不通过该代理走 WebSocket。</li>
+</ul>
+</li>
 </ol>
 <h4>4.3 识别出真正的残留问题</h4>
 <p>本次最关键的发现不是业务代码，而是仓库卫生问题：</p>
-<p>#### 问题 1：<code>backend/target/</code> 仍被 git 追踪</p>
+<h5>问题 1：<code>backend/target/</code> 仍被 git 追踪</h5>
 <p>后果：</p>
 <ul>
 <li>每次运行或编译后端，工作区都会被 class 文件、jar、maven-status 等产物污染。</li>
 <li>这类文件已经被 <code>.gitignore</code> 覆盖，但因为曾被纳入版本库，所以 ignore 不会自动生效。</li>
 </ul>
-<p>#### 问题 2：<code>backend/logs/</code> 仍被 git 追踪</p>
+<h5>问题 2：<code>backend/logs/</code> 仍被 git 追踪</h5>
 <p>后果：</p>
 <ul>
 <li>每次运行后端，日志文件都会改动，导致 <code>git status</code> 变脏。</li>
 <li>这类日志本应是纯运行产物，不应参与版本管理。</li>
 </ul>
-<p>#### 问题 3：<code>frontend/server.js</code> 保留未使用的 <code>/ws</code> 代理</p>
+<h5>问题 3：<code>frontend/server.js</code> 保留未使用的 <code>/ws</code> 代理</h5>
 <p>后果：</p>
 <ul>
 <li>不影响当前运行，但会误导后续维护者。</li>
@@ -188,8 +216,13 @@
 <h3>7. README 与仓库清理相关处理</h3>
 <p>在本次收尾前后，README 与仓库卫生已完成以下调整：</p>
 <ol>
-<li>README 已更新为当前真实架构：</li>
-<p>- 原生 WebSocket + STOMP - 非 SockJS 客户端 - 前端本地 API 走代理、WebSocket 直连后端</p>
+<li>README 已更新为当前真实架构：
+<ul>
+<li>原生 WebSocket + STOMP</li>
+<li>非 SockJS 客户端</li>
+<li>前端本地 API 走代理、WebSocket 直连后端</li>
+</ul>
+</li>
 <li><code>.env</code> 已从 git 追踪中移除</li>
 <li><code>logs/</code> 已从 git 追踪中移除</li>
 <li><code>backend/logs/</code> 与 <code>backend/target/</code> 已从 git 追踪中移除</li>
@@ -231,8 +264,14 @@
 <ol>
 <li>打开两个浏览器会话/两个账号。</li>
 <li>分别登录不同用户。</li>
-<li>验证：</li>
-<p>- 发起通话是否能触发对端收到 call - answer 是否正确回传 - ICE 候选是否双向发送 - hangup 是否让双方 UI 同步恢复</p>
+<li>验证：
+<ul>
+<li>发起通话是否能触发对端收到 call</li>
+<li>answer 是否正确回传</li>
+<li>ICE 候选是否双向发送</li>
+<li>hangup 是否让双方 UI 同步恢复</li>
+</ul>
+</li>
 <li>重点记录浏览器 console、Network、WebSocket 帧内容。</li>
 </ol>
 <h4>10.2 优先方向：补做持久化用户体系</h4>
@@ -315,10 +354,16 @@
 <h3>12. 本次操作的核心经验</h3>
 <p>这次真正需要记住的不是某个单点 bug，而是两个维护原则：</p>
 <ol>
-<li><strong><code>.gitignore</code> 写了，不代表历史上被追踪过的文件会自动消失。</strong></li>
-<p>- 需要 <code>git rm --cached</code> 才能真正停止追踪。</p>
-<li><strong>文档、代理、配置一旦与实际实现脱节，就会制造后续排障成本。</strong></li>
-<p>- 特别是 WebSocket 是否走代理、是否还依赖 SockJS 这类信息，必须与代码一致。</p>
+<li><strong><code>.gitignore</code> 写了，不代表历史上被追踪过的文件会自动消失。</strong>
+<ul>
+<li>需要 <code>git rm --cached</code> 才能真正停止追踪。</li>
+</ul>
+</li>
+<li><strong>文档、代理、配置一旦与实际实现脱节，就会制造后续排障成本。</strong>
+<ul>
+<li>特别是 WebSocket 是否走代理、是否还依赖 SockJS 这类信息，必须与代码一致。</li>
+</ul>
+</li>
 </ol>
 <h3>13. 当前最终状态摘要</h3>
 <p>截至本次文档写入时：</p>
@@ -327,9 +372,16 @@
 <li>清理后的提交已经推送</li>
 <li>当前工作区干净</li>
 <li>运行产物不会再反复污染版本库</li>
-<li>后续更应该投入的是：</li>
-<p>- WebRTC 双端真实验证 - 用户体系持久化 - 自动化测试补全 - 配置与依赖进一步收紧</p>
-</ul></div>
+<li>后续更应该投入的是：
+<ul>
+<li>WebRTC 双端真实验证</li>
+<li>用户体系持久化</li>
+<li>自动化测试补全</li>
+<li>配置与依赖进一步收紧</li>
+</ul>
+</li>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

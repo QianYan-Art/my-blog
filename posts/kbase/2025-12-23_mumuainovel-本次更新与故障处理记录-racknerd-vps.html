@@ -42,8 +42,10 @@
       <h1>MuMuAINovel 本次更新与故障处理记录（RackNerd VPS）</h1>
       <div class="post-meta"><span>2025-12-23</span><span>7 min</span></div>
       <div class="article-card__tags"><span>e-RackNerd</span></div>
-      <div class="post-content"><blockquote>目的：记录 <strong>今晚一次较大更新</strong>引发的数据库兼容问题、修复步骤、当前 VPS 部署现状，以及后续排障/回滚/更新的“操作手册”。</blockquote>
-<p>---</p>
+      <div class="post-content"><blockquote>
+<p>目的：记录 <strong>今晚一次较大更新</strong>引发的数据库兼容问题、修复步骤、当前 VPS 部署现状，以及后续排障/回滚/更新的“操作手册”。</p>
+</blockquote>
+<hr>
 <h3>1. 当前部署概览（关键事实）</h3>
 <h4>1.1 主目录</h4>
 <ul>
@@ -66,7 +68,7 @@
 <ul>
 <li>轻量健康检查：<code>curl -fsS http://127.0.0.1:8000/health</code></li>
 </ul>
-<p>---</p>
+<hr>
 <h3>2. 今晚发生了什么（问题描述）</h3>
 <h4>2.1 报错现象</h4>
 <p>应用日志出现数据库列不存在错误：</p>
@@ -85,43 +87,52 @@
 <li><code>/docker-entrypoint-initdb.d</code> 下只有 <code>init.sql</code></li>
 <li>手动执行 <code>/docker-entrypoint-initdb.d/init_postgres.sql</code> 报错：文件不存在</li>
 </ul>
-<blockquote>备注：Postgres 官方镜像的 <code>docker-entrypoint-initdb.d</code> 脚本通常只在“首次初始化数据卷”时自动执行；数据库已经有数据卷时，新增脚本不会自动再跑。</blockquote>
-<p>---</p>
+<blockquote>
+<p>备注：Postgres 官方镜像的 <code>docker-entrypoint-initdb.d</code> 脚本通常只在“首次初始化数据卷”时自动执行；数据库已经有数据卷时，新增脚本不会自动再跑。</p>
+</blockquote>
+<hr>
 <h3>3. 今晚实际做过的操作（按时间线）</h3>
 <h4>3.1 确认容器状态</h4>
-<pre><code>docker compose ps</code></pre>
+<pre><code class="language-bash">docker compose ps
+</code></pre>
 <p>看到：</p>
 <ul>
 <li><code>mumuainovel</code> 健康</li>
 <li><code>mumuainovel-postgres</code> 健康</li>
 </ul>
 <h4>3.2 尝试执行数据库脚本（失败）</h4>
-<pre><code>docker exec -it mumuainovel-postgres sh -lc &#39;ls -lah /docker-entrypoint-initdb.d&#39;
+<pre><code class="language-bash">docker exec -it mumuainovel-postgres sh -lc 'ls -lah /docker-entrypoint-initdb.d'
 
-docker exec -i mumuainovel-postgres sh -lc &#39;psql -U &quot;$POSTGRES_USER&quot; -d &quot;$POSTGRES_DB&quot; -f /docker-entrypoint-initdb.d/init_postgres.sql&#39;</code></pre>
+docker exec -i mumuainovel-postgres sh -lc 'psql -U &quot;$POSTGRES_USER&quot; -d &quot;$POSTGRES_DB&quot; -f /docker-entrypoint-initdb.d/init_postgres.sql'
+</code></pre>
 <p>结果：<code>init_postgres.sql</code> 不存在。</p>
 <h4>3.3 发现实际报错</h4>
-<pre><code>docker logs -n 200 mumuainovel</code></pre>
+<pre><code class="language-bash">docker logs -n 200 mumuainovel
+</code></pre>
 <p>定位到：<code>characters.main_career_id</code> 列缺失。</p>
 <h4>3.4 停止应用，避免修表时并发读写</h4>
-<pre><code>docker compose stop mumuainovel</code></pre>
+<pre><code class="language-bash">docker compose stop mumuainovel
+</code></pre>
 <h4>3.5 备份数据库（强烈建议每次改表前都做）</h4>
-<pre><code>mkdir -p /root/backup_mumu
+<pre><code class="language-bash">mkdir -p /root/backup_mumu
 
-docker exec -t mumuainovel-postgres sh -lc &#39;pg_dump -U &quot;$POSTGRES_USER&quot; -d &quot;$POSTGRES_DB&quot;&#39; \
-&gt; /root/backup_mumu/pg_$(date +%F_%H%M).sql</code></pre>
+docker exec -t mumuainovel-postgres sh -lc 'pg_dump -U &quot;$POSTGRES_USER&quot; -d &quot;$POSTGRES_DB&quot;' \
+&gt; /root/backup_mumu/pg_$(date +%F_%H%M).sql
+</code></pre>
 <h4>3.6 手动补齐缺失字段（修复核心）</h4>
-<pre><code>cat &lt;&lt;&#39;SQL&#39; | docker exec -i mumuainovel-postgres sh -lc &#39;psql -U &quot;$POSTGRES_USER&quot; -d &quot;$POSTGRES_DB&quot;&#39;
+<pre><code class="language-bash">cat &lt;&lt;'SQL' | docker exec -i mumuainovel-postgres sh -lc 'psql -U &quot;$POSTGRES_USER&quot; -d &quot;$POSTGRES_DB&quot;'
 ALTER TABLE characters
   ADD COLUMN IF NOT EXISTS main_career_id VARCHAR;
-SQL</code></pre>
+SQL
+</code></pre>
 <h4>3.7 重启应用</h4>
-<pre><code>docker compose up -d mumuainovel</code></pre>
+<pre><code class="language-bash">docker compose up -d mumuainovel
+</code></pre>
 <p>之后再次观察日志，应用能够正常启动并出现：</p>
 <ul>
 <li>“初始化数据库表结构…成功”</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>4. Postgres 端口改为本地回环（安全加固）</h3>
 <p>目标：避免 Postgres 直接对公网暴露。</p>
 <h4>4.1 修改方式（docker-compose.yml）</h4>
@@ -131,36 +142,45 @@ SQL</code></pre>
 <li>改为：<code>&quot;127.0.0.1:5432:5432&quot;</code></li>
 </ul>
 <h4>4.2 应用更改</h4>
-<pre><code>cd /root/MuMuAINovel
-docker compose up -d --force-recreate postgres</code></pre>
+<pre><code class="language-bash">cd /root/MuMuAINovel
+docker compose up -d --force-recreate postgres
+</code></pre>
 <p>验证：</p>
-<pre><code>docker compose ps</code></pre>
+<pre><code class="language-bash">docker compose ps
+</code></pre>
 <p>应该看到 Postgres 的端口绑定只在 <code>127.0.0.1</code>。</p>
-<p>---</p>
+<hr>
 <h3>5. Watchtower 自动更新现状与本次调整</h3>
 <h4>5.1 Watchtower 当前配置（从 inspect 得到）</h4>
 <ul>
 <li>容器：<code>watchtower</code></li>
-<li>计划：<code>--schedule &quot;0 0 4 <em> </em> *&quot;</code>（每天 04:00 触发，具体以 watchtower 容器内 TZ 为准）</li>
+<li>计划：<code>--schedule &quot;0 0 4 * * *&quot;</code>（每天 04:00 触发，具体以 watchtower 容器内 TZ 为准）</li>
 <li>参数：<code>--cleanup</code>（更新后清旧镜像）</li>
 <li>restart：<code>always</code></li>
 <li>挂载：<code>/var/run/docker.sock:/var/run/docker.sock</code></li>
 </ul>
 <h4>5.2 本次改动：给 Postgres 打上“跳过更新”标签</h4>
 <p>在 <code>docker-compose.yml</code> 的 <code>postgres</code> service 内增加：</p>
-<pre><code>labels:
-  - &quot;com.centurylinklabs.watchtower.enable=false&quot;</code></pre>
+<pre><code class="language-yaml">labels:
+  - &quot;com.centurylinklabs.watchtower.enable=false&quot;
+</code></pre>
 <p>应用：</p>
-<pre><code>cd /root/MuMuAINovel
-docker compose up -d --force-recreate postgres</code></pre>
+<pre><code class="language-bash">cd /root/MuMuAINovel
+docker compose up -d --force-recreate postgres
+</code></pre>
 <p>验证：</p>
-<pre><code>docker inspect mumuainovel-postgres --format &#39;{{json .Config.Labels}}&#39; | grep -i watchtower</code></pre>
-<blockquote>备注：不同 watchtower 运行模式对 label 规则生效方式略有差异。为了确认“数据库不会被更新”，最可靠的做法是：观察 watchtower 日志是否跳过该容器。</blockquote>
+<pre><code class="language-bash">docker inspect mumuainovel-postgres --format '{{json .Config.Labels}}' | grep -i watchtower
+</code></pre>
+<blockquote>
+<p>备注：不同 watchtower 运行模式对 label 规则生效方式略有差异。为了确认“数据库不会被更新”，最可靠的做法是：观察 watchtower 日志是否跳过该容器。</p>
+</blockquote>
 <p>检查 watchtower 最近日志：</p>
-<pre><code>docker logs -n 200 watchtower</code></pre>
+<pre><code class="language-bash">docker logs -n 200 watchtower
+</code></pre>
 <p>（可选）临时手动触发一次检查：</p>
-<pre><code>docker exec watchtower /watchtower --debug --run-once</code></pre>
-<p>---</p>
+<pre><code class="language-bash">docker exec watchtower /watchtower --debug --run-once
+</code></pre>
+<hr>
 <h3>6. 运维脚本（mumu_ops）</h3>
 <h4>6.1 建议存在的脚本</h4>
 <ul>
@@ -169,24 +189,41 @@ docker compose up -d --force-recreate postgres</code></pre>
 <li><code>/root/mumu_ops/mumu-full-update.sh</code>：全量更新（停应用→备份→拉更新→启动→健康检查）</li>
 <li><code>/root/mumu_ops/mumu-check.sh</code>：一键体检（检查后直接打印“建议执行的命令清单”）</li>
 </ul>
-<blockquote>如果后续模型接手排障，优先让它查看 <code>/root/mumu_ops/</code> 下脚本内容，按脚本的输出执行。</blockquote>
-<p>---</p>
+<blockquote>
+<p>如果后续模型接手排障，优先让它查看 <code>/root/mumu_ops/</code> 下脚本内容，按脚本的输出执行。</p>
+</blockquote>
+<hr>
 <h3>7. 后续再出问题：最短“排障-回滚-再更新”流程</h3>
 <h4>7.1 先体检（推荐）</h4>
-<pre><code>/root/mumu_ops/mumu-check.sh</code></pre>
+<pre><code class="language-bash">/root/mumu_ops/mumu-check.sh
+</code></pre>
 <p>脚本会在末尾打印一段 <strong>可直接复制执行的命令</strong>。</p>
 <h4>7.2 仅快速确认“活没活”</h4>
-<pre><code>docker compose ps
-curl -fsS http://127.0.0.1:8000/health &amp;&amp; echo OK</code></pre>
+<pre><code class="language-bash">docker compose ps
+curl -fsS http://127.0.0.1:8000/health &amp;&amp; echo OK
+</code></pre>
 <h4>7.3 如果出现类似数据库结构错误（UndefinedColumn / relation does not exist）</h4>
-<p>1) 先看日志定位缺什么：</p>
-<pre><code>docker logs -n 300 mumuainovel</code></pre>
-<p>2) 优先一键回滚数据库（回到可用状态）：</p>
-<pre><code>/root/mumu_ops/mumu-db-restore.sh</code></pre>
-<p>3) 再考虑修迁移（补字段/补表，或执行仓库提供的迁移脚本）</p>
-<p>4) 修好后再跑全量更新：</p>
-<pre><code>/root/mumu_ops/mumu-full-update.sh</code></pre>
-<p>---</p>
+<ol>
+<li>先看日志定位缺什么：</li>
+</ol>
+<pre><code class="language-bash">docker logs -n 300 mumuainovel
+</code></pre>
+<ol start="2">
+<li>优先一键回滚数据库（回到可用状态）：</li>
+</ol>
+<pre><code class="language-bash">/root/mumu_ops/mumu-db-restore.sh
+</code></pre>
+<ol start="3">
+<li>
+<p>再考虑修迁移（补字段/补表，或执行仓库提供的迁移脚本）</p>
+</li>
+<li>
+<p>修好后再跑全量更新：</p>
+</li>
+</ol>
+<pre><code class="language-bash">/root/mumu_ops/mumu-full-update.sh
+</code></pre>
+<hr>
 <h3>8. 今晚额外插曲：apt/dpkg lock</h3>
 <p>曾尝试安装 <code>mailutils</code>，但出现 dpkg 锁被占用：</p>
 <ul>
@@ -196,22 +233,37 @@ curl -fsS http://127.0.0.1:8000/health &amp;&amp; echo OK</code></pre>
 <ul>
 <li>先查占用进程 PID → 若确认挂住再终止 → 然后执行：</li>
 </ul>
-<pre><code>sudo dpkg --configure -a
-sudo apt -f install -y</code></pre>
+<pre><code class="language-bash">sudo dpkg --configure -a
+sudo apt -f install -y
+</code></pre>
 <p>最终决定：<strong>暂不做邮件通知</strong>，改为“手动登录后一键体检”。</p>
-<p>---</p>
+<hr>
 <h3>9. 已知提醒/注意事项</h3>
 <ul>
-<li>应用日志曾提示 OAuth 回调地址使用 <code>localhost</code>：</li>
-<p>- <code>生产环境检测到使用 localhost 作为回调地址 ... 可能导致OAuth回调失败</code> - 若未来要启用 OAuth 登录，需要把回调改成真实域名/IP。</p>
-</ul>
+<li>
+<p>应用日志曾提示 OAuth 回调地址使用 <code>localhost</code>：</p>
 <ul>
-<li>自动更新（watchtower）对“需要数据库迁移”的版本可能造成夜间故障：</li>
-<p>- 建议至少保证：<strong>备份可用 + 回滚脚本可用 + 体检脚本可用</strong>。</p>
+<li><code>生产环境检测到使用 localhost 作为回调地址 ... 可能导致OAuth回调失败</code></li>
+<li>若未来要启用 OAuth 登录，需要把回调改成真实域名/IP。</li>
 </ul>
-<p>---</p>
+</li>
+<li>
+<p>自动更新（watchtower）对“需要数据库迁移”的版本可能造成夜间故障：</p>
+<ul>
+<li>建议至少保证：<strong>备份可用 + 回滚脚本可用 + 体检脚本可用</strong>。</li>
+</ul>
+</li>
+</ul>
+<hr>
 <h3>10. 你可以把这份文档当作“交接单”</h3>
-<p>当你或模型需要快速接手时，按这个顺序： 1) 先运行：<code>/root/mumu_ops/mumu-check.sh</code> 2) 根据它打印的“命令清单”执行 3) 如果涉及数据库结构，优先：<code>/root/mumu_ops/mumu-db-restore.sh</code> 4) 再考虑：<code>/root/mumu_ops/mumu-full-update.sh</code></p></div>
+<p>当你或模型需要快速接手时，按这个顺序：</p>
+<ol>
+<li>先运行：<code>/root/mumu_ops/mumu-check.sh</code></li>
+<li>根据它打印的“命令清单”执行</li>
+<li>如果涉及数据库结构，优先：<code>/root/mumu_ops/mumu-db-restore.sh</code></li>
+<li>再考虑：<code>/root/mumu_ops/mumu-full-update.sh</code></li>
+</ol>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

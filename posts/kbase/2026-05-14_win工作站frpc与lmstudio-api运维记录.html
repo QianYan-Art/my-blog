@@ -41,39 +41,101 @@
       <p class="post-kicker">本地记录</p>
       <h1>Win工作站FRPC与LMStudio-API运维记录</h1>
       <div class="post-meta"><span>2026-05-14</span><span>14 min</span></div>
-      <div class="article-card__tags"></div>
-      <div class="post-content"><p><strong>日期：</strong> 2026-05-13 <strong>操作者：</strong> Claude (via Oh My Pi) <strong>涉及机器：</strong></p>
-<div class="post-table-wrap"><table><thead><tr><th>角色</th><th>主机名</th><th>IP</th><th>用户</th></tr></thead><tbody><tr><td>本机（操控端）</td><td>SUYUAN</td><td>192.168.43.154</td><td>lenovo</td></tr><tr><td>远程（目标机）</td><td>PC-20250425ZDZA</td><td>192.168.43.45</td><td>administrator</td></tr></tbody></table></div>
-<p>---</p>
+      <div class="article-card__tags"><span>a-本机配置</span></div>
+      <div class="post-content"><p><strong>日期：</strong> 2026-05-13<br>
+<strong>操作者：</strong> Claude (via Oh My Pi)<br>
+<strong>涉及机器：</strong></p>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>角色</th>
+<th>主机名</th>
+<th>IP</th>
+<th>用户</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本机（操控端）</td>
+<td>SUYUAN</td>
+<td>192.168.43.154</td>
+<td>lenovo</td>
+</tr>
+<tr>
+<td>远程（目标机）</td>
+<td>PC-20250425ZDZA</td>
+<td>192.168.43.45</td>
+<td>administrator</td>
+</tr>
+</tbody>
+</table></div><hr>
 <h3>一、背景</h3>
 <p>PC-20250425ZDZA 上原有 frpc 客户端通过桌面快捷方式手动启动，不能开机自启，崩溃后不会自动重连。目标是注册为 Windows 服务，实现开机自启 + 断线自动重连。</p>
-<p>---</p>
+<hr>
 <h3>二、WinRM 远程管理通道搭建</h3>
 <h4>2.1 远程机器（192.168.43.45）</h4>
-<pre><code># 管理员 PowerShell 执行
-Enable-PSRemoting -Force</code></pre>
-<h4>2.2 本机（192.168.43.154）</h4>
-<pre><code># 管理员 PowerShell 执行
+<pre><code class="language-powershell"># 管理员 PowerShell 执行
 Enable-PSRemoting -Force
-Set-Item WSMan:\localhost\Client\TrustedHosts -Value &#39;192.168.43.45&#39; -Force</code></pre>
+</code></pre>
+<h4>2.2 本机（192.168.43.154）</h4>
+<pre><code class="language-powershell"># 管理员 PowerShell 执行
+Enable-PSRemoting -Force
+Set-Item WSMan:\localhost\Client\TrustedHosts -Value '192.168.43.45' -Force
+</code></pre>
 <h4>2.3 连接验证</h4>
-<pre><code>$sec = ConvertTo-SecureString &quot;123456&quot; -AsPlainText -Force
+<pre><code class="language-powershell">$sec = ConvertTo-SecureString &quot;123456&quot; -AsPlainText -Force
 $cred = New-Object System.Management.Automation.PSCredential(&quot;administrator&quot;, $sec)
-Invoke-Command -ComputerName 192.168.43.45 -Credential $cred -ScriptBlock { hostname; whoami }</code></pre>
+Invoke-Command -ComputerName 192.168.43.45 -Credential $cred -ScriptBlock { hostname; whoami }
+</code></pre>
 <p>连接成功，远程返回 <code>PC-20250425ZDZA</code> / <code>pc-20250425zdza\administrator</code>。</p>
-<p>---</p>
+<hr>
 <h3>三、FRPC 服务注册</h3>
 <h4>3.1 环境信息</h4>
 <pre><code>远程目录: C:\Users\administrator\Desktop\模型\frp_0.67.0_windows_amd64
 frpc 版本: 0.67.0
 配置文件: frpc.toml
-启动命令: frpc.exe -c frpc.toml</code></pre>
+启动命令: frpc.exe -c frpc.toml
+</code></pre>
 <h4>3.2 frpc.toml 配置摘要</h4>
-<div class="post-table-wrap"><table><thead><tr><th>配置项</th><th>值</th></tr></thead><tbody><tr><td>服务器地址</td><td>81.70.168.127:7000</td></tr><tr><td>认证方式</td><td>token</td></tr><tr><td>传输加密</td><td>TLS</td></tr><tr><td>代理名称</td><td>lmstudio-api</td></tr><tr><td>代理类型</td><td>TCP</td></tr><tr><td>本地端口</td><td>127.0.0.1:1235</td></tr><tr><td>远程端口</td><td>61423</td></tr></tbody></table></div>
-<h4>3.3 NSSM 部署</h4>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>配置项</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>服务器地址</td>
+<td>81.70.168.127:7000</td>
+</tr>
+<tr>
+<td>认证方式</td>
+<td>token</td>
+</tr>
+<tr>
+<td>传输加密</td>
+<td>TLS</td>
+</tr>
+<tr>
+<td>代理名称</td>
+<td>lmstudio-api</td>
+</tr>
+<tr>
+<td>代理类型</td>
+<td>TCP</td>
+</tr>
+<tr>
+<td>本地端口</td>
+<td>127.0.0.1:1235</td>
+</tr>
+<tr>
+<td>远程端口</td>
+<td>61423</td>
+</tr>
+</tbody>
+</table></div><h4>3.3 NSSM 部署</h4>
 <p>从本机 <code>C:\Users\lenovo\Downloads\tangyuge_tts_runtime\nssm\</code> 复制 NSSM 2.24 到远程机器 <code>frp_0.67.0_windows_amd64\nssm\</code>。</p>
 <h4>3.4 服务配置</h4>
-<pre><code>$nssmExe install FrpcTunnel frpc.exe &quot;-c frpc.toml&quot;
+<pre><code class="language-powershell">$nssmExe install FrpcTunnel frpc.exe &quot;-c frpc.toml&quot;
 $nssmExe set FrpcTunnel AppDirectory &quot;C:\Users\administrator\Desktop\模型\frp_0.67.0_windows_amd64&quot;
 $nssmExe set FrpcTunnel DisplayName &quot;FRPC Tunnel Service&quot;
 $nssmExe set FrpcTunnel Start SERVICE_AUTO_START
@@ -83,28 +145,138 @@ $nssmExe set FrpcTunnel AppKillProcessTree 1
 $nssmExe set FrpcTunnel AppRotateFiles 1
 $nssmExe set FrpcTunnel AppRotateOnline 1
 $nssmExe set FrpcTunnel AppRotateSeconds 86400
-$nssmExe set FrpcTunnel AppRotateBytes 1048576</code></pre>
+$nssmExe set FrpcTunnel AppRotateBytes 1048576
+</code></pre>
 <h4>3.5 最终服务参数</h4>
-<div class="post-table-wrap"><table><thead><tr><th>参数</th><th>值</th><th>说明</th></tr></thead><tbody><tr><td>服务名</td><td>FrpcTunnel</td><td></td></tr><tr><td>显示名</td><td>FRPC Tunnel Service</td><td></td></tr><tr><td>启动类型</td><td>Automatic（自动）</td><td>开机自启</td></tr><tr><td>AppExit Default</td><td>Restart</td><td>任何退出码自动重启</td></tr><tr><td>AppThrottle</td><td>5000ms</td><td>重启冷却间隔 5 秒</td></tr><tr><td>AppKillProcessTree</td><td>1</td><td>停止时结束子进程树</td></tr><tr><td>日志目录</td><td>service_logs\</td><td>stdout.log / stderr.log</td></tr><tr><td>日志滚动</td><td>每天 / 1MB</td><td>在线压缩滚动</td></tr></tbody></table></div>
-<h4>3.6 崩溃重启验证</h4>
-<pre><code>旧 PID: 4740 → Stop-Process 强杀 → 6 秒后新 PID: 14304 自动拉起 → 通过</code></pre>
-<p>---</p>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>服务名</td>
+<td>FrpcTunnel</td>
+<td></td>
+</tr>
+<tr>
+<td>显示名</td>
+<td>FRPC Tunnel Service</td>
+<td></td>
+</tr>
+<tr>
+<td>启动类型</td>
+<td>Automatic（自动）</td>
+<td>开机自启</td>
+</tr>
+<tr>
+<td>AppExit Default</td>
+<td>Restart</td>
+<td>任何退出码自动重启</td>
+</tr>
+<tr>
+<td>AppThrottle</td>
+<td>5000ms</td>
+<td>重启冷却间隔 5 秒</td>
+</tr>
+<tr>
+<td>AppKillProcessTree</td>
+<td>1</td>
+<td>停止时结束子进程树</td>
+</tr>
+<tr>
+<td>日志目录</td>
+<td>service_logs\</td>
+<td>stdout.log / stderr.log</td>
+</tr>
+<tr>
+<td>日志滚动</td>
+<td>每天 / 1MB</td>
+<td>在线压缩滚动</td>
+</tr>
+</tbody>
+</table></div><h4>3.6 崩溃重启验证</h4>
+<pre><code>旧 PID: 4740 → Stop-Process 强杀 → 6 秒后新 PID: 14304 自动拉起 → 通过
+</code></pre>
+<hr>
 <h3>四、FRPC 管理脚本</h3>
 <p>在远程 <code>frp_0.67.0_windows_amd64\</code> 目录下创建：</p>
-<div class="post-table-wrap"><table><thead><tr><th>脚本</th><th>功能</th><th>命令</th></tr></thead><tbody><tr><td><code>start_frpc.bat</code></td><td>启动服务</td><td><code>Start-Service FrpcTunnel</code></td></tr><tr><td><code>stop_frpc.bat</code></td><td>停止服务</td><td><code>Stop-Service FrpcTunnel -Force</code></td></tr><tr><td><code>restart_frpc.bat</code></td><td>重启服务</td><td><code>Restart-Service FrpcTunnel -Force</code></td></tr><tr><td><code>status_frpc.bat</code></td><td>查看状态</td><td>服务状态 + frpc 进程详情</td></tr></tbody></table></div>
-<p>旧的 <code>start.bat</code>（直接运行 frpc.exe）和桌面快捷方式已删除，避免与服务的进程冲突。</p>
-<p>---</p>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>脚本</th>
+<th>功能</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start_frpc.bat</code></td>
+<td>启动服务</td>
+<td><code>Start-Service FrpcTunnel</code></td>
+</tr>
+<tr>
+<td><code>stop_frpc.bat</code></td>
+<td>停止服务</td>
+<td><code>Stop-Service FrpcTunnel -Force</code></td>
+</tr>
+<tr>
+<td><code>restart_frpc.bat</code></td>
+<td>重启服务</td>
+<td><code>Restart-Service FrpcTunnel -Force</code></td>
+</tr>
+<tr>
+<td><code>status_frpc.bat</code></td>
+<td>查看状态</td>
+<td>服务状态 + frpc 进程详情</td>
+</tr>
+</tbody>
+</table></div><p>旧的 <code>start.bat</code>（直接运行 frpc.exe）和桌面快捷方式已删除，避免与服务的进程冲突。</p>
+<hr>
 <h3>五、LM Studio API 健康检查</h3>
 <h4>5.1 背景</h4>
 <p>LM Studio 当前作为本机 API 服务上游，实际监听 <code>0.0.0.0:1235</code>，再由 <code>frpc</code> 转发到公网入口。虽然现阶段 API 可正常使用，但 LM Studio 日志中出现过 <code>ERR_HTTP_HEADERS_SENT</code>、<code>MaxListenersExceededWarning</code> 等应用层报错，因此补充一层轻量健康检查，用于判断“服务现在是否还能对外正常工作”。</p>
 <h4>5.2 远程机器当前状态（2026-05-14 检查）</h4>
-<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>结果</th></tr></thead><tbody><tr><td>LM Studio 安装路径</td><td><code>C:\Users\Administrator\AppData\Local\Programs\LM Studio\LM Studio.exe</code></td></tr><tr><td>LM Studio 版本</td><td><code>0.4.12.0</code></td></tr><tr><td>API 监听端口</td><td><code>1235</code></td></tr><tr><td>FRPC 服务状态</td><td><code>Running</code></td></tr><tr><td>显卡</td><td><code>NVIDIA GeForce RTX 3050 Laptop GPU 4GB</code></td></tr><tr><td>本机 API 轻量探活</td><td>未带 token 请求 <code>/v1/models</code> 返回 <code>401</code>，判定为“接口在线且鉴权正常”</td></tr></tbody></table></div>
-<h4>5.3 脚本落点与运行形式</h4>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>项目</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LM Studio 安装路径</td>
+<td><code>C:\Users\Administrator\AppData\Local\Programs\LM Studio\LM Studio.exe</code></td>
+</tr>
+<tr>
+<td>LM Studio 版本</td>
+<td><code>0.4.12.0</code></td>
+</tr>
+<tr>
+<td>API 监听端口</td>
+<td><code>1235</code></td>
+</tr>
+<tr>
+<td>FRPC 服务状态</td>
+<td><code>Running</code></td>
+</tr>
+<tr>
+<td>显卡</td>
+<td><code>NVIDIA GeForce RTX 3050 Laptop GPU 4GB</code></td>
+</tr>
+<tr>
+<td>本机 API 轻量探活</td>
+<td>未带 token 请求 <code>/v1/models</code> 返回 <code>401</code>，判定为“接口在线且鉴权正常”</td>
+</tr>
+</tbody>
+</table></div><h4>5.3 脚本落点与运行形式</h4>
 <p>为避免和 <code>frp_0.67.0_windows_amd64</code> 目录混放，单独建立运维目录：</p>
-<pre><code>C:\lmstudio-api-tools\
+<pre><code class="language-text">C:\lmstudio-api-tools\
 ├─ check_lmstudio_api.ps1
 └─ logs\
-   └─ health_check.log</code></pre>
+   └─ health_check.log
+</code></pre>
 <p>脚本职责：</p>
 <ol>
 <li>检查 <code>LM Studio.exe</code> 进程是否存在</li>
@@ -116,9 +288,37 @@ $nssmExe set FrpcTunnel AppRotateBytes 1048576</code></pre>
 </ol>
 <h4>5.4 计划任务注册结果</h4>
 <p>已注册 Windows 计划任务：</p>
-<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>值</th></tr></thead><tbody><tr><td>任务名</td><td><code>LmStudioApiHealthCheck</code></td></tr><tr><td>运行账户</td><td><code>SYSTEM</code></td></tr><tr><td>执行频率</td><td>每 5 分钟</td></tr><tr><td>执行命令</td><td><code>powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;C:\lmstudio-api-tools\check_lmstudio_api.ps1&quot;</code></td></tr><tr><td>日志文件</td><td><code>C:\lmstudio-api-tools\logs\health_check.log</code></td></tr></tbody></table></div>
-<p>首次验证结果：</p>
-<pre><code>2026-05-14 19:37:08 | lmstudio_processes=6 | lmstudio_memory_mb=915.41 | frpc=Running | port_1235_listening=True | port_pid=10016 | api_healthy=True | status=0 | server_running_port_1235</code></pre>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务名</td>
+<td><code>LmStudioApiHealthCheck</code></td>
+</tr>
+<tr>
+<td>运行账户</td>
+<td><code>SYSTEM</code></td>
+</tr>
+<tr>
+<td>执行频率</td>
+<td>每 5 分钟</td>
+</tr>
+<tr>
+<td>执行命令</td>
+<td><code>powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;C:\lmstudio-api-tools\check_lmstudio_api.ps1&quot;</code></td>
+</tr>
+<tr>
+<td>日志文件</td>
+<td><code>C:\lmstudio-api-tools\logs\health_check.log</code></td>
+</tr>
+</tbody>
+</table></div><p>首次验证结果：</p>
+<pre><code class="language-text">2026-05-14 19:37:08 | lmstudio_processes=6 | lmstudio_memory_mb=915.41 | frpc=Running | port_1235_listening=True | port_pid=10016 | api_healthy=True | status=0 | server_running_port_1235
+</code></pre>
 <p>判定：</p>
 <ul>
 <li><code>api_healthy=True</code>：说明本机 API 服务可达</li>
@@ -128,22 +328,54 @@ $nssmExe set FrpcTunnel AppRotateBytes 1048576</code></pre>
 </ul>
 <h4>5.5 常用查看命令</h4>
 <p>远程查看最近 20 条健康日志：</p>
-<pre><code>Get-Content C:\lmstudio-api-tools\logs\health_check.log -Tail 20</code></pre>
+<pre><code class="language-powershell">Get-Content C:\lmstudio-api-tools\logs\health_check.log -Tail 20
+</code></pre>
 <p>远程手动执行一次健康检查：</p>
-<pre><code>powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\lmstudio-api-tools\check_lmstudio_api.ps1</code></pre>
+<pre><code class="language-powershell">powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\lmstudio-api-tools\check_lmstudio_api.ps1
+</code></pre>
 <p>查看计划任务状态：</p>
-<pre><code>Get-ScheduledTask -TaskName LmStudioApiHealthCheck
-Get-ScheduledTaskInfo -TaskName LmStudioApiHealthCheck</code></pre>
+<pre><code class="language-powershell">Get-ScheduledTask -TaskName LmStudioApiHealthCheck
+Get-ScheduledTaskInfo -TaskName LmStudioApiHealthCheck
+</code></pre>
 <h4>5.6 回滚/移除方法</h4>
 <p>如需停用健康检查：</p>
-<pre><code>Unregister-ScheduledTask -TaskName LmStudioApiHealthCheck -Confirm:$false
-Remove-Item C:\lmstudio-api-tools -Recurse -Force</code></pre>
-<p>---</p>
+<pre><code class="language-powershell">Unregister-ScheduledTask -TaskName LmStudioApiHealthCheck -Confirm:$false
+Remove-Item C:\lmstudio-api-tools -Recurse -Force
+</code></pre>
+<hr>
 <h3>六、LM Studio 配置审计与调整（2026-05-14）</h3>
 <h4>6.1 检查结论</h4>
 <p>LM Studio 当前可用，但更像“桌面应用默认配置”，不是“稳定 API 节点配置”。主要风险点：</p>
-<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>原值</th><th>处理</th></tr></thead><tbody><tr><td><code>developer.appUpdateChannel</code></td><td><code>beta</code></td><td>已改为 <code>stable</code></td></tr><tr><td><code>developer.allowDevelopmentPlugins</code></td><td><code>true</code></td><td>已改为 <code>false</code></td></tr><tr><td><code>developer.autoUpdateExtensionPacks</code></td><td><code>true</code></td><td>已改为 <code>false</code></td></tr><tr><td><code>autoLoadBundledLLM</code></td><td><code>true</code></td><td>已改为 <code>false</code></td></tr></tbody></table></div>
-<p>处理原因：</p>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>项目</th>
+<th>原值</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>developer.appUpdateChannel</code></td>
+<td><code>beta</code></td>
+<td>已改为 <code>stable</code></td>
+</tr>
+<tr>
+<td><code>developer.allowDevelopmentPlugins</code></td>
+<td><code>true</code></td>
+<td>已改为 <code>false</code></td>
+</tr>
+<tr>
+<td><code>developer.autoUpdateExtensionPacks</code></td>
+<td><code>true</code></td>
+<td>已改为 <code>false</code></td>
+</tr>
+<tr>
+<td><code>autoLoadBundledLLM</code></td>
+<td><code>true</code></td>
+<td>已改为 <code>false</code></td>
+</tr>
+</tbody>
+</table></div><p>处理原因：</p>
 <ol>
 <li><code>beta</code> 更新通道不适合承担长期 API 服务，升级后行为变化风险更高。</li>
 <li>开发插件能力对当前节点无必要，只会增加不确定性。</li>
@@ -151,8 +383,46 @@ Remove-Item C:\lmstudio-api-tools -Recurse -Force</code></pre>
 <li>自动加载内置模型不适合服务节点，会引入多余资源占用和启动噪声。</li>
 </ol>
 <h4>6.2 未改但已确认的项</h4>
-<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>当前值</th><th>说明</th></tr></thead><tbody><tr><td><code>backendDownloadChannel</code></td><td><code>stable</code></td><td>合理，保留</td></tr><tr><td><code>enableLocalService</code></td><td><code>false</code></td><td>当前不依赖 headless local service，保留</td></tr><tr><td><code>defaultContextLength</code></td><td><code>4096</code></td><td>暂无证据表明需要统一改动</td></tr><tr><td><code>unloadPreviousJITModelOnLoad</code></td><td><code>true</code></td><td>对低资源机器更稳，保留</td></tr><tr><td><code>jitModelTTL.enabled</code></td><td><code>true</code></td><td>暂保留</td></tr><tr><td><code>modelLoadingGuardrails.mode</code></td><td><code>off</code></td><td>暂未改；是否打开需结合你常用模型尺寸单独评估</td></tr></tbody></table></div>
-<h4>6.3 日志问题判断</h4>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>项目</th>
+<th>当前值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backendDownloadChannel</code></td>
+<td><code>stable</code></td>
+<td>合理，保留</td>
+</tr>
+<tr>
+<td><code>enableLocalService</code></td>
+<td><code>false</code></td>
+<td>当前不依赖 headless local service，保留</td>
+</tr>
+<tr>
+<td><code>defaultContextLength</code></td>
+<td><code>4096</code></td>
+<td>暂无证据表明需要统一改动</td>
+</tr>
+<tr>
+<td><code>unloadPreviousJITModelOnLoad</code></td>
+<td><code>true</code></td>
+<td>对低资源机器更稳，保留</td>
+</tr>
+<tr>
+<td><code>jitModelTTL.enabled</code></td>
+<td><code>true</code></td>
+<td>暂保留</td>
+</tr>
+<tr>
+<td><code>modelLoadingGuardrails.mode</code></td>
+<td><code>off</code></td>
+<td>暂未改；是否打开需结合你常用模型尺寸单独评估</td>
+</tr>
+</tbody>
+</table></div><h4>6.3 日志问题判断</h4>
 <p>LM Studio 原始日志中多次出现：</p>
 <ul>
 <li><code>ERR_HTTP_HEADERS_SENT</code></li>
@@ -167,15 +437,44 @@ Remove-Item C:\lmstudio-api-tools -Recurse -Force</code></pre>
 </ol>
 <h4>6.4 配置文件与备份</h4>
 <p>当前实际配置文件：</p>
-<pre><code>C:\Users\Administrator\AppData\Roaming\LM Studio\settings.json</code></pre>
+<pre><code class="language-text">C:\Users\Administrator\AppData\Roaming\LM Studio\settings.json
+</code></pre>
 <p>已保留备份：</p>
-<pre><code>C:\Users\Administrator\AppData\Roaming\LM Studio\settings.json.bak-20260514</code></pre>
+<pre><code class="language-text">C:\Users\Administrator\AppData\Roaming\LM Studio\settings.json.bak-20260514
+</code></pre>
 <h4>6.5 生效说明</h4>
 <p>上述 <code>settings.json</code> 修改已写入文件，但通常需要重启 LM Studio 进程后才会完全生效。若当前公网 API 正在使用中，可先不重启，等低峰期再操作。</p>
 <h4>6.6 重启验证（2026-05-14）</h4>
 <p>已通过 WinRM 远程重启 <code>LM Studio.exe</code>，重启后结果：</p>
-<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>结果</th></tr></thead><tbody><tr><td>API 监听</td><td>初次重启后恢复；后续收敛为 <code>127.0.0.1:1235</code></td></tr><tr><td>FRPC 服务</td><td><code>Running</code></td></tr><tr><td>健康检查</td><td><code>api_healthy=True</code></td></tr><tr><td>进程总内存</td><td>约 <code>862MB</code></td></tr><tr><td>当前模型</td><td><code>lms ps</code> 显示当前无已加载模型</td></tr></tbody></table></div>
-<p>说明：</p>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>项目</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API 监听</td>
+<td>初次重启后恢复；后续收敛为 <code>127.0.0.1:1235</code></td>
+</tr>
+<tr>
+<td>FRPC 服务</td>
+<td><code>Running</code></td>
+</tr>
+<tr>
+<td>健康检查</td>
+<td><code>api_healthy=True</code></td>
+</tr>
+<tr>
+<td>进程总内存</td>
+<td>约 <code>862MB</code></td>
+</tr>
+<tr>
+<td>当前模型</td>
+<td><code>lms ps</code> 显示当前无已加载模型</td>
+</tr>
+</tbody>
+</table></div><p>说明：</p>
 <ol>
 <li>新的稳定性配置已经生效。</li>
 <li>LM Studio 重启后服务恢复正常。</li>
@@ -183,8 +482,56 @@ Remove-Item C:\lmstudio-api-tools -Recurse -Force</code></pre>
 </ol>
 <h4>6.7 LM Studio 设置建议</h4>
 <p>适合当前这台机器作为远程 API 节点的建议如下：</p>
-<div class="post-table-wrap"><table><thead><tr><th>设置项</th><th>建议</th><th>说明</th></tr></thead><tbody><tr><td>Require Authentication</td><td>保持开启</td><td>当前已开启，必须保留</td></tr><tr><td>Serve on Local Network</td><td>如无局域网直连需求，建议关闭</td><td><code>frpc</code> 可直接转发本机 <code>127.0.0.1:1235</code>，不必额外暴露局域网</td></tr><tr><td>Enable CORS</td><td>无浏览器前端调用需求则关闭</td><td>降低暴露面</td></tr><tr><td>Allow per-request MCPs</td><td>关闭</td><td>当前是 API 节点，不需要</td></tr><tr><td>Allow calling servers from mcp.json</td><td>关闭</td><td>当前不需要把本机 MCP 暴露给 API 调用方</td></tr><tr><td>JIT Model Loading</td><td>看用途决定</td><td>单模型常驻建议关闭并手动预加载；多模型切换或低内存机器可保留开启</td></tr><tr><td>Auto Unload Unused JIT Models</td><td>若启用 JIT，建议开启</td><td>避免内存长期占满</td></tr><tr><td>Only Keep Last JIT Loaded Model</td><td>若经常切模型，建议开启</td><td>这台机器资源有限，更稳</td></tr></tbody></table></div>
-<p>当前不建议继续乱动的项：</p>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>设置项</th>
+<th>建议</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Require Authentication</td>
+<td>保持开启</td>
+<td>当前已开启，必须保留</td>
+</tr>
+<tr>
+<td>Serve on Local Network</td>
+<td>如无局域网直连需求，建议关闭</td>
+<td><code>frpc</code> 可直接转发本机 <code>127.0.0.1:1235</code>，不必额外暴露局域网</td>
+</tr>
+<tr>
+<td>Enable CORS</td>
+<td>无浏览器前端调用需求则关闭</td>
+<td>降低暴露面</td>
+</tr>
+<tr>
+<td>Allow per-request MCPs</td>
+<td>关闭</td>
+<td>当前是 API 节点，不需要</td>
+</tr>
+<tr>
+<td>Allow calling servers from mcp.json</td>
+<td>关闭</td>
+<td>当前不需要把本机 MCP 暴露给 API 调用方</td>
+</tr>
+<tr>
+<td>JIT Model Loading</td>
+<td>看用途决定</td>
+<td>单模型常驻建议关闭并手动预加载；多模型切换或低内存机器可保留开启</td>
+</tr>
+<tr>
+<td>Auto Unload Unused JIT Models</td>
+<td>若启用 JIT，建议开启</td>
+<td>避免内存长期占满</td>
+</tr>
+<tr>
+<td>Only Keep Last JIT Loaded Model</td>
+<td>若经常切模型，建议开启</td>
+<td>这台机器资源有限，更稳</td>
+</tr>
+</tbody>
+</table></div><p>当前不建议继续乱动的项：</p>
 <ul>
 <li><code>defaultContextLength=4096</code>：先保留，是否调大取决于你常用模型和显存压力</li>
 <li><code>unloadPreviousJITModelOnLoad=true</code>：保留</li>
@@ -197,7 +544,7 @@ Remove-Item C:\lmstudio-api-tools -Recurse -Force</code></pre>
 <li>某些 Developer 页里的 Server 开关</li>
 </ul>
 <p>这类设置更适合在 LM Studio 图形界面里人工核对一次。</p>
-<p>---</p>
+<hr>
 <h3>七、电源与无线网卡策略收敛（2026-05-14）</h3>
 <h4>7.1 检查结论</h4>
 <p>无线网络当前由 <code>Tenda WiFi 6 Wireless USB Adapter</code> 提供，链路在线。交流电下无线适配器电源模式已是 <code>最高性能</code>，交流电下 <code>USB 选择性暂停</code> 已禁用，整体适合长期联网。</p>
@@ -211,8 +558,51 @@ Remove-Item C:\lmstudio-api-tools -Recurse -Force</code></pre>
 <p>这些设置会导致模型服务在无人值守时被中断。</p>
 <h4>7.2 已调整项</h4>
 <p>已将交流电场景下的关键设置调整为更适合服务节点的状态：</p>
-<div class="post-table-wrap"><table><thead><tr><th>项目</th><th>调整后</th></tr></thead><tbody><tr><td>在此时间后睡眠</td><td><code>从不</code></td></tr><tr><td>无人参与系统睡眠超时</td><td><code>0</code></td></tr><tr><td>混合睡眠</td><td><code>关闭</code></td></tr><tr><td>合上盖子操作</td><td><code>不采取任何操作</code></td></tr><tr><td>睡眠按钮操作</td><td><code>不采取任何操作</code></td></tr><tr><td>关闭显示器</td><td><code>300 秒</code></td></tr><tr><td>无线适配器节能模式</td><td><code>最高性能</code></td></tr><tr><td>USB 选择性暂停</td><td><code>已禁用</code></td></tr><tr><td>USB 3 Link Power Management</td><td><code>Off</code></td></tr></tbody></table></div>
-<p>说明：</p>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>项目</th>
+<th>调整后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>在此时间后睡眠</td>
+<td><code>从不</code></td>
+</tr>
+<tr>
+<td>无人参与系统睡眠超时</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td>混合睡眠</td>
+<td><code>关闭</code></td>
+</tr>
+<tr>
+<td>合上盖子操作</td>
+<td><code>不采取任何操作</code></td>
+</tr>
+<tr>
+<td>睡眠按钮操作</td>
+<td><code>不采取任何操作</code></td>
+</tr>
+<tr>
+<td>关闭显示器</td>
+<td><code>300 秒</code></td>
+</tr>
+<tr>
+<td>无线适配器节能模式</td>
+<td><code>最高性能</code></td>
+</tr>
+<tr>
+<td>USB 选择性暂停</td>
+<td><code>已禁用</code></td>
+</tr>
+<tr>
+<td>USB 3 Link Power Management</td>
+<td><code>Off</code></td>
+</tr>
+</tbody>
+</table></div><p>说明：</p>
 <ol>
 <li>显示器可以自动熄屏，但主机不睡眠。</li>
 <li>合盖不会再把服务打断。</li>
@@ -227,9 +617,10 @@ Remove-Item C:\lmstudio-api-tools -Recurse -Force</code></pre>
 <li>当前监听地址为 <code>127.0.0.1:1235</code></li>
 </ul>
 <p>这说明当前架构已更接近理想形态：</p>
-<pre><code>frpc (同机) -&gt; 127.0.0.1:1235 -&gt; LM Studio</code></pre>
+<pre><code class="language-text">frpc (同机) -&gt; 127.0.0.1:1235 -&gt; LM Studio
+</code></pre>
 <p>比监听 <code>0.0.0.0</code> 更收敛，也更安全。</p>
-<p>---</p>
+<hr>
 <h3>八、安全备注</h3>
 <h4>当前状态</h4>
 <ul>
@@ -243,10 +634,10 @@ Remove-Item C:\lmstudio-api-tools -Recurse -Force</code></pre>
 <li>防火墙规则限制 WinRM 仅允许特定 IP 访问</li>
 <li>两台机器设置静态 IP 避免 DHCP 变更</li>
 </ol>
-<p>---</p>
+<hr>
 <h3>九、常用远程管理命令</h3>
 <p>从本机执行远程命令的模板：</p>
-<pre><code>$sec = ConvertTo-SecureString &quot;123456&quot; -AsPlainText -Force
+<pre><code class="language-powershell">$sec = ConvertTo-SecureString &quot;123456&quot; -AsPlainText -Force
 $cred = New-Object System.Management.Automation.PSCredential(&quot;administrator&quot;, $sec)
 Invoke-Command -ComputerName 192.168.43.45 -Credential $cred -ScriptBlock {
     # 要执行的命令
@@ -255,12 +646,15 @@ Invoke-Command -ComputerName 192.168.43.45 -Credential $cred -ScriptBlock {
 # 或建立持久会话
 $sess = New-PSSession -ComputerName 192.168.43.45 -Credential $cred
 # ... 多次操作 ...
-Remove-PSSession $sess</code></pre>
+Remove-PSSession $sess
+</code></pre>
 <p>服务管理：</p>
-<pre><code>Get-Service FrpcTunnel        # 查看状态
+<pre><code class="language-powershell">Get-Service FrpcTunnel        # 查看状态
 Start-Service FrpcTunnel      # 启动
 Stop-Service FrpcTunnel       # 停止
-Restart-Service FrpcTunnel    # 重启</code></pre></div>
+Restart-Service FrpcTunnel    # 重启
+</code></pre>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

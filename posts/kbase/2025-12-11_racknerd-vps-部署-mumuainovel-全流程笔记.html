@@ -42,56 +42,70 @@
       <h1>RackNerd VPS 部署 MuMuAINovel 全流程笔记</h1>
       <div class="post-meta"><span>2025-12-11</span><span>14 min</span></div>
       <div class="article-card__tags"><span>e-RackNerd</span></div>
-      <div class="post-content"><blockquote>机器环境：RackNerd VPS（2 vCPU / 2.5G RAM / 40G SSD）+ 额外 1.2G 日志盘挂载到 <code>/mnt/logs</code>  </blockquote>
-<blockquote>系统：Ubuntu 22.04  </blockquote>
-<blockquote>项目目录：<code>/root/MuMuAINovel</code>  </blockquote>
-<blockquote>访问架构：浏览器 → EdgeOne（域名 + 免费证书 + 缓存）→ VPS:80 (Nginx) → 127.0.0.1:8000 (MuMuAINovel 容器)</blockquote>
-<p>---</p>
+      <div class="post-content"><blockquote>
+<p>机器环境：RackNerd VPS（2 vCPU / 2.5G RAM / 40G SSD）+ 额外 1.2G 日志盘挂载到 <code>/mnt/logs</code><br>
+系统：Ubuntu 22.04<br>
+项目目录：<code>/root/MuMuAINovel</code><br>
+访问架构：浏览器 → EdgeOne（域名 + 免费证书 + 缓存）→ VPS:80 (Nginx) → 127.0.0.1:8000 (MuMuAINovel 容器)</p>
+</blockquote>
+<hr>
 <h3>一、VPS 基础环境 &amp; 日志盘</h3>
 <h4>1.1 查看磁盘与日志盘</h4>
-<pre><code>df -h | grep /mnt/logs
-ls -ld /mnt/logs</code></pre>
+<pre><code class="language-bash">df -h | grep /mnt/logs
+ls -ld /mnt/logs
+</code></pre>
 <p>确认：</p>
 <ul>
-<li>日志盘已经挂载到 <code>/mnt/logs</code></li>
-</ul>
-<ul>
-<li>大小约 1.2G</li>
+<li>
+<p>日志盘已经挂载到 <code>/mnt/logs</code></p>
+</li>
+<li>
+<p>大小约 1.2G</p>
+</li>
 </ul>
 <p>为 MuMuAINovel 创建独立日志目录：</p>
-<pre><code>mkdir -p /mnt/logs/mumuainovel</code></pre>
+<pre><code class="language-bash">mkdir -p /mnt/logs/mumuainovel
+</code></pre>
 <h4>1.2 Swap / 系统初始化（略要点）</h4>
 <ul>
-<li>为 2.5G 内存机配置了 4G 左右的 swap，用于缓冲镜像拉取与容器运行时的内存峰值。</li>
-</ul>
-<ul>
-<li>调整了 swappiness 等参数，以避免频繁 swap 对性能影响过大。</li>
+<li>
+<p>为 2.5G 内存机配置了 4G 左右的 swap，用于缓冲镜像拉取与容器运行时的内存峰值。</p>
+</li>
+<li>
+<p>调整了 swappiness 等参数，以避免频繁 swap 对性能影响过大。</p>
+</li>
 </ul>
 <p>（详细 Swap 配置步骤保留在单独的初始化文档里，此处不展开。）</p>
-<p>---</p>
+<hr>
 <h3>二、安装 Docker &amp; Docker Compose</h3>
 <p>使用官方脚本安装 Docker：</p>
-<pre><code>cd /root
+<pre><code class="language-bash">cd /root
 curl -fsSL https://get.docker.com -o get-docker.sh
-sh get-docker.sh</code></pre>
+sh get-docker.sh
+</code></pre>
 <p>校验安装结果：</p>
-<pre><code>docker -v
+<pre><code class="language-bash">docker -v
 # 新版本使用 docker compose 子命令
-docker compose version</code></pre>
-<blockquote>备注：本机没有单独的 <code>docker-compose</code> 可执行文件，使用的是 <code>docker compose</code> 子命令形式。</blockquote>
-<p>---</p>
+docker compose version
+</code></pre>
+<blockquote>
+<p>备注：本机没有单独的 <code>docker-compose</code> 可执行文件，使用的是 <code>docker compose</code> 子命令形式。</p>
+</blockquote>
+<hr>
 <h3>三、克隆 MuMuAINovel 项目</h3>
-<pre><code>cd /root
+<pre><code class="language-bash">cd /root
 git clone https://github.com/xiamuceer-j/MuMuAINovel.git
-cd MuMuAINovel</code></pre>
+cd MuMuAINovel
+</code></pre>
 <p>项目根目录即：<code>/root/MuMuAINovel</code>。</p>
-<p>---</p>
+<hr>
 <h3>四、配置 .env 环境变量</h3>
 <p>根据官方文档，先复制示例 env 文件：</p>
-<pre><code>cp backend/.env.example .env
-nano .env</code></pre>
+<pre><code class="language-bash">cp backend/.env.example .env
+nano .env
+</code></pre>
 <p>核心配置内容（示例）：</p>
-<pre><code># =====================
+<pre><code class="language-env"># =====================
 # 数据库配置
 # =====================
 POSTGRES_DB=mumuai_novel
@@ -123,35 +137,44 @@ LOCAL_AUTH_PASSWORD=自己设定的密码
 # 端口与时区
 # =====================
 APP_PORT=8000
-TZ=Asia/Tokyo</code></pre>
-<blockquote>注意：</blockquote>
-<p>&gt;</p>
-<blockquote>- <code>OPENAI_BASE_URL</code> 配置为中转地址（如 juya）。</blockquote>
-<blockquote> </blockquote>
-<blockquote>- <code>DEFAULT_AI_PROVIDER</code> 不要留空，典型为 <code>openai</code>。</blockquote>
-<blockquote> </blockquote>
-<blockquote>- API KEY 属于敏感信息，外泄要立刻废弃重建。</blockquote>
-<blockquote> </blockquote>
-<p>---</p>
+TZ=Asia/Tokyo
+</code></pre>
+<blockquote>
+<p>注意：</p>
+<ul>
+<li>
+<p><code>OPENAI_BASE_URL</code> 配置为中转地址（如 juya）。</p>
+</li>
+<li>
+<p><code>DEFAULT_AI_PROVIDER</code> 不要留空，典型为 <code>openai</code>。</p>
+</li>
+<li>
+<p>API KEY 属于敏感信息，外泄要立刻废弃重建。</p>
+</li>
+</ul>
+</blockquote>
+<hr>
 <h3>五、修改 docker-compose.yml</h3>
 <h4>5.1 使用官方镜像而非本地构建</h4>
 <p>原始配置中可能包含：</p>
-<pre><code>mumuainovel:
+<pre><code class="language-yaml">mumuainovel:
   build:
     context: .
     dockerfile: Dockerfile
-  image: mumujie/mumuainovel:latest</code></pre>
+  image: mumujie/mumuainovel:latest
+</code></pre>
 <p>在内存较小的 VPS 上，为避免本地构建消耗资源，将其改为仅使用镜像：</p>
-<pre><code>services:
+<pre><code class="language-yaml">services:
   mumuainovel:
     image: mumujie/mumuainovel:latest
     container_name: mumuainovel
     # build 段直接注释掉或删除
     # build:
     #   context: .
-    #   dockerfile: Dockerfile</code></pre>
+    #   dockerfile: Dockerfile
+</code></pre>
 <p>Postgres 服务：</p>
-<pre><code>  postgres:
+<pre><code class="language-yaml">  postgres:
     image: postgres:18-alpine
     container_name: mumuainovel-postgres
     environment:
@@ -161,36 +184,45 @@ TZ=Asia/Tokyo</code></pre>
     ports:
       - &quot;0.0.0.0:5432:5432&quot;
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data</code></pre>
-<blockquote>备注：Postgres 暴露 5432 到外网是方便调试用，生产环境建议限制访问来源或关闭端口映射。</blockquote>
+      - ./postgres-data:/var/lib/postgresql/data
+</code></pre>
+<blockquote>
+<p>备注：Postgres 暴露 5432 到外网是方便调试用，生产环境建议限制访问来源或关闭端口映射。</p>
+</blockquote>
 <h4>5.2 日志挂载到独立日志盘</h4>
 <p>在 <code>mumuainovel</code> 服务下配置 volumes：</p>
-<pre><code>    volumes:
+<pre><code class="language-yaml">    volumes:
       - /mnt/logs/mumuainovel:/app/logs
-      - ./.env:/app/.env:ro</code></pre>
+      - ./.env:/app/.env:ro
+</code></pre>
 <ul>
-<li><code>/mnt/logs/mumuainovel</code>：宿主机日志目录（在 1.2G 日志盘上）</li>
-</ul>
-<ul>
-<li><code>/app/logs</code>：容器内应用日志目录</li>
-</ul>
-<ul>
-<li><code>.env</code> 只读挂载到 <code>/app/.env</code></li>
+<li>
+<p><code>/mnt/logs/mumuainovel</code>：宿主机日志目录（在 1.2G 日志盘上）</p>
+</li>
+<li>
+<p><code>/app/logs</code>：容器内应用日志目录</p>
+</li>
+<li>
+<p><code>.env</code> 只读挂载到 <code>/app/.env</code></p>
+</li>
 </ul>
 <h4>5.3 端口仅绑定到本地 127.0.0.1</h4>
 <p>为配合 Nginx 反向代理，将容器端口绑定到本机：</p>
-<pre><code>    ports:
-      - &quot;127.0.0.1:8000:8000&quot;</code></pre>
+<pre><code class="language-yaml">    ports:
+      - &quot;127.0.0.1:8000:8000&quot;
+</code></pre>
 <p>这样：</p>
 <ul>
-<li>宿主机本地可以通过 <code>127.0.0.1:8000</code> 访问应用</li>
-</ul>
-<ul>
-<li>外网不能直接访问 8000 端口，只能通过 Nginx（80 端口）+ 域名转发</li>
+<li>
+<p>宿主机本地可以通过 <code>127.0.0.1:8000</code> 访问应用</p>
+</li>
+<li>
+<p>外网不能直接访问 8000 端口，只能通过 Nginx（80 端口）+ 域名转发</p>
+</li>
 </ul>
 <h4>5.4 AI 相关环境变量</h4>
 <p>在 <code>environment</code> 段注入配置：</p>
-<pre><code>    environment:
+<pre><code class="language-yaml">    environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
@@ -200,48 +232,61 @@ TZ=Asia/Tokyo</code></pre>
       - DEFAULT_AI_PROVIDER=${DEFAULT_AI_PROVIDER:-openai}
       - DEFAULT_MODEL=${DEFAULT_MODEL:-gpt-4o-mini}
       - DEFAULT_TEMPERATURE=${DEFAULT_TEMPERATURE:-0.7}
-      - DEFAULT_MAX_TOKENS=${DEFAULT_MAX_TOKENS:-2000}</code></pre>
-<blockquote>实际部署中，通过 <code>.env</code> 明确写入 DEFAULT_*，避免被宿主机环境变量覆盖引发“配置改不动”的错觉。</blockquote>
-<p>---</p>
+      - DEFAULT_MAX_TOKENS=${DEFAULT_MAX_TOKENS:-2000}
+</code></pre>
+<blockquote>
+<p>实际部署中，通过 <code>.env</code> 明确写入 DEFAULT_*，避免被宿主机环境变量覆盖引发“配置改不动”的错觉。</p>
+</blockquote>
+<hr>
 <h3>六、拉取镜像并启动容器</h3>
 <h4>6.1 预拉镜像（可选）</h4>
-<pre><code>cd /root/MuMuAINovel
+<pre><code class="language-bash">cd /root/MuMuAINovel
 
 docker pull mumujie/mumuainovel:latest
-docker pull postgres:18-alpine</code></pre>
+docker pull postgres:18-alpine
+</code></pre>
 <h4>6.2 启动服务</h4>
 <p>使用 <code>docker compose</code> 子命令：</p>
-<pre><code>cd /root/MuMuAINovel
+<pre><code class="language-bash">cd /root/MuMuAINovel
 
-docker compose up -d</code></pre>
+docker compose up -d
+</code></pre>
 <p>查看容器状态：</p>
-<pre><code>docker compose ps</code></pre>
+<pre><code class="language-bash">docker compose ps
+</code></pre>
 <p>典型输出：</p>
-<pre><code>NAME                   IMAGE                        COMMAND                  SERVICE       CREATED         STATUS                   PORTS
+<pre><code class="language-text">NAME                   IMAGE                        COMMAND                  SERVICE       CREATED         STATUS                   PORTS
 mumuainovel            mumujie/mumuainovel:latest   &quot;python -m uvicorn a…&quot;   mumuainovel   ...             Up (healthy)            127.0.0.1:8000-&gt;8000/tcp
-mumuainovel-postgres   postgres:18-alpine           &quot;docker-entrypoint.s…&quot;   postgres      ...             Up (healthy)            0.0.0.0:5432-&gt;5432/tcp</code></pre>
+mumuainovel-postgres   postgres:18-alpine           &quot;docker-entrypoint.s…&quot;   postgres      ...             Up (healthy)            0.0.0.0:5432-&gt;5432/tcp
+</code></pre>
 <h4>6.3 检查日志目录</h4>
-<pre><code>ls -lh /mnt/logs/mumuainovel</code></pre>
+<pre><code class="language-bash">ls -lh /mnt/logs/mumuainovel
+</code></pre>
 <p>可以看到应用日志文件（如 <code>app.log</code> 等）已经落到了日志盘上。</p>
 <p>如需清空某个日志文件：</p>
-<pre><code>truncate -s 0 /mnt/logs/mumuainovel/app.log</code></pre>
-<p>---</p>
+<pre><code class="language-bash">truncate -s 0 /mnt/logs/mumuainovel/app.log
+</code></pre>
+<hr>
 <h3>七、Nginx 反向代理配置</h3>
 <p>目标：</p>
 <ul>
-<li>外部只访问域名 + 80 / 443</li>
-</ul>
-<ul>
-<li>Nginx 转发到本地 <code>127.0.0.1:8000</code></li>
+<li>
+<p>外部只访问域名 + 80 / 443</p>
+</li>
+<li>
+<p>Nginx 转发到本地 <code>127.0.0.1:8000</code></p>
+</li>
 </ul>
 <h4>7.1 安装 Nginx</h4>
-<pre><code>apt update
-apt install -y nginx</code></pre>
+<pre><code class="language-bash">apt update
+apt install -y nginx
+</code></pre>
 <h4>7.2 创建站点配置文件</h4>
 <p>新建 <code>/etc/nginx/sites-available/mumuainovel.conf</code>：</p>
-<pre><code>nano /etc/nginx/sites-available/mumuainovel.conf</code></pre>
+<pre><code class="language-bash">nano /etc/nginx/sites-available/mumuainovel.conf
+</code></pre>
 <p>写入以下内容（示例域名 <code>yourdomain.com</code>）：</p>
-<pre><code>server {
+<pre><code class="language-nginx">server {
     listen 80;
     listen [::]:80;
     server_name yourdomain.com;
@@ -259,61 +304,90 @@ apt install -y nginx</code></pre>
         proxy_set_header   Upgrade           $http_upgrade;
         proxy_set_header   Connection        &quot;upgrade&quot;;
     }
-}</code></pre>
+}
+</code></pre>
 <p>启用站点并关闭默认站点：</p>
-<pre><code>ln -s /etc/nginx/sites-available/mumuainovel.conf \
+<pre><code class="language-bash">ln -s /etc/nginx/sites-available/mumuainovel.conf \
       /etc/nginx/sites-enabled/mumuainovel.conf
 
-rm /etc/nginx/sites-enabled/default</code></pre>
+rm /etc/nginx/sites-enabled/default
+</code></pre>
 <p>检查配置并重启 Nginx：</p>
-<pre><code>nginx -t
+<pre><code class="language-bash">nginx -t
 systemctl restart nginx
-systemctl enable nginx</code></pre>
+systemctl enable nginx
+</code></pre>
 <p>此时可在本地浏览器直接访问：</p>
-<pre><code>http://74.48.40.123</code></pre>
+<pre><code class="language-text">http://74.48.40.123
+</code></pre>
 <p>如果能正常打开 MuMuAINovel 页面，说明 Nginx ↔ Docker 部分链路无误。</p>
-<p>---</p>
+<hr>
 <h3>八、EdgeOne 域名与 HTTPS 配置</h3>
 <h4>8.1 DNS 解析</h4>
 <p>在 EdgeOne 控制台：</p>
 <ul>
-<li>添加 A 记录：</li>
+<li>
+<p>添加 A 记录：</p>
+<ul>
+<li>
+<p>主机记录：<code>@</code> 或 <code>novel</code>（对应根域或子域）</p>
+</li>
+<li>
+<p>记录值：<code>74.48.40.123</code></p>
+</li>
+<li>
+<p>代理/加速：开启（走 EdgeOne 节点）</p>
+</li>
 </ul>
-<p>- 主机记录：<code>@</code> 或 <code>novel</code>（对应根域或子域）</p>
-<p>- 记录值：<code>74.48.40.123</code></p>
-<p>- 代理/加速：开启（走 EdgeOne 节点）</p>
+</li>
+</ul>
 <p>等待解析生效（通常 1–5 分钟）。</p>
 <h4>8.2 免费证书与回源配置</h4>
 <p>在 EdgeOne：</p>
 <ol>
-<li>申请 / 启用针对该域名的免费 SSL 证书。</li>
+<li>
+<p>申请 / 启用针对该域名的免费 SSL 证书。</p>
+</li>
+<li>
+<p>对应域名的加速配置中：</p>
+<ul>
+<li>
+<p>客户端到 EdgeOne：启用 HTTPS + 绑定免费证书</p>
+</li>
+<li>
+<p>EdgeOne 回源：使用 HTTP</p>
+</li>
+<li>
+<p>回源地址：<code>74.48.40.123</code></p>
+</li>
+<li>
+<p>回源端口：<code>80</code></p>
+</li>
+</ul>
+</li>
 </ol>
-<ol>
-<li>对应域名的加速配置中：</li>
-</ol>
-<p>- 客户端到 EdgeOne：启用 HTTPS + 绑定免费证书</p>
-<p>- EdgeOne 回源：使用 HTTP</p>
-<p>- 回源地址：<code>74.48.40.123</code></p>
-<p>- 回源端口：<code>80</code></p>
 <p>最终链路：</p>
 <ul>
-<li>浏览器：<code>https://yourdomain.com</code></li>
+<li>
+<p>浏览器：<code>https://yourdomain.com</code></p>
+</li>
+<li>
+<p>EdgeOne：TLS 终止 → HTTP 回源 → <code>http://74.48.40.123:80</code></p>
+</li>
+<li>
+<p>Nginx：80 → 反代 → <code>127.0.0.1:8000</code></p>
+</li>
+<li>
+<p>MuMuAINovel 容器：监听 8000</p>
+</li>
 </ul>
-<ul>
-<li>EdgeOne：TLS 终止 → HTTP 回源 → <code>http://74.48.40.123:80</code></li>
-</ul>
-<ul>
-<li>Nginx：80 → 反代 → <code>127.0.0.1:8000</code></li>
-</ul>
-<ul>
-<li>MuMuAINovel 容器：监听 8000</li>
-</ul>
-<p>---</p>
+<hr>
 <h3>九、一键更新脚本</h3>
 <p>在 <code>/root</code> 下创建更新脚本：</p>
-<pre><code>nano /root/update_mumu.sh</code></pre>
+<pre><code class="language-bash">nano /root/update_mumu.sh
+</code></pre>
 <p>内容示例：</p>
-<pre><code>#!/usr/bin/env bash
+<pre><code class="language-bash">#!/usr/bin/env bash
 # 一键更新 MuMuAINovel（代码 + 镜像 + 重启容器）
 
 set -e
@@ -346,52 +420,75 @@ echo &quot;==&gt; 清理无用镜像...&quot;
 docker image prune -f
 
 echo &quot;✅ MuMuAINovel 更新完成，当前容器状态：&quot;
-$COMPOSE ps</code></pre>
+$COMPOSE ps
+</code></pre>
 <p>赋予执行权限：</p>
-<pre><code>chmod +x /root/update_mumu.sh</code></pre>
+<pre><code class="language-bash">chmod +x /root/update_mumu.sh
+</code></pre>
 <p>以后更新时只需：</p>
-<pre><code>bash /root/update_mumu.sh</code></pre>
-<p>---</p>
+<pre><code class="language-bash">bash /root/update_mumu.sh
+</code></pre>
+<hr>
 <h3>十、配置“没生效”的排错记录</h3>
 <p>部署过程中遇到的典型现象：</p>
 <ul>
-<li>修改 <code>.env</code> 后，重启容器 / 重拉镜像，Web 端看到的模型配置似乎仍是旧的。</li>
-</ul>
+<li>
+<p>修改 <code>.env</code> 后，重启容器 / 重拉镜像，Web 端看到的模型配置似乎仍是旧的。</p>
+</li>
+<li>
+<p>实际排查后发现：</p>
 <ul>
-<li>实际排查后发现：</li>
+<li>
+<p>容器内 <code>env</code> 中的变量值已经更新（例如 <code>DEFAULT_MODEL</code> 改为新模型名）。</p>
+</li>
+<li>
+<p>真正导致“看起来没变”的原因是 <strong>EdgeOne 缓存了前端页面/接口响应</strong>。</p>
+</li>
 </ul>
-<p>- 容器内 <code>env</code> 中的变量值已经更新（例如 <code>DEFAULT_MODEL</code> 改为新模型名）。</p>
-<p>- 真正导致“看起来没变”的原因是 <strong>EdgeOne 缓存了前端页面/接口响应</strong>。</p>
+</li>
+</ul>
 <h4>10.1 检查容器内生效的环境变量</h4>
-<pre><code># 查看容器内的环境变量
+<pre><code class="language-bash"># 查看容器内的环境变量
 cd /root/MuMuAINovel
 
 docker compose ps
 
-docker exec -it mumuainovel env | grep -E &quot;OPENAI_BASE_URL|DEFAULT_AI_PROVIDER|DEFAULT_MODEL&quot;</code></pre>
+docker exec -it mumuainovel env | grep -E &quot;OPENAI_BASE_URL|DEFAULT_AI_PROVIDER|DEFAULT_MODEL&quot;
+</code></pre>
 <p>如果这里显示的已经是新值，则说明后端配置其实已经更新。</p>
 <h4>10.2 EdgeOne 缓存导致的假“旧配置”</h4>
 <ul>
-<li>由于 EdgeOne 在边缘节点缓存了部分前端资源 / API 返回，浏览器访问时得到的是缓存内容，看起来像“配置没保存/没生效”。</li>
-</ul>
+<li>
+<p>由于 EdgeOne 在边缘节点缓存了部分前端资源 / API 返回，浏览器访问时得到的是缓存内容，看起来像“配置没保存/没生效”。</p>
+</li>
+<li>
+<p>解决方式：</p>
 <ul>
-<li>解决方式：</li>
+<li>
+<p>在 EdgeOne 控制台中针对该路径 / 域名清除缓存；或</p>
+</li>
+<li>
+<p>临时关闭加速 / 缓存，然后再次访问；</p>
+</li>
+<li>
+<p>本地浏览器也可尝试 Ctrl+F5 强制刷新，或在无痕模式访问。</p>
+</li>
 </ul>
-<p>- 在 EdgeOne 控制台中针对该路径 / 域名清除缓存；或</p>
-<p>- 临时关闭加速 / 缓存，然后再次访问；</p>
-<p>- 本地浏览器也可尝试 Ctrl+F5 强制刷新，或在无痕模式访问。</p>
+</li>
+</ul>
 <p>确认方式：</p>
 <ul>
 <li>直接通过 VPS IP + 80 端口访问 Nginx（绕过 EdgeOne）：</li>
 </ul>
-<pre><code>http://74.48.40.123</code></pre>
+<pre><code class="language-text">http://74.48.40.123
+</code></pre>
 <ul>
 <li>对比域名访问 <code>https://yourdomain.com</code> 的表现，若 IP 访问看到的是新配置，但域名访问仍是旧配置，则基本可确认是边缘缓存问题。</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>十一、常用维护命令备忘</h3>
 <h4>11.1 容器管理</h4>
-<pre><code>cd /root/MuMuAINovel
+<pre><code class="language-bash">cd /root/MuMuAINovel
 
 # 查看服务状态
 docker compose ps
@@ -406,59 +503,65 @@ docker logs -f mumuainovel
 docker compose down
 
 # 后台启动容器
-docker compose up -d</code></pre>
+docker compose up -d
+</code></pre>
 <h4>11.2 磁盘与日志</h4>
-<pre><code># 查看磁盘使用
+<pre><code class="language-bash"># 查看磁盘使用
 df -h
 
 # 查看日志目录
 ls -lh /mnt/logs/mumuainovel
 
 # 清空单个日志文件（不删除文件）
-truncate -s 0 /mnt/logs/mumuainovel/app.log</code></pre>
+truncate -s 0 /mnt/logs/mumuainovel/app.log
+</code></pre>
 <h4>11.3 Nginx 管理</h4>
-<pre><code># 检查配置
+<pre><code class="language-bash"># 检查配置
 nginx -t
 
 # 重启 Nginx
 systemctl restart nginx
 
 # 查看 Nginx 状态
-systemctl status nginx</code></pre>
-<p>---</p>
+systemctl status nginx
+</code></pre>
+<hr>
 <h3>十二、小结</h3>
 <p>这次在 RackNerd 小内存 VPS 上部署 MuMuAINovel 的完整流程包括：</p>
 <ol>
-<li>初始化系统与 Swap，并挂载独立日志盘到 <code>/mnt/logs</code>；</li>
+<li>
+<p>初始化系统与 Swap，并挂载独立日志盘到 <code>/mnt/logs</code>；</p>
+</li>
+<li>
+<p>安装 Docker 与 <code>docker compose</code>；</p>
+</li>
+<li>
+<p>克隆 MuMuAINovel 项目到 <code>/root/MuMuAINovel</code>；</p>
+</li>
+<li>
+<p>配置 <code>.env</code> 包含数据库、中转 OpenAI、默认模型及本地账号；</p>
+</li>
+<li>
+<p>调整 <code>docker-compose.yml</code>：使用官方镜像、挂载日志到 <code>/mnt/logs/mumuainovel</code>、只绑定本地 8000 端口；</p>
+</li>
+<li>
+<p>启动 <code>postgres</code> 与 <code>mumuainovel</code> 容器，确认应用可在本地访问；</p>
+</li>
+<li>
+<p>安装 Nginx，配置 80 端口反向代理到 <code>127.0.0.1:8000</code>；</p>
+</li>
+<li>
+<p>在 EdgeOne 上完成域名解析、免费证书和 HTTPS 回源配置；</p>
+</li>
+<li>
+<p>编写一键更新脚本，简化后续维护操作；</p>
+</li>
+<li>
+<p>通过容器环境变量检查 + 绕过 EdgeOne 访问，定位并解决了“配置似乎没有更新”这一缓存问题。</p>
+</li>
 </ol>
-<ol>
-<li>安装 Docker 与 <code>docker compose</code>；</li>
-</ol>
-<ol>
-<li>克隆 MuMuAINovel 项目到 <code>/root/MuMuAINovel</code>；</li>
-</ol>
-<ol>
-<li>配置 <code>.env</code> 包含数据库、中转 OpenAI、默认模型及本地账号；</li>
-</ol>
-<ol>
-<li>调整 <code>docker-compose.yml</code>：使用官方镜像、挂载日志到 <code>/mnt/logs/mumuainovel</code>、只绑定本地 8000 端口；</li>
-</ol>
-<ol>
-<li>启动 <code>postgres</code> 与 <code>mumuainovel</code> 容器，确认应用可在本地访问；</li>
-</ol>
-<ol>
-<li>安装 Nginx，配置 80 端口反向代理到 <code>127.0.0.1:8000</code>；</li>
-</ol>
-<ol>
-<li>在 EdgeOne 上完成域名解析、免费证书和 HTTPS 回源配置；</li>
-</ol>
-<ol>
-<li>编写一键更新脚本，简化后续维护操作；</li>
-</ol>
-<ol>
-<li>通过容器环境变量检查 + 绕过 EdgeOne 访问，定位并解决了“配置似乎没有更新”这一缓存问题。</li>
-</ol>
-<p>这份笔记可以作为今后在其他 VPS 上复用 / 再部署 MuMuAINovel 的模板，也方便排查类似“配置不生效”“日志占满磁盘”“域名访问异常”等常见问题。</p></div>
+<p>这份笔记可以作为今后在其他 VPS 上复用 / 再部署 MuMuAINovel 的模板，也方便排查类似“配置不生效”“日志占满磁盘”“域名访问异常”等常见问题。</p>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

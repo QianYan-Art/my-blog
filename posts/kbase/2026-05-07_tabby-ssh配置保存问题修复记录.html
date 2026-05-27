@@ -41,7 +41,7 @@
       <p class="post-kicker">本地记录</p>
       <h1>Tabby-SSH配置保存问题修复记录</h1>
       <div class="post-meta"><span>2026-05-07</span><span>6 min</span></div>
-      <div class="article-card__tags"></div>
+      <div class="article-card__tags"><span>a-本机配置</span></div>
       <div class="post-content"><h3>结论</h3>
 <p>本机 Tabby 已修复“新建 SSH 配置点击保存无反应 / 保存后不出现在列表里”的问题。</p>
 <p>当前本机状态已恢复到接近排障前，仅保留必要修复补丁；用户原有壁纸、插件、自定义配置已恢复。</p>
@@ -56,16 +56,27 @@
 <h3>已定位的根因</h3>
 <p>本机实际排查到 3 个问题：</p>
 <ol>
-<li>SSH 配置页对旧配置里的 <code>algorithms: {}</code> 不兼容。</li>
-<p>- 会触发： - <code>this.profile.options.algorithms[k] is not iterable</code></p>
-</ol>
-<ol>
-<li>配置编辑弹窗保存时无条件调用 <code>profile.__cleanup()</code>。</li>
-<p>- 新建配置对象不一定带这个方法。 - 会触发： - <code>this.profile.__cleanup is not a function</code></p>
-</ol>
-<ol>
-<li>配置编辑弹窗关闭时返回了旧对象，而不是当前编辑后的序列化结果。</li>
-<p>- 结果是弹窗关闭了，但新建 profile 没有真正落盘到配置列表。</p>
+<li>
+<p>SSH 配置页对旧配置里的 <code>algorithms: {}</code> 不兼容。</p>
+<ul>
+<li>会触发：</li>
+<li><code>this.profile.options.algorithms[k] is not iterable</code></li>
+</ul>
+</li>
+<li>
+<p>配置编辑弹窗保存时无条件调用 <code>profile.__cleanup()</code>。</p>
+<ul>
+<li>新建配置对象不一定带这个方法。</li>
+<li>会触发：</li>
+<li><code>this.profile.__cleanup is not a function</code></li>
+</ul>
+</li>
+<li>
+<p>配置编辑弹窗关闭时返回了旧对象，而不是当前编辑后的序列化结果。</p>
+<ul>
+<li>结果是弹窗关闭了，但新建 profile 没有真正落盘到配置列表。</li>
+</ul>
+</li>
 </ol>
 <h3>本机保留的修复</h3>
 <p>本机当前仅保留 2 处安装目录补丁：</p>
@@ -82,16 +93,39 @@
 <h3>已恢复的本机状态</h3>
 <p>本次排障结束后，以下内容已恢复：</p>
 <ul>
-<li><code>C:\Users\lenovo\AppData\Roaming\tabby\plugins</code></li>
-<p>- 已恢复原有第三方插件： - <code>tabby-background</code> - <code>tabby-colors-noctis</code></p>
-</ul>
+<li>
+<p><code>C:\Users\lenovo\AppData\Roaming\tabby\plugins</code></p>
 <ul>
-<li>以下用户态文件/目录已从备份恢复：</li>
-<p>- <code>Preferences</code> - <code>Local State</code> - <code>Local Storage</code> - <code>Session Storage</code> - <code>GPUCache</code> - <code>Code Cache</code> - <code>blob_storage</code> - <code>DawnGraphiteCache</code> - <code>DawnWebGPUCache</code> - <code>SharedStorage</code> - <code>SharedStorage-wal</code> - <code>window.json</code></p>
+<li>已恢复原有第三方插件：</li>
+<li><code>tabby-background</code></li>
+<li><code>tabby-colors-noctis</code></li>
 </ul>
+</li>
+<li>
+<p>以下用户态文件/目录已从备份恢复：</p>
 <ul>
-<li><code>config.yaml</code> 中已清理本次排障临时条目：</li>
-<p>- <code>netcup</code> - <code>pr-check-temp</code> - 对应的临时 host key 记录</p>
+<li><code>Preferences</code></li>
+<li><code>Local State</code></li>
+<li><code>Local Storage</code></li>
+<li><code>Session Storage</code></li>
+<li><code>GPUCache</code></li>
+<li><code>Code Cache</code></li>
+<li><code>blob_storage</code></li>
+<li><code>DawnGraphiteCache</code></li>
+<li><code>DawnWebGPUCache</code></li>
+<li><code>SharedStorage</code></li>
+<li><code>SharedStorage-wal</code></li>
+<li><code>window.json</code></li>
+</ul>
+</li>
+<li>
+<p><code>config.yaml</code> 中已清理本次排障临时条目：</p>
+<ul>
+<li><code>netcup</code></li>
+<li><code>pr-check-temp</code></li>
+<li>对应的临时 host key 记录</li>
+</ul>
+</li>
 </ul>
 <h3>已删除的中间文件</h3>
 <p>以下排障中间文件已删除：</p>
@@ -108,14 +142,20 @@
 <ul>
 <li>仓库：<code>Eugeny/tabby</code></li>
 <li>分支：<code>QianYan-Art:fix/profile-save-regressions</code></li>
-<li>PR 标题：</li>
-<p>- <code>fix: persist new SSH profiles from settings</code></p>
+<li>PR 标题：
+<ul>
+<li><code>fix: persist new SSH profiles from settings</code></li>
+</ul>
+</li>
 </ul>
 <p>后续结果：</p>
 <ul>
 <li>维护者已查看 PR，但未直接合并该分支。</li>
-<li>原因是：</li>
-<p>- 该 PR 中通过 <code>JSON</code> 序列化返回编辑结果的做法会破坏 <code>ConfigProxy</code> 实例。</p>
+<li>原因是：
+<ul>
+<li>该 PR 中通过 <code>JSON</code> 序列化返回编辑结果的做法会破坏 <code>ConfigProxy</code> 实例。</li>
+</ul>
+</li>
 <li>维护者说明他已自行加入正确修复，并关闭了该 PR。</li>
 </ul>
 <p>维护者在评论中给出的参考提交：</p>
@@ -179,8 +219,12 @@
 </ul>
 <p>本机处理方式：</p>
 <ul>
-<li>直接修正 <code>C:\Users\lenovo\AppData\Roaming\tabby\config.yaml</code> 中该 profile：</li>
-<p>- 删除空的 <code>algorithms</code> 覆盖 - 显式设置 <code>auth: password</code></p>
+<li>直接修正 <code>C:\Users\lenovo\AppData\Roaming\tabby\config.yaml</code> 中该 profile：
+<ul>
+<li>删除空的 <code>algorithms</code> 覆盖</li>
+<li>显式设置 <code>auth: password</code></li>
+</ul>
+</li>
 <li>重启 Tabby 重新读取配置</li>
 </ul>
 <p>结论：</p>
@@ -204,7 +248,8 @@
 <ul>
 <li>若只是收尾，可删除该分支保持 fork 整洁</li>
 <li>若后续还想复盘、比对实现差异，可暂时保留</li>
-</ul></div>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

@@ -63,7 +63,7 @@
 <ul>
 <li><code>/home/hermes/HERMES_MAIL_VPS_INTEGRATION.md</code></li>
 </ul>
-<p>---</p>
+<hr>
 <h3>2. 机器与链路</h3>
 <p>Hermes 服务器：</p>
 <ul>
@@ -94,39 +94,76 @@
 <li>当前 <code>23.238.70.240 -&gt; mail.qianyan.me</code> 的 PTR / rDNS 已生效</li>
 <li>2026-05-21 晚间复核：邮件 VPS 本机发往 Gmail 的测试邮件已被接收，说明新 IP 的 rDNS 与出站链路当前可用</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>3. Hermes 侧路径</h3>
 <ul>
-<li>顶层 skill：</li>
-<p>- <code>/home/hermes/.hermes/skills/mail-vps-ops/SKILL.md</code></p>
-<li>包装脚本：</li>
-<p>- <code>/home/hermes/.hermes/bin/mail_vps_fetch.py</code></p>
-<li>只读 key：</li>
-<p>- <code>/home/hermes/.ssh/mail_vps_readonly_ed25519</code></p>
-<li>读写 key：</li>
-<p>- <code>/home/hermes/.ssh/mail_vps_readwrite_ed25519</code></p>
-<li>附件缓存目录：</li>
-<p>- <code>/home/hermes/.hermes/cache/mail_attachments/</code></p>
+<li>顶层 skill：
+<ul>
+<li><code>/home/hermes/.hermes/skills/mail-vps-ops/SKILL.md</code></li>
 </ul>
-<p>---</p>
+</li>
+<li>包装脚本：
+<ul>
+<li><code>/home/hermes/.hermes/bin/mail_vps_fetch.py</code></li>
+</ul>
+</li>
+<li>只读 key：
+<ul>
+<li><code>/home/hermes/.ssh/mail_vps_readonly_ed25519</code></li>
+</ul>
+</li>
+<li>读写 key：
+<ul>
+<li><code>/home/hermes/.ssh/mail_vps_readwrite_ed25519</code></li>
+</ul>
+</li>
+<li>附件缓存目录：
+<ul>
+<li><code>/home/hermes/.hermes/cache/mail_attachments/</code></li>
+</ul>
+</li>
+</ul>
+<hr>
 <h3>4. 邮件 VPS 侧路径</h3>
 <ul>
-<li>通用脚本：</li>
-<p>- <code>/root/mail_ops/mail_read.py</code></p>
-<li>Hermes 受限 API：</li>
-<p>- <code>/usr/local/bin/hermes-mail-api.py</code></p>
-<li>SSH 强制命令网关：</li>
-<p>- <code>/usr/local/bin/hermes-mail-ssh-gateway</code></p>
-<li>sudoers：</li>
-<p>- <code>/etc/sudoers.d/hermesmail-mail-api</code></p>
-<li>只读账号：</li>
-<p>- <code>hermesmail</code></p>
-<li>读写账号：</li>
-<p>- <code>hermesmailrw</code></p>
-<li>受限 authorized_keys：</li>
-<p>- <code>/home/hermesmail/.ssh/authorized_keys</code> - <code>/home/hermesmailrw/.ssh/authorized_keys</code></p>
+<li>通用脚本：
+<ul>
+<li><code>/root/mail_ops/mail_read.py</code></li>
 </ul>
-<p>---</p>
+</li>
+<li>Hermes 受限 API：
+<ul>
+<li><code>/usr/local/bin/hermes-mail-api.py</code></li>
+</ul>
+</li>
+<li>SSH 强制命令网关：
+<ul>
+<li><code>/usr/local/bin/hermes-mail-ssh-gateway</code></li>
+</ul>
+</li>
+<li>sudoers：
+<ul>
+<li><code>/etc/sudoers.d/hermesmail-mail-api</code></li>
+</ul>
+</li>
+<li>只读账号：
+<ul>
+<li><code>hermesmail</code></li>
+</ul>
+</li>
+<li>读写账号：
+<ul>
+<li><code>hermesmailrw</code></li>
+</ul>
+</li>
+<li>受限 authorized_keys：
+<ul>
+<li><code>/home/hermesmail/.ssh/authorized_keys</code></li>
+<li><code>/home/hermesmailrw/.ssh/authorized_keys</code></li>
+</ul>
+</li>
+</ul>
+<hr>
 <h3>5. 命令能力</h3>
 <p>只读：</p>
 <ul>
@@ -150,30 +187,32 @@
 <li><code>attachment</code></li>
 <li><code>message_ref</code></li>
 </ul>
-<p>---</p>
+<hr>
 <h3>6. QQ 发附件规则</h3>
 <p>当用户要求“把附件发给我”时：</p>
 <ol>
 <li>先运行：</li>
 </ol>
-<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py fetch-attachment --email &lt;完整邮箱&gt; --message-ref &lt;message_ref&gt; --attachment-index 1</code></pre>
-<ol>
+<pre><code class="language-bash">/home/hermes/.hermes/bin/mail_vps_fetch.py fetch-attachment --email &lt;完整邮箱&gt; --message-ref &lt;message_ref&gt; --attachment-index 1
+</code></pre>
+<ol start="2">
 <li>读取返回 JSON 中的：</li>
 </ol>
 <ul>
 <li><code>local_path</code></li>
 <li><code>media_tag</code></li>
 </ul>
-<ol>
+<ol start="3">
 <li>回复时单独输出：</li>
 </ol>
-<pre><code>MEDIA:/home/hermes/.hermes/cache/mail_attachments/xxx.ext</code></pre>
+<pre><code class="language-text">MEDIA:/home/hermes/.hermes/cache/mail_attachments/xxx.ext
+</code></pre>
 <p>网关会按本地文件路径原生发送：</p>
 <ul>
 <li>图片走图片发送</li>
 <li>其他附件走 document/file 发送</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>7. 写操作安全边界</h3>
 <p>当前策略：</p>
 <ul>
@@ -188,29 +227,38 @@
 <li>删除类操作优先 <code>move-mail-to-trash</code></li>
 <li><code>delete-mail</code> 仅用于明确确认的永久删除</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>8. 常用调用</h3>
 <p>列邮箱：</p>
-<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py list-mailboxes
-/home/hermes/.hermes/bin/mail_vps_fetch.py list-mailboxes --domain mail.qianyan.me</code></pre>
+<pre><code class="language-bash">/home/hermes/.hermes/bin/mail_vps_fetch.py list-mailboxes
+/home/hermes/.hermes/bin/mail_vps_fetch.py list-mailboxes --domain mail.qianyan.me
+</code></pre>
 <p>读邮件：</p>
-<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py read-mail --email user@mail.qianyan.me
-/home/hermes/.hermes/bin/mail_vps_fetch.py read-mail --email user@mail.qianyan.me --require-code --want message_ref,codes,snippet,attachments</code></pre>
+<pre><code class="language-bash">/home/hermes/.hermes/bin/mail_vps_fetch.py read-mail --email user@mail.qianyan.me
+/home/hermes/.hermes/bin/mail_vps_fetch.py read-mail --email user@mail.qianyan.me --require-code --want message_ref,codes,snippet,attachments
+</code></pre>
 <p>列附件：</p>
-<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py list-attachments --email user@mail.qianyan.me --message-ref cur/xxxx</code></pre>
+<pre><code class="language-bash">/home/hermes/.hermes/bin/mail_vps_fetch.py list-attachments --email user@mail.qianyan.me --message-ref cur/xxxx
+</code></pre>
 <p>取附件：</p>
-<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py fetch-attachment --email user@mail.qianyan.me --message-ref cur/xxxx --attachment-index 1</code></pre>
+<pre><code class="language-bash">/home/hermes/.hermes/bin/mail_vps_fetch.py fetch-attachment --email user@mail.qianyan.me --message-ref cur/xxxx --attachment-index 1
+</code></pre>
 <p>发信：</p>
-<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py send-mail --from-email shi@mail.qianyan.me --to user@example.com --subject &quot;主题&quot; --body &quot;正文&quot;</code></pre>
+<pre><code class="language-bash">/home/hermes/.hermes/bin/mail_vps_fetch.py send-mail --from-email shi@mail.qianyan.me --to user@example.com --subject &quot;主题&quot; --body &quot;正文&quot;
+</code></pre>
 <p>回复：</p>
-<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py reply-mail --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx --from-email a3k7m2@mail.qianyan.me --body &quot;回复正文&quot;</code></pre>
+<pre><code class="language-bash">/home/hermes/.hermes/bin/mail_vps_fetch.py reply-mail --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx --from-email a3k7m2@mail.qianyan.me --body &quot;回复正文&quot;
+</code></pre>
 <p>转发：</p>
-<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py forward-mail --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx --from-email a3k7m2@mail.qianyan.me --to other@example.com --body &quot;转发说明&quot;</code></pre>
+<pre><code class="language-bash">/home/hermes/.hermes/bin/mail_vps_fetch.py forward-mail --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx --from-email a3k7m2@mail.qianyan.me --to other@example.com --body &quot;转发说明&quot;
+</code></pre>
 <p>移到 Trash：</p>
-<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py move-mail-to-trash --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx</code></pre>
+<pre><code class="language-bash">/home/hermes/.hermes/bin/mail_vps_fetch.py move-mail-to-trash --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx
+</code></pre>
 <p>永久删除：</p>
-<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py delete-mail --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx</code></pre>
-<p>---</p>
+<pre><code class="language-bash">/home/hermes/.hermes/bin/mail_vps_fetch.py delete-mail --email a3k7m2@mail.qianyan.me --message-ref cur/xxxx
+</code></pre>
+<hr>
 <h3>9. 当前验证结论</h3>
 <p>2026-05-18 已实测通过：</p>
 <ul>
@@ -231,22 +279,42 @@
 <li>邮件 VPS 主机名当前正常：<code>post-station</code></li>
 <li>邮件服务域名当前仍为：<code>mail.qianyan.me</code></li>
 </ul>
-<p>---</p>
+<hr>
 <h3>10. 清理规则</h3>
 <p>Hermes：</p>
 <ul>
-<li>可清理测试附件缓存：</li>
-<p>- <code>/home/hermes/.hermes/cache/mail_attachments/</code></p>
-<li>不要删除：</li>
-<p>- <code>/home/hermes/.ssh/mail_vps_readonly_ed25519</code> - <code>/home/hermes/.ssh/mail_vps_readwrite_ed25519</code> - <code>/home/hermes/.hermes/bin/mail_vps_fetch.py</code> - <code>/home/hermes/.hermes/skills/mail-vps-ops/</code></p>
+<li>可清理测试附件缓存：
+<ul>
+<li><code>/home/hermes/.hermes/cache/mail_attachments/</code></li>
+</ul>
+</li>
+<li>不要删除：
+<ul>
+<li><code>/home/hermes/.ssh/mail_vps_readonly_ed25519</code></li>
+<li><code>/home/hermes/.ssh/mail_vps_readwrite_ed25519</code></li>
+<li><code>/home/hermes/.hermes/bin/mail_vps_fetch.py</code></li>
+<li><code>/home/hermes/.hermes/skills/mail-vps-ops/</code></li>
+</ul>
+</li>
 </ul>
 <p>邮件 VPS：</p>
 <ul>
-<li>已淘汰旧脚本：</li>
-<p>- <code>/root/mail_ops/mail_verify.py</code></p>
-<li>不要删除：</li>
-<p>- <code>/root/mail_ops/mail_read.py</code> - <code>/usr/local/bin/hermes-mail-api.py</code> - <code>/usr/local/bin/hermes-mail-ssh-gateway</code> - <code>/etc/sudoers.d/hermesmail-mail-api</code> - 两个 <code>authorized_keys</code></p>
-</ul></div>
+<li>已淘汰旧脚本：
+<ul>
+<li><code>/root/mail_ops/mail_verify.py</code></li>
+</ul>
+</li>
+<li>不要删除：
+<ul>
+<li><code>/root/mail_ops/mail_read.py</code></li>
+<li><code>/usr/local/bin/hermes-mail-api.py</code></li>
+<li><code>/usr/local/bin/hermes-mail-ssh-gateway</code></li>
+<li><code>/etc/sudoers.d/hermesmail-mail-api</code></li>
+<li>两个 <code>authorized_keys</code></li>
+</ul>
+</li>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

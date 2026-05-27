@@ -42,107 +42,143 @@
       <h1>mc服务器初部署</h1>
       <div class="post-meta"><span>2026-01-23</span><span>13 min</span></div>
       <div class="article-card__tags"><span>c-仅记录</span></div>
-      <div class="post-content"><blockquote>适用场景：你在日本服务器（Debian 11）上，用 Docker Compose 部署 Fabric 服务器，并把整合包 mods/config 同步到服务端。本文是“今天实际做过的操作”的复盘 + 后续维护指北。</blockquote>
-<p>---</p>
+      <div class="post-content"><blockquote>
+<p>适用场景：你在日本服务器（Debian 11）上，用 Docker Compose 部署 Fabric 服务器，并把整合包 mods/config 同步到服务端。本文是“今天实际做过的操作”的复盘 + 后续维护指北。</p>
+</blockquote>
+<hr>
 <h3>0. 你现在这台服务器上有什么（现状概览）</h3>
 <h4>系统与 Docker</h4>
 <ul>
-<li>系统：Debian GNU/Linux 11（bullseye）</li>
-</ul>
-<ul>
-<li>Docker：20.10.x</li>
-</ul>
-<ul>
-<li>Docker Compose：v5.x</li>
+<li>
+<p>系统：Debian GNU/Linux 11（bullseye）</p>
+</li>
+<li>
+<p>Docker：20.10.x</p>
+</li>
+<li>
+<p>Docker Compose：v5.x</p>
+</li>
 </ul>
 <h4>容器 / 镜像（从你截图里看到的）</h4>
 <ol>
 <li><strong>游戏服容器</strong></li>
 </ol>
 <ul>
-<li>容器：<code>mc-mc-1</code></li>
+<li>
+<p>容器：<code>mc-mc-1</code></p>
+</li>
+<li>
+<p>镜像：<code>itzg/minecraft-server:stable-java21-jdk</code></p>
+</li>
+<li>
+<p>端口：<code>0.0.0.0:25565-&gt;25565/tcp</code></p>
+</li>
+<li>
+<p>状态：<code>healthy</code>（健康）</p>
+</li>
 </ul>
-<ul>
-<li>镜像：<code>itzg/minecraft-server:stable-java21-jdk</code></li>
-</ul>
-<ul>
-<li>端口：<code>0.0.0.0:25565-&gt;25565/tcp</code></li>
-</ul>
-<ul>
-<li>状态：<code>healthy</code>（健康）</li>
-</ul>
-<ol>
+<ol start="2">
 <li><strong>皎月连 / NatPierce 容器</strong></li>
 </ol>
 <ul>
-<li>容器：<code>natpierce</code></li>
-</ul>
-<ul>
-<li>镜像：<code>xiyu505/natpierce:latest</code></li>
-</ul>
-<ul>
-<li>状态：<code>Exited (137)</code>（目前未运行）</li>
-</ul>
-<ul>
-<li>作用：用于把“虚拟网段/内网穿透/点对点”之类的连接能力带到服务器上（但你现在已经改成公网直连为主，所以它可以不用常驻）。</li>
+<li>
+<p>容器：<code>natpierce</code></p>
+</li>
+<li>
+<p>镜像：<code>xiyu505/natpierce:latest</code></p>
+</li>
+<li>
+<p>状态：<code>Exited (137)</code>（目前未运行）</p>
+</li>
+<li>
+<p>作用：用于把“虚拟网段/内网穿透/点对点”之类的连接能力带到服务器上（但你现在已经改成公网直连为主，所以它可以不用常驻）。</p>
+</li>
 </ul>
 <h4>网络 / 卷</h4>
 <ul>
-<li>Compose 默认会创建一个项目网络：<code>mc_default</code>（给 mc 项目容器互联用）</li>
+<li>
+<p>Compose 默认会创建一个项目网络：<code>mc_default</code>（给 mc 项目容器互联用）</p>
+</li>
+<li>
+<p>另外你系统里还有默认的 <code>bridge/host/none</code></p>
+</li>
+<li>
+<p><code>natpierce_data</code> 卷：这是皎月连容器的持久化数据卷（<strong>不是</strong> MC 的世界存档）</p>
+</li>
 </ul>
-<ul>
-<li>另外你系统里还有默认的 <code>bridge/host/none</code></li>
-</ul>
-<ul>
-<li><code>natpierce_data</code> 卷：这是皎月连容器的持久化数据卷（<strong>不是</strong> MC 的世界存档）</li>
-</ul>
-<p>---</p>
+<hr>
 <h3>1. 今天你做了哪些关键步骤（以及每步的意义）</h3>
 <h4>1.1 发现系统环境和包安装差异</h4>
 <p>你一开始以为是 Ubuntu 24.04，但实际是 Debian 11；同时 apt 源里出现 archive 源/安全源的组合。</p>
 <ul>
-<li>意义：不同发行版的 Java 包名/版本不同，导致你最开始安装 <code>openjdk-21-jre-headless</code> 报“没有候选”。</li>
-</ul>
-<ul>
-<li>解决思路：改用 Docker 方案（容器里自带 Java），避免在宿主机折腾 JDK 版本。</li>
+<li>
+<p>意义：不同发行版的 Java 包名/版本不同，导致你最开始安装 <code>openjdk-21-jre-headless</code> 报“没有候选”。</p>
+</li>
+<li>
+<p>解决思路：改用 Docker 方案（容器里自带 Java），避免在宿主机折腾 JDK 版本。</p>
+</li>
 </ul>
 <h4>1.2 选择 Docker 方案部署 Minecraft Server（核心架构）</h4>
 <p>你最终用了 <strong>itzg/minecraft-server</strong> 这个成熟镜像，并用 <code>docker compose up -d</code> 让它在后台运行。</p>
 <ul>
-<li>意义：</li>
+<li>
+<p>意义：</p>
+<ul>
+<li>
+<p>Minecraft 服务端（Fabric/Forge/Paper 等）在容器里跑；</p>
+</li>
+<li>
+<p>世界存档、配置、mods 通过挂载目录持久化；</p>
+</li>
+<li>
+<p>以后更新/重启/备份都变得可控。</p>
+</li>
 </ul>
-<p>- Minecraft 服务端（Fabric/Forge/Paper 等）在容器里跑；</p>
-<p>- 世界存档、配置、mods 通过挂载目录持久化；</p>
-<p>- 以后更新/重启/备份都变得可控。</p>
+</li>
+</ul>
 <h4>1.3 Fabric 服务器启动与首启下载</h4>
 <p>日志里能看到：</p>
 <ul>
-<li>下载 Fabric server jar（对应 MC 1.21.1 + loader 0.18.x）</li>
-</ul>
-<ul>
-<li>首次生成 <code>server.properties</code></li>
-</ul>
-<ul>
-<li>监听 <code>*:25565</code></li>
-</ul>
-<ul>
-<li>启动 RCON（<code>25575</code>）</li>
+<li>
+<p>下载 Fabric server jar（对应 MC 1.21.1 + loader 0.18.x）</p>
+</li>
+<li>
+<p>首次生成 <code>server.properties</code></p>
+</li>
+<li>
+<p>监听 <code>*:25565</code></p>
+</li>
+<li>
+<p>启动 RCON（<code>25575</code>）</p>
+</li>
 </ul>
 <p>意义：</p>
 <ul>
-<li><strong>25565</strong> 是玩家进服端口</li>
-</ul>
-<ul>
-<li><strong>RCON 25575</strong> 是“远程控制台端口”，用来让脚本/工具执行服务器命令（白名单、op、say、stop 等）</li>
+<li>
+<p><strong>25565</strong> 是玩家进服端口</p>
+</li>
+<li>
+<p><strong>RCON 25575</strong> 是“远程控制台端口”，用来让脚本/工具执行服务器命令（白名单、op、say、stop 等）</p>
+</li>
 </ul>
 <h4>1.4 把整合包内容同步到服务端（mods/config）</h4>
 <p>你提供的整合包 zip 是 <strong>Modrinth 格式</strong>（有 <code>modrinth.index.json</code> + <code>overrides/</code>）。</p>
 <ul>
-<li>你最初解压时发现 <code>overrides/mods</code> 只有 1 个 jar（<code>pokecoin</code>），这其实是 Modrinth 格式的正常现象：</li>
+<li>
+<p>你最初解压时发现 <code>overrides/mods</code> 只有 1 个 jar（<code>pokecoin</code>），这其实是 Modrinth 格式的正常现象：</p>
+<ul>
+<li>
+<p>真正的 mod 列表在 <code>modrinth.index.json</code></p>
+</li>
+<li>
+<p>客户端启动器会根据 index 去下载依赖</p>
+</li>
+<li>
+<p><code>overrides/</code> 里只放“额外覆盖文件”（配置、资源包、少量手动 mod）</p>
+</li>
 </ul>
-<p>- 真正的 mod 列表在 <code>modrinth.index.json</code></p>
-<p>- 客户端启动器会根据 index 去下载依赖</p>
-<p>- <code>overrides/</code> 里只放“额外覆盖文件”（配置、资源包、少量手动 mod）</p>
+</li>
+</ul>
 <p>后来你把现成的 <strong>191 个服务端 mods</strong> 放进了：</p>
 <ul>
 <li><code>/opt/mc/data/mods</code></li>
@@ -158,19 +194,29 @@
 </ul>
 <p>这类问题通常来自：</p>
 <ul>
-<li>文件名包含非 UTF-8 字符 / 控制字符</li>
-</ul>
-<ul>
-<li>复制/解压过程中编码损坏</li>
+<li>
+<p>文件名包含非 UTF-8 字符 / 控制字符</p>
+</li>
+<li>
+<p>复制/解压过程中编码损坏</p>
+</li>
 </ul>
 <p>你后面通过重新同步 mods（并验证目录内 jar 文件名正常）解决了，服务器能完整启动到 <code>Done</code>。</p>
 <h4>1.6 白名单（whitelist）与 RCON 管理</h4>
 <p>你启用了白名单，并用 <code>mcctl whitelist-list</code> 查看过（显示为空）。</p>
 <ul>
-<li>意义：</li>
+<li>
+<p>意义：</p>
+<ul>
+<li>
+<p>开服端口在公网时，白名单是第一道保护（防陌生人乱连）</p>
+</li>
+<li>
+<p>RCON 让脚本可以自动添加/删除白名单、OP 等</p>
+</li>
 </ul>
-<p>- 开服端口在公网时，白名单是第一道保护（防陌生人乱连）</p>
-<p>- RCON 让脚本可以自动添加/删除白名单、OP 等</p>
+</li>
+</ul>
 <h4>1.7 内存从 8G 调到 10G</h4>
 <p>你改了 compose 后重启，进程参数显示：</p>
 <ul>
@@ -178,119 +224,167 @@
 </ul>
 <p>意义：</p>
 <ul>
-<li><code>Xms</code> 初始堆内存，<code>Xmx</code> 最大堆内存</li>
+<li>
+<p><code>Xms</code> 初始堆内存，<code>Xmx</code> 最大堆内存</p>
+</li>
+<li>
+<p>模组服会吃内存，适度加大能减少卡顿/GC 抖动</p>
+</li>
 </ul>
-<ul>
-<li>模组服会吃内存，适度加大能减少卡顿/GC 抖动</li>
-</ul>
-<p>---</p>
+<hr>
 <h3>2. 你的“游戏服目录结构”应该怎么理解</h3>
 <p>以你现在的部署习惯（/opt/mc）为基准：</p>
 <ul>
-<li><code>/opt/mc/compose.yml</code></li>
-</ul>
-<p>- Docker Compose 配置，决定使用哪个镜像、端口映射、环境变量、挂载目录等</p>
+<li>
+<p><code>/opt/mc/compose.yml</code></p>
 <ul>
-<li><code>/opt/mc/.env</code></li>
+<li>Docker Compose 配置，决定使用哪个镜像、端口映射、环境变量、挂载目录等</li>
 </ul>
-<p>- 放一些敏感变量（例如 RCON_PASSWORD）</p>
+</li>
+<li>
+<p><code>/opt/mc/.env</code></p>
 <ul>
-<li><code>/opt/mc/data/</code>（最重要：持久化数据）</li>
+<li>放一些敏感变量（例如 RCON_PASSWORD）</li>
 </ul>
-<p>- <code>world/</code>：主世界存档（还有 nether/end 相关目录）</p>
-<p>- <code>mods/</code>：服务端 mods（你现在约 191 个）</p>
-<p>- <code>config/</code>：模组配置</p>
-<p>- <code>server.properties</code>：服务器核心配置</p>
-<p>- <code>whitelist.json</code>：白名单列表</p>
-<p>- <code>ops.json</code>：管理员列表</p>
-<p>- <code>logs/</code>：服务端日志</p>
-<p>容器内对应路径一般是 <code>/data/<em></code>（通过 volume 映射到宿主机 <code>/opt/mc/data/</em></code>）。</p>
-<p>---</p>
+</li>
+<li>
+<p><code>/opt/mc/data/</code>（最重要：持久化数据）</p>
+<ul>
+<li>
+<p><code>world/</code>：主世界存档（还有 nether/end 相关目录）</p>
+</li>
+<li>
+<p><code>mods/</code>：服务端 mods（你现在约 191 个）</p>
+</li>
+<li>
+<p><code>config/</code>：模组配置</p>
+</li>
+<li>
+<p><code>server.properties</code>：服务器核心配置</p>
+</li>
+<li>
+<p><code>whitelist.json</code>：白名单列表</p>
+</li>
+<li>
+<p><code>ops.json</code>：管理员列表</p>
+</li>
+<li>
+<p><code>logs/</code>：服务端日志</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>容器内对应路径一般是 <code>/data/*</code>（通过 volume 映射到宿主机 <code>/opt/mc/data/*</code>）。</p>
+<hr>
 <h3>3. 如何查看 / 修改关键服务器设置（server.properties）</h3>
 <h4>3.1 查看 online-mode / whitelist</h4>
 <p>在宿主机执行：</p>
 <ul>
-<li>查看 online-mode：</li>
-</ul>
-<p>- <code>grep -E &#39;^online-mode=&#39; /opt/mc/data/server.properties || true</code></p>
+<li>
+<p>查看 online-mode：</p>
 <ul>
-<li>查看白名单是否开启：</li>
+<li><code>grep -E '^online-mode=' /opt/mc/data/server.properties || true</code></li>
 </ul>
-<p>- <code>grep -E &#39;^(white-list|enforce-whitelist)=&#39; /opt/mc/data/server.properties || true</code></p>
+</li>
+<li>
+<p>查看白名单是否开启：</p>
+<ul>
+<li><code>grep -E '^(white-list|enforce-whitelist)=' /opt/mc/data/server.properties || true</code></li>
+</ul>
+</li>
+</ul>
 <p>说明：</p>
 <ul>
-<li><code>online-mode=true</code>：正版认证（玩家名与账号绑定，安全）</li>
-</ul>
-<ul>
-<li><code>white-list=true</code>：开启白名单（建议一直开）</li>
+<li>
+<p><code>online-mode=true</code>：正版认证（玩家名与账号绑定，安全）</p>
+</li>
+<li>
+<p><code>white-list=true</code>：开启白名单（建议一直开）</p>
+</li>
 </ul>
 <h4>3.2 修改后如何生效</h4>
 <ul>
-<li>修改 <code>server.properties</code> 后需要重启：</li>
+<li>
+<p>修改 <code>server.properties</code> 后需要重启：</p>
+<ul>
+<li><code>docker compose restart mc</code></li>
 </ul>
-<p>- <code>docker compose restart mc</code></p>
+</li>
+</ul>
 <p>注意：</p>
 <ul>
 <li>有些设置启动时读取，<strong>不重启不会生效</strong>。</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>4. 如何添加/删除玩家白名单、设置 OP（管理员）</h3>
 <h4>4.1 “玩家名称”是什么？</h4>
 <ul>
-<li><strong>就是玩家在进入服务器时显示的游戏名（Game Profile Name）</strong>。</li>
-</ul>
-<ul>
-<li>当 <code>online-mode=true</code> 时，玩家名来自正版账号，基本不可伪造。</li>
+<li>
+<p><strong>就是玩家在进入服务器时显示的游戏名（Game Profile Name）</strong>。</p>
+</li>
+<li>
+<p>当 <code>online-mode=true</code> 时，玩家名来自正版账号，基本不可伪造。</p>
+</li>
 </ul>
 <h4>4.2 常用操作（推荐用 mcctl/控制台，而不是手改 json）</h4>
 <p>假设你已经配置好 RCON（并且容器里启用 RCON），常见做法：</p>
 <ul>
-<li>查看白名单：<code>mcctl whitelist-list</code></li>
-</ul>
-<ul>
-<li>添加白名单：<code>mcctl whitelist-add 玩家名</code></li>
-</ul>
-<ul>
-<li>移除白名单：<code>mcctl whitelist-remove 玩家名</code></li>
-</ul>
-<ul>
-<li>给予管理员：<code>mcctl op 玩家名</code></li>
-</ul>
-<ul>
-<li>取消管理员：<code>mcctl deop 玩家名</code></li>
+<li>
+<p>查看白名单：<code>mcctl whitelist-list</code></p>
+</li>
+<li>
+<p>添加白名单：<code>mcctl whitelist-add 玩家名</code></p>
+</li>
+<li>
+<p>移除白名单：<code>mcctl whitelist-remove 玩家名</code></p>
+</li>
+<li>
+<p>给予管理员：<code>mcctl op 玩家名</code></p>
+</li>
+<li>
+<p>取消管理员：<code>mcctl deop 玩家名</code></p>
+</li>
 </ul>
 <p>如果你偶尔需要直接进控制台执行命令（不依赖 RCON），也可以：</p>
 <ul>
-<li><code>docker attach mc-mc-1</code>（进入控制台，退出用 <code>Ctrl+P</code> 再 <code>Ctrl+Q</code>）</li>
+<li>
+<p><code>docker attach mc-mc-1</code>（进入控制台，退出用 <code>Ctrl+P</code> 再 <code>Ctrl+Q</code>）</p>
+</li>
+<li>
+<p>或者用 <code>docker exec</code> 执行镜像内自带的 rcon 工具（视镜像配置而定）</p>
+</li>
 </ul>
-<ul>
-<li>或者用 <code>docker exec</code> 执行镜像内自带的 rcon 工具（视镜像配置而定）</li>
-</ul>
-<p>---</p>
+<hr>
 <h3>5. 连接方式：公网直连 + 域名（你现在在用的方案）</h3>
 <p>你现在的模式是：</p>
 <ul>
-<li>服务器开放 <code>25565/tcp</code></li>
-</ul>
-<ul>
-<li>域名做 A 记录指向服务器公网 IP  </li>
-<p>-（可选）用 SRV 记录让玩家只填域名就能自动带端口</p>
+<li>
+<p>服务器开放 <code>25565/tcp</code></p>
+</li>
+<li>
+<p>域名做 A 记录指向服务器公网 IP<br>
+-（可选）用 SRV 记录让玩家只填域名就能自动带端口</p>
+</li>
 </ul>
 <p>玩家连接（在游戏里“多人游戏”添加服务器）：</p>
 <ul>
-<li>如果 SRV 记录正确：直接填 <code>你的域名</code></li>
-</ul>
-<ul>
-<li>如果没有 SRV 或不确定：填 <code>你的域名:25565</code> 或 <code>公网IP:25565</code></li>
+<li>
+<p>如果 SRV 记录正确：直接填 <code>你的域名</code></p>
+</li>
+<li>
+<p>如果没有 SRV 或不确定：填 <code>你的域名:25565</code> 或 <code>公网IP:25565</code></p>
+</li>
 </ul>
 <p>安全建议：</p>
 <ul>
-<li>只开放 <code>25565/tcp</code> 给公网</li>
+<li>
+<p>只开放 <code>25565/tcp</code> 给公网</p>
+</li>
+<li>
+<p><strong>不要把 <code>25575</code>（RCON）开放到公网</strong>，保持仅本机/容器网络可访问</p>
+</li>
 </ul>
-<ul>
-<li><strong>不要把 <code>25575</code>（RCON）开放到公网</strong>，保持仅本机/容器网络可访问</li>
-</ul>
-<p>---</p>
+<hr>
 <h3>6. 皎月连 / NatPierce 你还需要吗？</h3>
 <h4>6.1 你截图里的 natpierce 容器是什么状态</h4>
 <ul>
@@ -298,74 +392,88 @@
 </ul>
 <h4>6.2 用公网直连 vs 虚拟网段（皎月连）怎么选</h4>
 <ul>
-<li><strong>公网直连优点</strong>：最简单、最少环节、延迟最稳定（只要线路 OK）</li>
-</ul>
-<ul>
-<li><strong>虚拟网段/穿透优点</strong>：不用开公网端口、某些网络环境下更容易联机</li>
+<li>
+<p><strong>公网直连优点</strong>：最简单、最少环节、延迟最稳定（只要线路 OK）</p>
+</li>
+<li>
+<p><strong>虚拟网段/穿透优点</strong>：不用开公网端口、某些网络环境下更容易联机</p>
+</li>
 </ul>
 <p>你目前已经能通过域名直连成功，所以推荐：</p>
 <ul>
-<li>公网直连作为主方案</li>
+<li>
+<p>公网直连作为主方案</p>
+</li>
+<li>
+<p>NatPierce 作为“备用方案”，需要时再起容器</p>
+</li>
 </ul>
-<ul>
-<li>NatPierce 作为“备用方案”，需要时再起容器</li>
-</ul>
-<p>---</p>
+<hr>
 <h3>7. 日常运维：查看状态、日志、重启、更新</h3>
 <h4>7.1 常用状态命令</h4>
 <p>在 <code>/opt/mc</code>：</p>
 <ul>
-<li><code>docker compose ps</code>：看容器是否 healthy</li>
-</ul>
-<ul>
-<li><code>docker compose logs -f mc</code>：实时看日志</li>
-</ul>
-<ul>
-<li><code>docker stats --no-stream mc-mc-1</code>：看 CPU/内存占用</li>
+<li>
+<p><code>docker compose ps</code>：看容器是否 healthy</p>
+</li>
+<li>
+<p><code>docker compose logs -f mc</code>：实时看日志</p>
+</li>
+<li>
+<p><code>docker stats --no-stream mc-mc-1</code>：看 CPU/内存占用</p>
+</li>
 </ul>
 <h4>7.2 重启/停止/启动</h4>
 <ul>
-<li><code>docker compose restart mc</code></li>
-</ul>
-<ul>
-<li><code>docker compose stop mc</code></li>
-</ul>
-<ul>
-<li><code>docker compose up -d</code></li>
+<li>
+<p><code>docker compose restart mc</code></p>
+</li>
+<li>
+<p><code>docker compose stop mc</code></p>
+</li>
+<li>
+<p><code>docker compose up -d</code></p>
+</li>
 </ul>
 <h4>7.3 更新“更新的是什么”</h4>
 <p>你的更新一般包含三块：</p>
 <ol>
-<li><strong>镜像更新</strong>：<code>itzg/minecraft-server</code> 镜像更新（脚本/Java/辅助工具）</li>
-</ol>
-<ol>
-<li><strong>Fabric/MC 服务端文件更新</strong>：由镜像启动流程根据你指定版本去下载/更新</li>
-</ol>
-<ol>
-<li><strong>mods 更新</strong>：你手动替换 <code>/opt/mc/data/mods</code> 下的 jar</li>
+<li>
+<p><strong>镜像更新</strong>：<code>itzg/minecraft-server</code> 镜像更新（脚本/Java/辅助工具）</p>
+</li>
+<li>
+<p><strong>Fabric/MC 服务端文件更新</strong>：由镜像启动流程根据你指定版本去下载/更新</p>
+</li>
+<li>
+<p><strong>mods 更新</strong>：你手动替换 <code>/opt/mc/data/mods</code> 下的 jar</p>
+</li>
 </ol>
 <p>常用镜像更新命令：</p>
 <ul>
-<li><code>docker compose pull</code></li>
-</ul>
-<ul>
-<li><code>docker compose up -d</code></li>
+<li>
+<p><code>docker compose pull</code></p>
+</li>
+<li>
+<p><code>docker compose up -d</code></p>
+</li>
 </ul>
 <p>注意：</p>
 <ul>
 <li>更新镜像前先备份（尤其是 world）。</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>8. 备份策略（保留 7 天）应该怎么做</h3>
 <p>推荐备份包含：</p>
 <ul>
-<li><code>world/</code>（必须）</li>
-</ul>
-<ul>
-<li><code>config/</code>（建议）</li>
-</ul>
-<ul>
-<li><code>server.properties</code>、<code>whitelist.json</code>、<code>ops.json</code></li>
+<li>
+<p><code>world/</code>（必须）</p>
+</li>
+<li>
+<p><code>config/</code>（建议）</p>
+</li>
+<li>
+<p><code>server.properties</code>、<code>whitelist.json</code>、<code>ops.json</code></p>
+</li>
 </ul>
 <p>备份目录建议：</p>
 <ul>
@@ -373,29 +481,43 @@
 </ul>
 <p>备份动作建议（原则）：</p>
 <ol>
-<li>先让服务器“落盘保存”</li>
-</ol>
-<ol>
-<li>再打包备份</li>
-</ol>
-<ol>
-<li>删除 7 天前的备份文件</li>
+<li>
+<p>先让服务器“落盘保存”</p>
+</li>
+<li>
+<p>再打包备份</p>
+</li>
+<li>
+<p>删除 7 天前的备份文件</p>
+</li>
 </ol>
 <p>你已经有 <code>mcctl</code> 脚本（或后续会完善）时：</p>
 <ul>
-<li>重点关注：</li>
+<li>
+<p>重点关注：</p>
+<ul>
+<li>
+<p>是否能触发保存（save-all）</p>
+</li>
+<li>
+<p>备份文件命名（含日期时间）</p>
+</li>
+<li>
+<p>清理策略（只留最近 7 天）</p>
+</li>
 </ul>
-<p>- 是否能触发保存（save-all）</p>
-<p>- 备份文件命名（含日期时间）</p>
-<p>- 清理策略（只留最近 7 天）</p>
-<p>---</p>
+</li>
+</ul>
+<hr>
 <h3>9. 如何添加/删除 Mod（服务端应该怎么操作）</h3>
 <h4>9.1 你需要先搞清“这个 mod 属于哪类”</h4>
 <ul>
-<li><strong>服务端必装</strong>：功能型、内容型（生物、方块、任务、战斗系统等）</li>
-</ul>
-<ul>
-<li><strong>客户端可选</strong>：UI、美化、性能、地图显示等（不影响服务器逻辑）</li>
+<li>
+<p><strong>服务端必装</strong>：功能型、内容型（生物、方块、任务、战斗系统等）</p>
+</li>
+<li>
+<p><strong>客户端可选</strong>：UI、美化、性能、地图显示等（不影响服务器逻辑）</p>
+</li>
 </ul>
 <p>经验法则：</p>
 <ul>
@@ -403,180 +525,241 @@
 </ul>
 <h4>9.2 添加 Mod（推荐流程）</h4>
 <ol>
-<li>停服：<code>docker compose stop mc</code></li>
-</ol>
-<ol>
-<li>把 jar 放进：<code>/opt/mc/data/mods/</code>  </li>
-<p>3)（如果有）同步对应配置到：<code>/opt/mc/data/config/</code></p>
-</ol>
-<ol>
-<li>启动：<code>docker compose up -d</code></li>
-</ol>
-<ol>
-<li>看日志确认没有依赖缺失/版本不兼容</li>
+<li>
+<p>停服：<code>docker compose stop mc</code></p>
+</li>
+<li>
+<p>把 jar 放进：<code>/opt/mc/data/mods/</code><br>
+3)（如果有）同步对应配置到：<code>/opt/mc/data/config/</code></p>
+</li>
+<li>
+<p>启动：<code>docker compose up -d</code></p>
+</li>
+<li>
+<p>看日志确认没有依赖缺失/版本不兼容</p>
+</li>
 </ol>
 <h4>9.3 删除 Mod（更谨慎）</h4>
 <ol>
-<li>停服</li>
-</ol>
-<ol>
-<li>从 <code>mods/</code> 移除 jar</li>
-</ol>
-<ol>
-<li>删除该 mod 的配置（可选，先备份再删）</li>
-</ol>
-<ol>
-<li>启动并观察日志</li>
+<li>
+<p>停服</p>
+</li>
+<li>
+<p>从 <code>mods/</code> 移除 jar</p>
+</li>
+<li>
+<p>删除该 mod 的配置（可选，先备份再删）</p>
+</li>
+<li>
+<p>启动并观察日志</p>
+</li>
 </ol>
 <p>注意：</p>
 <ul>
-<li>部分 mod 会把方块/实体写进存档，删除可能导致世界报错或丢数据。</li>
+<li>
+<p>部分 mod 会把方块/实体写进存档，删除可能导致世界报错或丢数据。</p>
+</li>
+<li>
+<p>重要操作前先备份 world。</p>
+</li>
 </ul>
-<ul>
-<li>重要操作前先备份 world。</li>
-</ul>
-<p>---</p>
+<hr>
 <h3>10. Docker 清理：删除容器/镜像/网络/卷（含你截图里的对象）</h3>
-<blockquote>建议：先确认哪些是“游戏服在用的”，不要误删 world。</blockquote>
+<blockquote>
+<p>建议：先确认哪些是“游戏服在用的”，不要误删 world。</p>
+</blockquote>
 <h4>10.1 删除某个容器（不会删镜像）</h4>
 <ul>
-<li>删除 natpierce 容器：</li>
-</ul>
-<p>- <code>docker rm natpierce</code></p>
+<li>
+<p>删除 natpierce 容器：</p>
 <ul>
-<li>删除 mc 容器（不建议直接 rm，建议用 compose 管）：</li>
+<li><code>docker rm natpierce</code></li>
 </ul>
-<p>- <code>docker compose down</code>（在 /opt/mc）</p>
+</li>
+<li>
+<p>删除 mc 容器（不建议直接 rm，建议用 compose 管）：</p>
+<ul>
+<li><code>docker compose down</code>（在 /opt/mc）</li>
+</ul>
+</li>
+</ul>
 <h4>10.2 删除镜像</h4>
 <ul>
-<li>删除 natpierce 镜像：</li>
-</ul>
-<p>- <code>docker rmi xiyu505/natpierce:latest</code></p>
+<li>
+<p>删除 natpierce 镜像：</p>
 <ul>
-<li>删除 mc 镜像（不建议随便删，除非你确定要重拉）：</li>
+<li><code>docker rmi xiyu505/natpierce:latest</code></li>
 </ul>
-<p>- <code>docker rmi itzg/minecraft-server:stable-java21-jdk</code></p>
+</li>
+<li>
+<p>删除 mc 镜像（不建议随便删，除非你确定要重拉）：</p>
+<ul>
+<li><code>docker rmi itzg/minecraft-server:stable-java21-jdk</code></li>
+</ul>
+</li>
+</ul>
 <h4>10.3 删除网络</h4>
 <ul>
-<li>删除 <code>mc_default</code>（需要先 down 容器）：</li>
-</ul>
-<p>- <code>docker network rm mc_default</code></p>
+<li>
+<p>删除 <code>mc_default</code>（需要先 down 容器）：</p>
 <ul>
-<li>一般不用手删，<code>docker compose down</code> 会自动处理。</li>
+<li><code>docker network rm mc_default</code></li>
+</ul>
+</li>
+<li>
+<p>一般不用手删，<code>docker compose down</code> 会自动处理。</p>
+</li>
 </ul>
 <h4>10.4 删除卷（⚠️慎重）</h4>
 <ul>
-<li>你的截图里 <code>natpierce_data</code> 卷属于皎月连：</li>
+<li>
+<p>你的截图里 <code>natpierce_data</code> 卷属于皎月连：</p>
+<ul>
+<li><code>docker volume rm natpierce_data</code></li>
 </ul>
-<p>- <code>docker volume rm natpierce_data</code></p>
+</li>
+</ul>
 <p>⚠️ 注意：</p>
 <ul>
 <li>MC 的世界存档通常在宿主机目录 <code>/opt/mc/data</code>（bind mount），不是 docker volume（所以别删错）。</li>
 </ul>
 <h4>10.5 一键清理“无用资源”（谨慎用）</h4>
 <ul>
-<li>清理未使用镜像/网络/构建缓存：</li>
+<li>
+<p>清理未使用镜像/网络/构建缓存：</p>
+<ul>
+<li><code>docker system prune -a</code></li>
 </ul>
-<p>- <code>docker system prune -a</code></p>
+</li>
+</ul>
 <p>⚠️ 这条会删很多东西，先确认你不需要保留旧镜像回滚。</p>
-<p>---</p>
+<hr>
 <h3>11. 你能在游戏里改什么？哪些必须在服务器改？</h3>
 <h4>11.1 游戏内（有 OP 后）能改的</h4>
 <ul>
-<li><code>/gamerule</code>、<code>/difficulty</code>、<code>/time</code>、<code>/weather</code>、<code>/tp</code>、<code>/give</code> 等</li>
-</ul>
-<ul>
-<li>部分模组提供的管理命令（看模组说明）</li>
+<li>
+<p><code>/gamerule</code>、<code>/difficulty</code>、<code>/time</code>、<code>/weather</code>、<code>/tp</code>、<code>/give</code> 等</p>
+</li>
+<li>
+<p>部分模组提供的管理命令（看模组说明）</p>
+</li>
 </ul>
 <h4>11.2 必须在服务器文件/容器层面改的</h4>
 <ul>
-<li><code>server.properties</code>（online-mode、端口、视距、最大玩家等）</li>
+<li>
+<p><code>server.properties</code>（online-mode、端口、视距、最大玩家等）</p>
+</li>
+<li>
+<p>mod 安装/删除（<code>/opt/mc/data/mods</code>）</p>
+</li>
+<li>
+<p>大量 mod 配置（<code>/opt/mc/data/config</code>，常常需要重启）</p>
+</li>
+<li>
+<p>版本升级（镜像、Fabric、MC 版本）</p>
+</li>
 </ul>
-<ul>
-<li>mod 安装/删除（<code>/opt/mc/data/mods</code>）</li>
-</ul>
-<ul>
-<li>大量 mod 配置（<code>/opt/mc/data/config</code>，常常需要重启）</li>
-</ul>
-<ul>
-<li>版本升级（镜像、Fabric、MC 版本）</li>
-</ul>
-<p>---</p>
+<hr>
 <h3>12. 常见问题快速排查（你今天就遇到过的那类）</h3>
 <h4>12.1 容器 healthy 但玩家进不来</h4>
 <ul>
-<li>检查端口：<code>ss -lntp | grep 25565</code></li>
-</ul>
-<ul>
-<li>检查安全组/防火墙：确认放行 25565/tcp</li>
-</ul>
-<ul>
-<li>看日志：<code>docker compose logs --tail=200 mc</code></li>
+<li>
+<p>检查端口：<code>ss -lntp | grep 25565</code></p>
+</li>
+<li>
+<p>检查安全组/防火墙：确认放行 25565/tcp</p>
+</li>
+<li>
+<p>看日志：<code>docker compose logs --tail=200 mc</code></p>
+</li>
 </ul>
 <h4>12.2 日志里出现 ModResolutionException / Incompatible mods</h4>
 <ul>
-<li>多半是：</li>
-</ul>
-<p>- mods 版本不匹配（MC/Fabric/依赖）</p>
-<p>- jar 文件名/编码损坏</p>
+<li>
+<p>多半是：</p>
 <ul>
-<li>处理：</li>
+<li>
+<p>mods 版本不匹配（MC/Fabric/依赖）</p>
+</li>
+<li>
+<p>jar 文件名/编码损坏</p>
+</li>
 </ul>
-<p>- 回滚到上一份备份</p>
-<p>- 逐步移除最近新增的 mod 排查</p>
+</li>
+<li>
+<p>处理：</p>
+<ul>
+<li>
+<p>回滚到上一份备份</p>
+</li>
+<li>
+<p>逐步移除最近新增的 mod 排查</p>
+</li>
+</ul>
+</li>
+</ul>
 <h4>12.3 RCON 连不上（mcctl 报 connect refused）</h4>
 <ul>
-<li>确认 server.properties：<code>enable-rcon=true</code>、端口/密码正确</li>
+<li>
+<p>确认 server.properties：<code>enable-rcon=true</code>、端口/密码正确</p>
+</li>
+<li>
+<p>确认容器确实启动并监听 25575（日志里会有 RCON running）</p>
+</li>
+<li>
+<p>不要把 rcon 暴露到公网</p>
+</li>
 </ul>
-<ul>
-<li>确认容器确实启动并监听 25575（日志里会有 RCON running）</li>
-</ul>
-<ul>
-<li>不要把 rcon 暴露到公网</li>
-</ul>
-<p>---</p>
+<hr>
 <h3>13. 你接下来建议做的“收尾”事项</h3>
 <ol>
-<li>把 <code>online-mode=true + whitelist=true</code> 固化（减少误操作）</li>
+<li>
+<p>把 <code>online-mode=true + whitelist=true</code> 固化（减少误操作）</p>
+</li>
+<li>
+<p>建立备份目录并跑通“每日备份 + 保留 7 天”</p>
+</li>
+<li>
+<p>把 <code>RCON</code> 仅限本机/容器网络访问（不要公网开放）</p>
+</li>
+<li>
+<p>给朋友整理一份“客户端需要的整合包版本一致”说明（服务端/客户端 mod 不一致会进不去）</p>
+</li>
 </ol>
-<ol>
-<li>建立备份目录并跑通“每日备份 + 保留 7 天”</li>
-</ol>
-<ol>
-<li>把 <code>RCON</code> 仅限本机/容器网络访问（不要公网开放）</li>
-</ol>
-<ol>
-<li>给朋友整理一份“客户端需要的整合包版本一致”说明（服务端/客户端 mod 不一致会进不去）</li>
-</ol>
-<p>---</p>
+<hr>
 <h3>14. 常用命令备忘录（最短版本）</h3>
 <p>在 <code>/opt/mc</code>：</p>
 <ul>
-<li>启动：<code>docker compose up -d</code></li>
+<li>
+<p>启动：<code>docker compose up -d</code></p>
+</li>
+<li>
+<p>停止：<code>docker compose stop mc</code></p>
+</li>
+<li>
+<p>重启：<code>docker compose restart mc</code></p>
+</li>
+<li>
+<p>看日志：<code>docker compose logs -f mc</code></p>
+</li>
+<li>
+<p>看状态：<code>docker compose ps</code></p>
+</li>
+<li>
+<p>更新镜像：<code>docker compose pull &amp;&amp; docker compose up -d</code></p>
+</li>
+<li>
+<p>查看 online-mode：<code>grep '^online-mode=' /opt/mc/data/server.properties || true</code></p>
+</li>
+<li>
+<p>查看 mods 数量：<code>ls /opt/mc/data/mods | wc -l</code></p>
+</li>
 </ul>
-<ul>
-<li>停止：<code>docker compose stop mc</code></li>
-</ul>
-<ul>
-<li>重启：<code>docker compose restart mc</code></li>
-</ul>
-<ul>
-<li>看日志：<code>docker compose logs -f mc</code></li>
-</ul>
-<ul>
-<li>看状态：<code>docker compose ps</code></li>
-</ul>
-<ul>
-<li>更新镜像：<code>docker compose pull &amp;&amp; docker compose up -d</code></li>
-</ul>
-<ul>
-<li>查看 online-mode：<code>grep &#39;^online-mode=&#39; /opt/mc/data/server.properties || true</code></li>
-</ul>
-<ul>
-<li>查看 mods 数量：<code>ls /opt/mc/data/mods | wc -l</code></li>
-</ul>
-<p>---</p>
-<blockquote>如果你愿意把你最终版 <code>mcctl</code> 菜单项截图/功能列表贴一下，我可以把本文第 4/7/8 部分按你脚本的实际功能再对齐一遍（强调“它能做什么、你什么时候用它”，而不是贴代码）。</blockquote></div>
+<hr>
+<blockquote>
+<p>如果你愿意把你最终版 <code>mcctl</code> 菜单项截图/功能列表贴一下，我可以把本文第 4/7/8 部分按你脚本的实际功能再对齐一遍（强调“它能做什么、你什么时候用它”，而不是贴代码）。</p>
+</blockquote>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

@@ -49,7 +49,7 @@
 <li>后续维护必须保住哪些定制层。</li>
 <li>遇到故障时，先查什么、再改什么。</li>
 </ol>
-<p>---</p>
+<hr>
 <h3>1. 当前部署基线</h3>
 <p>当前正式机器：</p>
 <ul>
@@ -81,7 +81,7 @@
 <li><code>/usr/local/sbin/hermes-gateway-control</code></li>
 <li><code>sudo -n /usr/local/sbin/hermes-gateway-control restart</code></li>
 </ul>
-<p>---</p>
+<hr>
 <h3>2. 迁移后的平台策略</h3>
 <p>当前只保留：</p>
 <ul>
@@ -111,45 +111,80 @@
 <li><code>image_cache/</code> 与 <code>audio_cache/</code> 同样必须保持 <code>hermes</code> 可读写（<code>2026-05-22</code> 发现同为 root 遗留，导致 QQ 图片/语音附件下载后 <code>Permission denied</code>，图片接收静默失败）。修复：<code>sudo chown -R hermes:hermes /home/hermes/.hermes/{image_cache,audio_cache}</code>。</li>
 <li>其余 root 遗留目录（<code>__pycache__/</code>、<code>sandboxes/</code>）不影响运行，无需处理。</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>3. 当前必须保留的定制层</h3>
 <h4>3.1 代码补丁</h4>
 <p>必须保留这些 tracked 修改：</p>
 <ol>
-<li><code>gateway/run.py</code></li>
-<p>- <code>/model</code> 会话级持久化 - <code>/reset</code> / <code>/new</code> 保留当前会话模型路由 - <code>/reset</code> 清理 <code>_pending_model_notes</code> - <code>/context</code> 命令 - <code>/auxmodel</code> 命令 - OpenRouter 菜单压缩</p>
-</ol>
-<ol>
-<li><code>run_agent.py</code></li>
-<p>- <code>context_length_override</code> 正确传递 - <code>_model_cfg</code> 初始化兜底 - LongCat 大上下文压缩阈值逻辑保留</p>
-</ol>
-<ol>
-<li><code>hermes_cli/model_switch.py</code></li>
-<p>- <code>--provider</code> 优先 provider 默认模型</p>
-</ol>
-<ol>
-<li><code>hermes_cli/providers.py</code> + <code>hermes_cli/runtime_provider.py</code></li>
-<p>- 用户 provider 配置优先 - <code>deepseek/openrouter/longcat</code> 映射为 <code>custom:*</code></p>
-</ol>
-<ol>
-<li><code>agent/transports/chat_completions.py</code></li>
-<p>- DeepSeek <code>reasoning_content</code> 历史回放补齐 - DeepSeek <code>thinking.reasoning_effort</code> 映射</p>
-</ol>
-<ol>
-<li><code>agent/auxiliary_client.py</code></li>
-<p>- <code>custom:&lt;name&gt;</code> provider 不被剥离 - <code>auxiliary.compression.provider=auto</code> 跟随当前主模型</p>
-</ol>
-<ol>
-<li><code>agent/prompt_builder.py</code></li>
-<p>- 禁止模型主动写 memory - 禁止模型主动创建 skill - <code>tangyuge-roleplay</code> / <code>hermes-md-locator</code> / <code>mail-vps-ops</code> 排在最前</p>
-</ol>
-<ol>
-<li><code>tools/web_tools.py</code></li>
-<p>- Tavily 多 key 轮询 - <code>401/403/429/5xx</code> 自动换 key</p>
-</ol>
-<ol>
-<li><code>gateway/platforms/qqbot/adapter.py</code></li>
-<p>- QQBot 心跳/close code 相关回补 - <code>qqbot_gateway_status.json</code> 状态落盘 - QQ 私聊命令 <code>/qqstatus</code></p>
+<li>
+<p><code>gateway/run.py</code></p>
+<ul>
+<li><code>/model</code> 会话级持久化</li>
+<li><code>/reset</code> / <code>/new</code> 保留当前会话模型路由</li>
+<li><code>/reset</code> 清理 <code>_pending_model_notes</code></li>
+<li><code>/context</code> 命令</li>
+<li><code>/auxmodel</code> 命令</li>
+<li>OpenRouter 菜单压缩</li>
+</ul>
+</li>
+<li>
+<p><code>run_agent.py</code></p>
+<ul>
+<li><code>context_length_override</code> 正确传递</li>
+<li><code>_model_cfg</code> 初始化兜底</li>
+<li>LongCat 大上下文压缩阈值逻辑保留</li>
+</ul>
+</li>
+<li>
+<p><code>hermes_cli/model_switch.py</code></p>
+<ul>
+<li><code>--provider</code> 优先 provider 默认模型</li>
+</ul>
+</li>
+<li>
+<p><code>hermes_cli/providers.py</code> + <code>hermes_cli/runtime_provider.py</code></p>
+<ul>
+<li>用户 provider 配置优先</li>
+<li><code>deepseek/openrouter/longcat</code> 映射为 <code>custom:*</code></li>
+</ul>
+</li>
+<li>
+<p><code>agent/transports/chat_completions.py</code></p>
+<ul>
+<li>DeepSeek <code>reasoning_content</code> 历史回放补齐</li>
+<li>DeepSeek <code>thinking.reasoning_effort</code> 映射</li>
+</ul>
+</li>
+<li>
+<p><code>agent/auxiliary_client.py</code></p>
+<ul>
+<li><code>custom:&lt;name&gt;</code> provider 不被剥离</li>
+<li><code>auxiliary.compression.provider=auto</code> 跟随当前主模型</li>
+</ul>
+</li>
+<li>
+<p><code>agent/prompt_builder.py</code></p>
+<ul>
+<li>禁止模型主动写 memory</li>
+<li>禁止模型主动创建 skill</li>
+<li><code>tangyuge-roleplay</code> / <code>hermes-md-locator</code> / <code>mail-vps-ops</code> 排在最前</li>
+</ul>
+</li>
+<li>
+<p><code>tools/web_tools.py</code></p>
+<ul>
+<li>Tavily 多 key 轮询</li>
+<li><code>401/403/429/5xx</code> 自动换 key</li>
+</ul>
+</li>
+<li>
+<p><code>gateway/platforms/qqbot/adapter.py</code></p>
+<ul>
+<li>QQBot 心跳/close code 相关回补</li>
+<li><code>qqbot_gateway_status.json</code> 状态落盘</li>
+<li>QQ 私聊命令 <code>/qqstatus</code></li>
+</ul>
+</li>
 </ol>
 <h4>3.2 额外保留件</h4>
 <ul>
@@ -164,25 +199,89 @@
 </ul>
 <p>当前 skills / toolsets 实情：</p>
 <ul>
-<li><code>agent.disabled_toolsets</code> 仍为：</li>
-<p>- <code>code_execution</code> - <code>session_search</code> - <code>delegation</code></p>
+<li><code>agent.disabled_toolsets</code> 仍为：
+<ul>
+<li><code>code_execution</code></li>
+<li><code>session_search</code></li>
+<li><code>delegation</code></li>
+</ul>
+</li>
 <li><code>platform_toolsets</code> 当前只保留 <code>qqbot</code></li>
-<li>当前 <code>platform_toolsets.qqbot</code> 为：</li>
-<p>- <code>browser</code> - <code>clarify</code> - <code>cronjob</code> - <code>file</code> - <code>image_gen</code> - <code>memory</code> - <code>messaging</code> - <code>skills</code> - <code>terminal</code> - <code>todo</code> - <code>tts</code> - <code>vision</code> - <code>web</code></p>
+<li>当前 <code>platform_toolsets.qqbot</code> 为：
+<ul>
+<li><code>browser</code></li>
+<li><code>clarify</code></li>
+<li><code>cronjob</code></li>
+<li><code>file</code></li>
+<li><code>image_gen</code></li>
+<li><code>memory</code></li>
+<li><code>messaging</code></li>
+<li><code>skills</code></li>
+<li><code>terminal</code></li>
+<li><code>todo</code></li>
+<li><code>tts</code></li>
+<li><code>vision</code></li>
+<li><code>web</code></li>
+</ul>
+</li>
 <li><code>skills.creation_nudge_interval = 0</code></li>
 <li><code>memory.nudge_interval = 0</code></li>
-<li>当前必须优先保住的本地人格/文档 skills 仍然是：</li>
-<p>- <code>tangyuge-roleplay</code> - <code>hermes-md-locator</code></p>
-<li>当前新增的基础设施型 skill：</li>
-<p>- <code>mail-vps-ops</code></p>
-<li>当前活跃 <code>qqbot</code> 会话的 <code>system_prompt</code> 中，确认每轮会注入的重点 skill 为：</li>
-<p>- <code>tangyuge-roleplay</code> - <code>hermes-md-locator</code> - <code>mail-vps-ops</code> - <code>humanizer</code> - <code>maps</code> - <code>paper-translation-to-docx</code> - <code>requesting-code-review</code> - <code>systematic-debugging</code> - <code>test-driven-development</code> - <code>writing-plans</code></p>
-<li>2026-05-07 已对 <code>qqbot</code> 额外关闭训练/评测/本地推理相关 skills：</li>
-<p>- <code>axolotl</code> - <code>clip</code> - <code>dspy</code> - <code>gguf</code> - <code>grpo-rl-training</code> - <code>guidance</code> - <code>llama-cpp</code> - <code>lm-evaluation-harness</code> - <code>modal</code> - <code>obliteratus</code> - <code>outlines</code> - <code>peft</code> - <code>pytorch-fsdp</code> - <code>trl-fine-tuning</code> - <code>unsloth</code> - <code>vllm</code> - <code>weights-and-biases</code></p>
-<li>2026-05-07 已继续关闭当前无关 skills：</li>
-<p>- <code>audiocraft</code> - <code>segment-anything</code> - <code>stable-diffusion</code> - <code>whisper</code></p>
+<li>当前必须优先保住的本地人格/文档 skills 仍然是：
+<ul>
+<li><code>tangyuge-roleplay</code></li>
+<li><code>hermes-md-locator</code></li>
 </ul>
-<p>---</p>
+</li>
+<li>当前新增的基础设施型 skill：
+<ul>
+<li><code>mail-vps-ops</code></li>
+</ul>
+</li>
+<li>当前活跃 <code>qqbot</code> 会话的 <code>system_prompt</code> 中，确认每轮会注入的重点 skill 为：
+<ul>
+<li><code>tangyuge-roleplay</code></li>
+<li><code>hermes-md-locator</code></li>
+<li><code>mail-vps-ops</code></li>
+<li><code>humanizer</code></li>
+<li><code>maps</code></li>
+<li><code>paper-translation-to-docx</code></li>
+<li><code>requesting-code-review</code></li>
+<li><code>systematic-debugging</code></li>
+<li><code>test-driven-development</code></li>
+<li><code>writing-plans</code></li>
+</ul>
+</li>
+<li>2026-05-07 已对 <code>qqbot</code> 额外关闭训练/评测/本地推理相关 skills：
+<ul>
+<li><code>axolotl</code></li>
+<li><code>clip</code></li>
+<li><code>dspy</code></li>
+<li><code>gguf</code></li>
+<li><code>grpo-rl-training</code></li>
+<li><code>guidance</code></li>
+<li><code>llama-cpp</code></li>
+<li><code>lm-evaluation-harness</code></li>
+<li><code>modal</code></li>
+<li><code>obliteratus</code></li>
+<li><code>outlines</code></li>
+<li><code>peft</code></li>
+<li><code>pytorch-fsdp</code></li>
+<li><code>trl-fine-tuning</code></li>
+<li><code>unsloth</code></li>
+<li><code>vllm</code></li>
+<li><code>weights-and-biases</code></li>
+</ul>
+</li>
+<li>2026-05-07 已继续关闭当前无关 skills：
+<ul>
+<li><code>audiocraft</code></li>
+<li><code>segment-anything</code></li>
+<li><code>stable-diffusion</code></li>
+<li><code>whisper</code></li>
+</ul>
+</li>
+</ul>
+<hr>
 <h3>4. TTS 维护重点</h3>
 <p>当前默认 TTS：</p>
 <ul>
@@ -192,15 +291,23 @@
 <ul>
 <li>只调用 <code>http://127.0.0.1:19880/tts</code></li>
 <li>wrapper：<code>/home/hermes/.hermes/tts_remote_gptsovits_bridge.py</code></li>
-<li><code>tts.providers.remote_gptsovits.command</code> 当前已改为：</li>
-<p>- <code>python3 /home/hermes/.hermes/tts_remote_gptsovits_bridge.py {input_path} {output_path} {metadata_path}</code></p>
+<li><code>tts.providers.remote_gptsovits.command</code> 当前已改为：
+<ul>
+<li><code>python3 /home/hermes/.hermes/tts_remote_gptsovits_bridge.py {input_path} {output_path} {metadata_path}</code></li>
+</ul>
+</li>
 </ul>
 <p>本机侧：</p>
 <ul>
 <li><code>C:\\Users\\lenovo\\Downloads\\tangyuge_tts_runtime\\</code></li>
 <li>Windows 服务名：<code>TangyugeTTS</code></li>
-<li>当前已改为连接：</li>
-<p>- <code>root@81.70.168.127</code> - 端口 <code>22</code> - key：<code>C:\\Users\\lenovo\\.ssh\\81.70.168.127_ssh.key</code></p>
+<li>当前已改为连接：
+<ul>
+<li><code>root@81.70.168.127</code></li>
+<li>端口 <code>22</code></li>
+<li>key：<code>C:\\Users\\lenovo\\.ssh\\81.70.168.127_ssh.key</code></li>
+</ul>
+</li>
 <li>新服务器 SSH 当前已关闭密码登录，仅保留公钥认证</li>
 <li>本机 bridge：<code>127.0.0.1:9881</code></li>
 <li>本机 backend：<code>127.0.0.1:9880</code></li>
@@ -216,12 +323,38 @@
 <ul>
 <li>本机 bridge 已支持显式 <code>reference</code></li>
 <li>Hermes command provider 已新增 <code>metadata_path</code> 占位，可把结构化参数交给 wrapper</li>
-<li><code>remote_gptsovits</code> wrapper 不再只发 <code>{&quot;text&quot;: ...}</code>，当前会转发：</li>
-<p>- <code>scene</code> - <code>profile</code> - <code>reference</code> - <code>ref_audio_path</code> - <code>prompt_text</code> - <code>prompt_lang</code> - <code>text_lang</code> - <code>top_k</code> - <code>top_p</code> - <code>temperature</code> - <code>text_split_method</code> - <code>batch_size</code> - <code>media_type</code> - <code>streaming_mode</code></p>
-<li>兼容策略：</li>
-<p>- <code>voice</code> 在 <code>remote_gptsovits</code> wrapper 中映射为 <code>profile</code> 别名，方便 QQ / tool 侧沿用更通用的 TTS 心智 - <code>speed</code> / <code>model</code> 已能进入 Hermes command provider 的通用 metadata，但本机 Tangyuge bridge / GPT-SoVITS 后端当前没有消费它们，所以对这条链路暂时无实际效果；除非后端以后新增对应能力，否则不要把它们当成当前可调参数</p>
-<li>服务器侧实测通过：</li>
-<p>- <code>text_to_speech_tool(profile=&#39;morning&#39;)</code> - <code>text_to_speech_tool(reference=&#39;serious_script41_L0682&#39;)</code> - <code>text_to_speech_tool(voice=&#39;morning&#39;)</code> 三条都已成功生成 <code>voice_compatible=true</code> 的 <code>.ogg</code></p>
+<li><code>remote_gptsovits</code> wrapper 不再只发 <code>{&quot;text&quot;: ...}</code>，当前会转发：
+<ul>
+<li><code>scene</code></li>
+<li><code>profile</code></li>
+<li><code>reference</code></li>
+<li><code>ref_audio_path</code></li>
+<li><code>prompt_text</code></li>
+<li><code>prompt_lang</code></li>
+<li><code>text_lang</code></li>
+<li><code>top_k</code></li>
+<li><code>top_p</code></li>
+<li><code>temperature</code></li>
+<li><code>text_split_method</code></li>
+<li><code>batch_size</code></li>
+<li><code>media_type</code></li>
+<li><code>streaming_mode</code></li>
+</ul>
+</li>
+<li>兼容策略：
+<ul>
+<li><code>voice</code> 在 <code>remote_gptsovits</code> wrapper 中映射为 <code>profile</code> 别名，方便 QQ / tool 侧沿用更通用的 TTS 心智</li>
+<li><code>speed</code> / <code>model</code> 已能进入 Hermes command provider 的通用 metadata，但本机 Tangyuge bridge / GPT-SoVITS 后端当前没有消费它们，所以对这条链路暂时无实际效果；除非后端以后新增对应能力，否则不要把它们当成当前可调参数</li>
+</ul>
+</li>
+<li>服务器侧实测通过：
+<ul>
+<li><code>text_to_speech_tool(profile='morning')</code></li>
+<li><code>text_to_speech_tool(reference='serious_script41_L0682')</code></li>
+<li><code>text_to_speech_tool(voice='morning')</code>
+三条都已成功生成 <code>voice_compatible=true</code> 的 <code>.ogg</code></li>
+</ul>
+</li>
 </ul>
 <p>后续维护要点：</p>
 <ul>
@@ -242,7 +375,7 @@
 <li>旧机时代的 <code>154.36.187.8</code> 反向隧道已弃用。</li>
 <li>本机 runtime 中旧 key 文件可能仍残留，需要管理员权限手工删。</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>5. GitHub / 换源策略</h3>
 <p>新机器在中国大陆，且这次实测出现过：</p>
 <ul>
@@ -264,7 +397,7 @@
 <li>远端 GitHub 不是完全不可用，但不够稳。</li>
 <li>标准维护流程应优先“本地拉取 + 服务器上传”。</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>5.2 邮件 VPS 读取能力</h3>
 <p>当前新增了一条“不经代理、直接从 Hermes 读写邮件 VPS”的链路：</p>
 <ul>
@@ -275,11 +408,19 @@
 <li>Hermes 侧远程账号：<code>hermesmail@23.238.70.240:23333</code></li>
 <li>Hermes 侧读写远程账号：<code>hermesmailrw@23.238.70.240:23333</code></li>
 <li>邮件 VPS：<code>23.238.70.240:23333</code></li>
-<li>邮件 VPS 侧受限入口：</li>
-<p>- <code>/usr/local/bin/hermes-mail-api.py</code> - <code>/usr/local/bin/hermes-mail-ssh-gateway</code> - <code>/etc/sudoers.d/hermesmail-mail-api</code></p>
+<li>邮件 VPS 侧受限入口：
+<ul>
+<li><code>/usr/local/bin/hermes-mail-api.py</code></li>
+<li><code>/usr/local/bin/hermes-mail-ssh-gateway</code></li>
+<li><code>/etc/sudoers.d/hermesmail-mail-api</code></li>
+</ul>
+</li>
 <li>邮件 VPS 侧通用读信脚本：<code>/root/mail_ops/mail_read.py</code></li>
-<li>详细实现已拆到专题文档：</li>
-<p>- <code>/home/hermes/HERMES_MAIL_VPS_INTEGRATION.md</code></p>
+<li>详细实现已拆到专题文档：
+<ul>
+<li><code>/home/hermes/HERMES_MAIL_VPS_INTEGRATION.md</code></li>
+</ul>
+</li>
 </ul>
 <p>工作方式：</p>
 <ol>
@@ -299,7 +440,7 @@
 <li>受限 key 已实测不能执行 <code>uname -a</code> 这类无关命令；只读和读写权限已经拆开。</li>
 </ul>
 <p>常用调用：</p>
-<pre><code>/home/hermes/.hermes/bin/mail_vps_fetch.py list-mailboxes
+<pre><code class="language-bash">/home/hermes/.hermes/bin/mail_vps_fetch.py list-mailboxes
 /home/hermes/.hermes/bin/mail_vps_fetch.py list-mailboxes --domain mail.qianyan.me
 /home/hermes/.hermes/bin/mail_vps_fetch.py read-mail --email user@mail.qianyan.me --require-code --want from,subject,date,codes,snippet
 /home/hermes/.hermes/bin/mail_vps_fetch.py read-mail --email user@mail.qianyan.me --want from,subject,date,snippet
@@ -310,7 +451,8 @@
 /home/hermes/.hermes/bin/mail_vps_fetch.py forward-mail --email user@mail.qianyan.me --message-ref cur/xxxx --from-email user@mail.qianyan.me --to other@example.com --body &quot;转发说明&quot;
 /home/hermes/.hermes/bin/mail_vps_fetch.py move-mail-to-trash --email user@mail.qianyan.me --message-ref cur/xxxx
 /home/hermes/.hermes/bin/mail_vps_fetch.py delete-mail --email user@mail.qianyan.me --message-ref cur/xxxx
-/home/hermes/.hermes/bin/mail_vps_fetch.py read-mail --email user@example.com --limit 3 --subject-contains &quot;OpenAI&quot; --want from,subject,date,snippet</code></pre>
+/home/hermes/.hermes/bin/mail_vps_fetch.py read-mail --email user@example.com --limit 3 --subject-contains &quot;OpenAI&quot; --want from,subject,date,snippet
+</code></pre>
 <p>当前限制：</p>
 <ul>
 <li>若未来邮件 VPS 新增域名，但不再使用 <code>/var/mail/vmail/%d/%n</code> 这套 Maildir 结构，需同步调整 <code>/root/mail_ops/mail_read.py</code>。</li>
@@ -318,14 +460,19 @@
 <li>历史上旧的 <code>/home/hermes/.ssh/mail_vps_74.48.40.123.key</code> 与旧嵌套 skill <code>skills/email/mail-vps-reader/</code> 已淘汰并清理；当前顶层 skill 已统一为 <code>mail-vps-ops</code>。</li>
 <li>邮件专题细节、附件发送说明、清理规则见 <code>/home/hermes/HERMES_MAIL_VPS_INTEGRATION.md</code>。</li>
 </ul>
-<p>---</p>
+<hr>
 <h3>5.1 FRP / qianyan 当前状态</h3>
 <p>新服务器已完成：</p>
 <ul>
 <li><code>frps v0.68.1</code> 已安装</li>
 <li><code>frps.service</code> 已启用并运行</li>
-<li><code>/etc/frp/frps.toml</code> 已配置：</li>
-<p>- <code>bindPort = 7000</code> - <code>proxyBindAddr = 127.0.0.1</code> - token 鉴权已启用</p>
+<li><code>/etc/frp/frps.toml</code> 已配置：
+<ul>
+<li><code>bindPort = 7000</code></li>
+<li><code>proxyBindAddr = 127.0.0.1</code></li>
+<li>token 鉴权已启用</li>
+</ul>
+</li>
 <li><code>api.shiqianyan.cn</code> 的 HTTPS Nginx 站点已正式接管</li>
 <li>当前实际 Nginx 站点文件为：<code>/etc/nginx/sites-available/lmstudio-api-shiqianyan.conf</code></li>
 <li><code>api.qianyan.me</code> 已废弃，不再作为正式入口；当前正式可用入口固定为 <code>https://api.shiqianyan.cn</code></li>
@@ -355,48 +502,62 @@
 <li>经 <code>https://api.shiqianyan.cn</code> 全链路的 chat 请求约 <code>36s</code></li>
 <li>说明 FRP / LM Studio 已工作，当前主要额外耗时在 HTTPS / Nginx / 公网这一层</li>
 </ol>
-<p>---</p>
+<hr>
 <h3>6. 日常检查命令</h3>
 <p>服务状态：</p>
-<pre><code>systemctl status hermes-gateway.service --no-pager
+<pre><code class="language-bash">systemctl status hermes-gateway.service --no-pager
 systemctl is-active hermes-gateway.service
-sudo -u hermes -H sudo -n /usr/local/sbin/hermes-gateway-control status</code></pre>
+sudo -u hermes -H sudo -n /usr/local/sbin/hermes-gateway-control status
+</code></pre>
 <p>QQ 状态：</p>
-<pre><code>python3 - &lt;&lt;&#39;PY&#39;
+<pre><code class="language-bash">python3 - &lt;&lt;'PY'
 import json
 from pathlib import Path
-p = Path(&#39;/home/hermes/.hermes/qqbot_gateway_status.json&#39;)
-d = json.loads(p.read_text(encoding=&#39;utf-8&#39;))
-for k in [&#39;state&#39;,&#39;connected&#39;,&#39;last_heartbeat_ack_at&#39;,&#39;last_disconnect_at&#39;,&#39;last_reconnect_at&#39;,&#39;last_close_code&#39;,&#39;last_close_reason&#39;]:
-    print(f&#39;{k}={d.get(k)}&#39;)
-PY</code></pre>
+p = Path('/home/hermes/.hermes/qqbot_gateway_status.json')
+d = json.loads(p.read_text(encoding='utf-8'))
+for k in ['state','connected','last_heartbeat_ack_at','last_disconnect_at','last_reconnect_at','last_close_code','last_close_reason']:
+    print(f'{k}={d.get(k)}')
+PY
+</code></pre>
 <p>pairing 权限：</p>
-<pre><code>stat -c &#39;%U %G %a %n&#39; /home/hermes/.hermes/pairing /home/hermes/.hermes/pairing/qqbot-approved.json
+<pre><code class="language-bash">stat -c '%U %G %a %n' /home/hermes/.hermes/pairing /home/hermes/.hermes/pairing/qqbot-approved.json
 sudo -u hermes -H test -r /home/hermes/.hermes/pairing/qqbot-approved.json &amp;&amp; echo readable
-sudo -u hermes -H test -w /home/hermes/.hermes/pairing/qqbot-approved.json &amp;&amp; echo writable</code></pre>
+sudo -u hermes -H test -w /home/hermes/.hermes/pairing/qqbot-approved.json &amp;&amp; echo writable
+</code></pre>
 <p>CLI smoke：</p>
-<pre><code>cd /home/hermes/.hermes/hermes-agent
+<pre><code class="language-bash">cd /home/hermes/.hermes/hermes-agent
 HOME=/home/hermes HERMES_HOME=/home/hermes/.hermes \
 PATH=/home/hermes/.hermes/hermes-agent/venv/bin:/home/hermes/.hermes/node/bin:$PATH \
-./venv/bin/hermes chat -q &#39;这是部署验证测试。请只回复：hermes-update-ok&#39; --max-turns 1 -Q</code></pre>
+./venv/bin/hermes chat -q '这是部署验证测试。请只回复：hermes-update-ok' --max-turns 1 -Q
+</code></pre>
 <p>TTS 检查：</p>
-<pre><code>curl -sS http://127.0.0.1:19880/health</code></pre>
+<pre><code class="language-bash">curl -sS http://127.0.0.1:19880/health
+</code></pre>
 <p>本机 TTS 检查：</p>
-<pre><code>Get-Service TangyugeTTS
-Invoke-WebRequest -UseBasicParsing http://127.0.0.1:9881/health</code></pre>
-<p>---</p>
+<pre><code class="language-powershell">Get-Service TangyugeTTS
+Invoke-WebRequest -UseBasicParsing http://127.0.0.1:9881/health
+</code></pre>
+<hr>
 <h3>7. 后续升级标准流程</h3>
 <ol>
 <li>先读本说明和“全局状态”。</li>
 <li>本机拉取官方 tag / 提交，不要先在服务器上直接 <code>git pull</code>。</li>
 <li>在本机叠定制层。</li>
 <li>上传到服务器。</li>
-<li>在服务器上：</li>
-<p>- <code>python3 -m venv venv</code> - <code>pip install -e .</code> - <code>python -m py_compile</code> 关键文件 - <code>pytest</code> 定向测试 - CLI smoke - 看 <code>qqbot_gateway_status.json</code></p>
+<li>在服务器上：
+<ul>
+<li><code>python3 -m venv venv</code></li>
+<li><code>pip install -e .</code></li>
+<li><code>python -m py_compile</code> 关键文件</li>
+<li><code>pytest</code> 定向测试</li>
+<li>CLI smoke</li>
+<li>看 <code>qqbot_gateway_status.json</code></li>
+</ul>
+</li>
 <li>如有源码改动，刷新 <code>/home/hermes/backups/current_custom_patch_*</code></li>
 <li>更新本地与服务器文档。</li>
 </ol>
-<p>---</p>
+<hr>
 <h3>8. 清理与保留规则</h3>
 <p>服务器上可以清：</p>
 <ul>
@@ -440,10 +601,16 @@ Invoke-WebRequest -UseBasicParsing http://127.0.0.1:9881/health</code></pre>
 <li>2026-05-17 修复后下次触发时间：<code>2026-05-28 00:42:07 CST</code></li>
 <li>当前 <code>sessions/</code> 实查为：<code>12</code> 个 <code>qqbot</code> 会话、<code>0</code> 个 <code>cli</code> 会话</li>
 <li><code>2026-05-18</code> 当前 repo 内运行缓存已再次清理，<code>__pycache__</code>、<code>*.pyc</code>、<code>.pytest_cache</code> 当前为 <code>0</code></li>
-<li>当前活跃 <code>qqbot</code> 会话初始化提示词估算：</li>
-<p>- <code>cl100k_base(system) = 1566</code> - <code>cl100k_base(system + tools) = 8174</code> - <code>o200k_base(system) = 1342</code> - <code>o200k_base(system + tools) = 7992</code></p>
+<li>当前活跃 <code>qqbot</code> 会话初始化提示词估算：
+<ul>
+<li><code>cl100k_base(system) = 1566</code></li>
+<li><code>cl100k_base(system + tools) = 8174</code></li>
+<li><code>o200k_base(system) = 1342</code></li>
+<li><code>o200k_base(system + tools) = 7992</code></li>
 </ul>
-<p>---</p>
+</li>
+</ul>
+<hr>
 <h3>9. 当前已知风险</h3>
 <ol>
 <li>QQ <code>4009 Session timed out</code> 在新服务器上仍会出现，当前虽然能自动重连，但不应再按“仅旧服务器历史问题”处理。</li>
@@ -456,24 +623,65 @@ Invoke-WebRequest -UseBasicParsing http://127.0.0.1:9881/health</code></pre>
 <ul>
 <li>自 <code>2026-05-18</code> 起，第 <code>1</code>、<code>2</code>、<code>3</code> 项按“已知可接受风险”处理。</li>
 <li>若阿颜未单独提起，后续维护默认不主动处理这三项。</li>
-<li>只有在升级为更严重问题时才重新开维护动作，例如：</li>
-<p>- QQ 无法自动重连、长时间掉线、或日志出现新的 <code>ERROR / CRITICAL / Traceback</code> - 需要再次升级 Hermes、重放定制 patch、或 git/venv/启动流程再次异常 - <code>remote_gptsovits</code> 持续不可用并影响当前实际使用</p>
+<li>只有在升级为更严重问题时才重新开维护动作，例如：
+<ul>
+<li>QQ 无法自动重连、长时间掉线、或日志出现新的 <code>ERROR / CRITICAL / Traceback</code></li>
+<li>需要再次升级 Hermes、重放定制 patch、或 git/venv/启动流程再次异常</li>
+<li><code>remote_gptsovits</code> 持续不可用并影响当前实际使用</li>
+</ul>
+</li>
 <li>第 <code>4</code>、<code>5</code> 项继续作为历史残留管理，除非误用或明确需要清理，否则不主动处理。</li>
 </ul>
 <h3>10. 2026-05-07 API 端点链路维护补充</h3>
 <ul>
 <li><code>qianyan</code> 当前依赖 <code>api.shiqianyan.cn -&gt; Nginx -&gt; 127.0.0.1:61423 -&gt; frps -&gt; 另一台 Windows 工作机 frpc -&gt; LM Studio:1235</code>。</li>
-<li>新服务器 <code>frps</code> 配置文件：<code>/etc/frp/frps.toml</code></li>
-<p>- 当前要求保留 <code>proxyBindAddr = &quot;127.0.0.1&quot;</code>，不要改回公网监听。 - 当前要求保留 <code>transport.tls.force = true</code>。</p>
-<li>新服务器 Nginx 配置文件：<code>/etc/nginx/sites-available/lmstudio-api-shiqianyan.conf</code></li>
-<p>- 当前要求保留长超时与无缓冲配置： - <code>client_max_body_size 200m</code> - <code>client_body_timeout 1800s</code> - <code>send_timeout 1800s</code> - <code>proxy_connect_timeout 60s</code> - <code>proxy_send_timeout 1800s</code> - <code>proxy_read_timeout 1800s</code> - <code>proxy_buffering off</code> - <code>proxy_request_buffering off</code> - <code>add_header X-Accel-Buffering no always</code> - API 站点不需要固定写死 WebSocket <code>Upgrade/Connection</code> 头，不要再加回去，除非后续明确接入 Realtime/WebSocket 场景。</p>
-<li>排查 <code>qianyan</code> 时，先分层检查：</li>
-<p>1. <code>frps.service</code> 2. <code>127.0.0.1:61423</code> 是否监听 3. <code>nginx -t</code> 4. <code>https://api.shiqianyan.cn/v1/models</code> 未鉴权是否返回 <code>401</code> 5. 带鉴权 <code>https://api.shiqianyan.cn/v1/models</code> 是否返回 <code>200</code></p>
-<li>2026-05-07 末次收尾：</li>
-<p>- 新服务器 Hermes repo 内缓存残留已清理：<code>__pycache__</code>、<code>*.pyc</code>、<code>.pytest_cache</code> 当前为 <code>0</code> - 新服务器 <code>sessions/</code> 当前为 <code>0</code> - 旧服务器已删除剩余 <code>hermes-sessions-prune</code> 定时器与脚本，旧环境不再保留任何 Hermes 维护入口</p>
-<li>新增独立探针文档：</li>
-<p>- <code>D:\\Answer\\QianYan-KBase\\服务部署教程\\探针\\2026-05-07_腾讯云新服务器_frp-api端点站迁移与优化记录.md</code></p>
-</ul></div>
+<li>新服务器 <code>frps</code> 配置文件：<code>/etc/frp/frps.toml</code>
+<ul>
+<li>当前要求保留 <code>proxyBindAddr = &quot;127.0.0.1&quot;</code>，不要改回公网监听。</li>
+<li>当前要求保留 <code>transport.tls.force = true</code>。</li>
+</ul>
+</li>
+<li>新服务器 Nginx 配置文件：<code>/etc/nginx/sites-available/lmstudio-api-shiqianyan.conf</code>
+<ul>
+<li>当前要求保留长超时与无缓冲配置：
+<ul>
+<li><code>client_max_body_size 200m</code></li>
+<li><code>client_body_timeout 1800s</code></li>
+<li><code>send_timeout 1800s</code></li>
+<li><code>proxy_connect_timeout 60s</code></li>
+<li><code>proxy_send_timeout 1800s</code></li>
+<li><code>proxy_read_timeout 1800s</code></li>
+<li><code>proxy_buffering off</code></li>
+<li><code>proxy_request_buffering off</code></li>
+<li><code>add_header X-Accel-Buffering no always</code></li>
+</ul>
+</li>
+<li>API 站点不需要固定写死 WebSocket <code>Upgrade/Connection</code> 头，不要再加回去，除非后续明确接入 Realtime/WebSocket 场景。</li>
+</ul>
+</li>
+<li>排查 <code>qianyan</code> 时，先分层检查：
+<ol>
+<li><code>frps.service</code></li>
+<li><code>127.0.0.1:61423</code> 是否监听</li>
+<li><code>nginx -t</code></li>
+<li><code>https://api.shiqianyan.cn/v1/models</code> 未鉴权是否返回 <code>401</code></li>
+<li>带鉴权 <code>https://api.shiqianyan.cn/v1/models</code> 是否返回 <code>200</code></li>
+</ol>
+</li>
+<li>2026-05-07 末次收尾：
+<ul>
+<li>新服务器 Hermes repo 内缓存残留已清理：<code>__pycache__</code>、<code>*.pyc</code>、<code>.pytest_cache</code> 当前为 <code>0</code></li>
+<li>新服务器 <code>sessions/</code> 当前为 <code>0</code></li>
+<li>旧服务器已删除剩余 <code>hermes-sessions-prune</code> 定时器与脚本，旧环境不再保留任何 Hermes 维护入口</li>
+</ul>
+</li>
+<li>新增独立探针文档：
+<ul>
+<li><code>D:\\Answer\\QianYan-KBase\\服务部署教程\\探针\\2026-05-07_腾讯云新服务器_frp-api端点站迁移与优化记录.md</code></li>
+</ul>
+</li>
+</ul>
+</div>
     </article>
   </main>
   <script src="/assets/js/home.js"></script>

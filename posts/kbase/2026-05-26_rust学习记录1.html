@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rust学习记录1 · 千颜</title>
+  <meta name="description" content="面向有 Python / Java / JS / TS / Vue 背景的开发者，快速掌握 Rust 核心语法。 目录 1. 环境准备与 Hello World 2. 变量与可变性 3. 数据类型 4. 函数 5. 控制">
+  <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
+  <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/motion.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]], displayMath: [["$$", "$$"], ["\\[", "\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page page--articles">
+  <div class="binding"></div>
+  <header class="site-nav">
+    <a class="site-nav__brand" href="/"><span class="site-nav__mark" aria-hidden="true"></span><span class="site-nav__title">千颜</span></a>
+    <span class="site-nav__meta">QianYan · KBase · Note</span>
+    <nav class="site-nav__links"><a href="/blog/">文章</a><a href="/projects/">项目</a><a href="/about/">关于</a></nav>
+    <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener" aria-label="GitHub">
+      <span class="site-nav__github-label" data-full="GitHub" data-short="GH">GitHub</span><span class="site-nav__github-arrow-text">→</span>
+    </a>
+    <a class="site-nav__github-mobile" href="https://github.com/QianYan-Art" target="_blank" rel="noopener" aria-label="GitHub">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    </a>
+  </header>
+  <div class="site-nav__rule"></div>
+  <main class="page-main post-shell">
+    <a class="post-back" href="/blog/">← 返回文章</a>
+    <article class="post-body">
+      <p class="post-kicker">本地记录</p>
+      <h1>rust学习记录1</h1>
+      <div class="post-meta"><span>2026-05-26</span><span>37 min</span></div>
+      <div class="article-card__tags"><span>b-学习记录</span></div>
+      <div class="post-content"><blockquote>
+<p>面向有 Python / Java / JS / TS / Vue 背景的开发者，快速掌握 Rust 核心语法。</p>
+</blockquote>
+<hr>
+<h3>目录</h3>
+<ol>
+<li><a href="#1-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87%E4%B8%8E-hello-world" target="_blank" rel="noopener noreferrer">环境准备与 Hello World</a></li>
+<li><a href="#2-%E5%8F%98%E9%87%8F%E4%B8%8E%E5%8F%AF%E5%8F%98%E6%80%A7" target="_blank" rel="noopener noreferrer">变量与可变性</a></li>
+<li><a href="#3-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B" target="_blank" rel="noopener noreferrer">数据类型</a></li>
+<li><a href="#4-%E5%87%BD%E6%95%B0" target="_blank" rel="noopener noreferrer">函数</a></li>
+<li><a href="#5-%E6%8E%A7%E5%88%B6%E6%B5%81" target="_blank" rel="noopener noreferrer">控制流</a></li>
+<li><a href="#6-%E6%89%80%E6%9C%89%E6%9D%83%E7%B3%BB%E7%BB%9Fownership" target="_blank" rel="noopener noreferrer">所有权系统（Ownership）</a></li>
+<li><a href="#7-%E5%BC%95%E7%94%A8%E4%B8%8E%E5%80%9F%E7%94%A8" target="_blank" rel="noopener noreferrer">引用与借用</a></li>
+<li><a href="#8-%E5%88%87%E7%89%87slice" target="_blank" rel="noopener noreferrer">切片（Slice）</a></li>
+<li><a href="#9-%E7%BB%93%E6%9E%84%E4%BD%93struct" target="_blank" rel="noopener noreferrer">结构体（struct）</a></li>
+<li><a href="#10-%E6%9E%9A%E4%B8%BEenum%E4%B8%8E%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8D" target="_blank" rel="noopener noreferrer">枚举（enum）与模式匹配</a></li>
+<li><a href="#11-%E6%B3%9B%E5%9E%8Btrait-%E4%B8%8E%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F" target="_blank" rel="noopener noreferrer">泛型、Trait 与生命周期</a></li>
+<li><a href="#12-%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86" target="_blank" rel="noopener noreferrer">错误处理</a></li>
+<li><a href="#13-%E9%9B%86%E5%90%88%E7%B1%BB%E5%9E%8B" target="_blank" rel="noopener noreferrer">集合类型</a></li>
+<li><a href="#14-%E6%A8%A1%E5%9D%97%E7%B3%BB%E7%BB%9F" target="_blank" rel="noopener noreferrer">模块系统</a></li>
+<li><a href="#15-%E5%B8%B8%E7%94%A8%E5%AE%8F" target="_blank" rel="noopener noreferrer">常用宏</a></li>
+<li><a href="#16-%E5%B9%B6%E5%8F%91%E5%9F%BA%E7%A1%80" target="_blank" rel="noopener noreferrer">并发基础</a></li>
+<li><a href="#17-cargo-%E5%8C%85%E7%AE%A1%E7%90%86" target="_blank" rel="noopener noreferrer">Cargo 包管理</a></li>
+<li><a href="#18-%E7%BB%BC%E5%90%88%E7%A4%BA%E4%BE%8B" target="_blank" rel="noopener noreferrer">综合示例</a></li>
+</ol>
+<hr>
+<h3>1. 环境准备与 Hello World</h3>
+<h4>安装</h4>
+<pre><code class="language-bash"># 官方推荐方式（所有平台通用）
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# 验证
+rustc --version   # 编译器版本
+cargo --version   # 包管理器版本
+</code></pre>
+<h4>第一个程序</h4>
+<p>文件名：<code>main.rs</code></p>
+<pre><code class="language-rust">fn main() {
+    println!(&quot;Hello, world!&quot;);
+}
+</code></pre>
+<p>编译运行：</p>
+<pre><code class="language-bash">rustc main.rs   # 编译
+./main          # 运行（Windows 为 main.exe）
+</code></pre>
+<blockquote>
+<p><strong>对比 TS/JS</strong>：Rust 是编译型语言，需要先编译再执行，没有解释器直接运行。</p>
+</blockquote>
+<hr>
+<h3>2. 变量与可变性</h3>
+<h4>不可变变量（默认）</h4>
+<pre><code class="language-rust">let x = 5;
+// x = 6;  ← 编译错误！默认不可变
+println!(&quot;x = {}&quot;, x);
+</code></pre>
+<blockquote>
+<p><strong>对比 Python/JS</strong>：类似 Python 的常量约定，但 Rust 在<strong>编译期</strong>强制检查，不是运行时。</p>
+</blockquote>
+<h4>可变变量</h4>
+<pre><code class="language-rust">let mut x = 5;
+x = 6;  // OK
+println!(&quot;x = {}&quot;, x);
+</code></pre>
+<p><code>mut</code> 关键字显式声明可变性。Rust 鼓励默认不可变，减少意外修改。</p>
+<h4>常量</h4>
+<pre><code class="language-rust">const MAX_POINTS: u32 = 100_000;  // 必须标注类型
+</code></pre>
+<ul>
+<li><code>const</code> 永远不可变，不能用 <code>mut</code></li>
+<li>必须显式标注类型</li>
+<li>可声明在任何作用域（包括全局）</li>
+<li>只能绑定到常量表达式，不能是函数调用结果</li>
+</ul>
+<blockquote>
+<p><strong>对比 Java</strong>：类似 <code>static final</code>，但 Rust 常量更严格，编译期求值。</p>
+</blockquote>
+<h4>变量遮蔽（Shadowing）</h4>
+<pre><code class="language-rust">let x = 5;
+let x = x + 1;      // 新变量遮蔽旧变量
+let x = x * 2;
+println!(&quot;x = {}&quot;, x);  // 12
+
+// 遮蔽可以改变类型
+let spaces = &quot;   &quot;;     // &amp;str
+let spaces = spaces.len(); // usize
+</code></pre>
+<blockquote>
+<p><strong>对比 JS <code>let</code></strong>：JS 中 <code>let</code> 重新赋值会报错（同一作用域），Rust 的遮蔽是创建<strong>新变量</strong>，旧变量不再可访问。</p>
+</blockquote>
+<hr>
+<h3>3. 数据类型</h3>
+<p>Rust 是<strong>静态类型语言</strong>，编译器必须在编译期知道每个变量的类型。</p>
+<h4>标量类型（Scalar Types）</h4>
+<h5>整数</h5>
+<div class="post-table-wrap"><table><thead>
+<tr>
+<th>类型</th>
+<th>范围</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>i8</code></td>
+<td>-128 ~ 127</td>
+<td><code>let a: i8 = -42;</code></td>
+</tr>
+<tr>
+<td><code>u8</code></td>
+<td>0 ~ 255</td>
+<td><code>let a: u8 = 255;</code></td>
+</tr>
+<tr>
+<td><code>i32</code></td>
+<td>-2³¹ ~ 2³¹-1</td>
+<td><strong>默认整数类型</strong></td>
+</tr>
+<tr>
+<td><code>u32</code></td>
+<td>0 ~ 2³²-1</td>
+<td><code>let a: u32 = 100;</code></td>
+</tr>
+<tr>
+<td><code>i64</code></td>
+<td>-2⁶³ ~ 2⁶³-1</td>
+<td><code>let a: i64 = 1_000_000;</code></td>
+</tr>
+<tr>
+<td><code>i128</code> / <code>u128</code></td>
+<td>128位</td>
+<td>大整数运算</td>
+</tr>
+<tr>
+<td><code>isize</code> / <code>usize</code></td>
+<td>指针大小</td>
+<td>集合索引、长度</td>
+</tr>
+</tbody>
+</table></div><pre><code class="language-rust">let decimal = 98_222;       // 十进制，下划线分隔提高可读性
+let hex = 0xff;              // 十六进制
+let octal = 0o77;            // 八进制
+let binary = 0b1111_0000;    // 二进制
+let byte = b'A';             // 字节字面量（u8）
+</code></pre>
+<blockquote>
+<p><strong>对比 Java</strong>：类型名更短（<code>i32</code> vs <code>int</code>），且没有隐式窄化转换。</p>
+</blockquote>
+<h5>浮点数</h5>
+<pre><code class="language-rust">let x = 2.0;      // f64（默认）
+let y: f32 = 3.0; // f32
+</code></pre>
+<h5>布尔值</h5>
+<pre><code class="language-rust">let t = true;
+let f: bool = false;
+</code></pre>
+<h5>字符</h5>
+<pre><code class="language-rust">let c = 'z';        // char，4 字节 Unicode 标量值
+let heart = '💖';   // 支持 emoji
+</code></pre>
+<blockquote>
+<p><strong>对比 JS/Python</strong>：Rust 的 <code>char</code> 是 4 字节 Unicode 标量，不是 UTF-8 字节。</p>
+</blockquote>
+<h4>复合类型（Compound Types）</h4>
+<h5>元组（Tuple）</h5>
+<pre><code class="language-rust">let tup: (i32, f64, u8) = (500, 6.4, 1);
+
+// 解构（destructuring）
+let (x, y, z) = tup;
+println!(&quot;y = {}&quot;, y);  // 6.4
+
+// 索引访问
+let five_hundred = tup.0;
+let six_point_four = tup.1;
+</code></pre>
+<blockquote>
+<p><strong>对比 TS</strong>：类似 <code>[number, string]</code> 元组类型，但 Rust 元组是匿名的，没有命名字段。</p>
+</blockquote>
+<h5>数组（Array）</h5>
+<pre><code class="language-rust">let a = [1, 2, 3, 4, 5];          // 固定长度，同类型
+let first = a[0];
+
+// 显式标注类型
+let a: [i32; 5] = [1, 2, 3, 4, 5];  // [类型; 长度]
+
+// 初始化所有元素为同一值
+let a = [3; 5];  // [3, 3, 3, 3, 3]
+</code></pre>
+<blockquote>
+<p><strong>对比 JS 数组</strong>：Rust 数组长度固定、类型统一，更像 C/Java 数组。动态数组用 <code>Vec&lt;T&gt;</code>。</p>
+</blockquote>
+<h4>类型推断与标注</h4>
+<pre><code class="language-rust">let guess: u32 = &quot;42&quot;.parse().expect(&quot;不是数字！&quot;);
+// 如果不标注类型，编译器无法推断 parse() 要转成什么类型
+</code></pre>
+<hr>
+<h3>4. 函数</h3>
+<h4>基本定义</h4>
+<pre><code class="language-rust">fn main() {
+    println!(&quot;Hello&quot;);
+    another_function(5, 'h');
+}
+
+fn another_function(x: i32, unit_label: char) {
+    println!(&quot;值为 {x} {unit_label}&quot;);
+}
+</code></pre>
+<ul>
+<li><code>fn</code> 关键字声明函数</li>
+<li>参数<strong>必须</strong>标注类型</li>
+<li>函数名用 <code>snake_case</code></li>
+</ul>
+<h4>语句与表达式</h4>
+<p>Rust 是<strong>表达式语言</strong>，理解语句和表达式的区别至关重要：</p>
+<pre><code class="language-rust">// 语句（statement）：执行操作，不返回值
+let y = 6;  // 语句
+
+// 表达式（expression）：计算并返回值
+let x = 5 + 3;  // 5 + 3 是表达式，返回 8
+
+// 代码块也是表达式
+let y = {
+    let x = 3;
+    x + 1  // 注意：没有分号！这是表达式，返回 4
+};
+println!(&quot;y = {}&quot;, y);  // 4
+</code></pre>
+<blockquote>
+<p><strong>对比 JS</strong>：JS 中 <code>{ x + 1 }</code> 是代码块，不返回值。Rust 中代码块是表达式，最后一行（无分号）的值就是返回值。</p>
+</blockquote>
+<h4>返回值</h4>
+<pre><code class="language-rust">fn five() -&gt; i32 {
+    5  // 无分号，作为表达式返回
+}
+
+fn plus_one(x: i32) -&gt; i32 {
+    x + 1  // 表达式，自动返回
+}
+
+// 注意：加一分号就变成语句，编译错误！
+// fn bad() -&gt; i32 {
+//     x + 1;  // 错误：() 不匹配 i32
+// }
+</code></pre>
+<blockquote>
+<p><strong>对比 Python</strong>：不需要 <code>return</code> 关键字，最后一行表达式自动返回（类似 Ruby）。但 Rust 的返回值类型在签名中显式声明。</p>
+</blockquote>
+<hr>
+<h3>5. 控制流</h3>
+<h4>if 表达式</h4>
+<pre><code class="language-rust">let number = 6;
+
+if number % 2 == 0 {
+    println!(&quot;偶数&quot;);
+} else {
+    println!(&quot;奇数&quot;);
+}
+
+// if 是表达式，可以赋值给变量
+let condition = true;
+let number = if condition { 5 } else { 6 };
+// let number = if condition { 5 } else { &quot;six&quot; }; // 错误：类型必须一致！
+</code></pre>
+<blockquote>
+<p><strong>对比 JS 三元运算符</strong>：<code>let x = cond ? a : b</code>，但 Rust 的 if 更强大，支持代码块。</p>
+</blockquote>
+<h4>循环</h4>
+<h5>loop — 无限循环</h5>
+<pre><code class="language-rust">let mut counter = 0;
+let result = loop {
+    counter += 1;
+    if counter == 10 {
+        break counter * 2;  // break 可以带返回值！
+    }
+};
+println!(&quot;result = {}&quot;, result);  // 20
+</code></pre>
+<h5>while — 条件循环</h5>
+<pre><code class="language-rust">let mut number = 3;
+while number != 0 {
+    println!(&quot;{number}!&quot;);
+    number -= 1;
+}
+</code></pre>
+<h5>for — 遍历循环</h5>
+<pre><code class="language-rust">let a = [10, 20, 30, 40, 50];
+
+// 遍历集合
+for element in a {
+    println!(&quot;值: {element}&quot;);
+}
+
+// 遍历范围
+for number in 1..4 {    // 1, 2, 3（不包含 4）
+    println!(&quot;{number}&quot;);
+}
+
+// 反向遍历
+for number in (1..4).rev() {
+    println!(&quot;{number}!&quot;);
+}
+// 输出: 3! 2! 1!
+</code></pre>
+<blockquote>
+<p><strong>对比 Python</strong>：<code>for x in range(1, 4)</code> ≈ <code>for x in 1..4</code>。Rust 的 <code>..</code> 是半开区间。</p>
+</blockquote>
+<h4>模式匹配补充：if let</h4>
+<pre><code class="language-rust">let some_value: Option&lt;i32&gt; = Some(5);
+
+// 只想匹配 Some，不关心 None
+if let Some(x) = some_value {
+    println!(&quot;值为 {x}&quot;);
+}
+</code></pre>
+<hr>
+<h3>6. 所有权系统（Ownership）</h3>
+<p><strong>所有权是 Rust 最核心的特性</strong>，也是与其他语言最大的区别。</p>
+<h4>三条规则</h4>
+<ol>
+<li>每个值都有一个<strong>所有者</strong>（owner）</li>
+<li>同一时间只有一个所有者</li>
+<li>所有者离开作用域，值被<strong>丢弃</strong>（drop）</li>
+</ol>
+<h4>所有权转移（Move）</h4>
+<pre><code class="language-rust">let s1 = String::from(&quot;hello&quot;);
+let s2 = s1;  // s1 的所有权转移给 s2
+// println!(&quot;{}&quot;, s1);  // 错误！s1 不再有效
+println!(&quot;{}&quot;, s2);     // OK
+</code></pre>
+<blockquote>
+<p><strong>对比 Python/JS</strong>：赋值是<strong>浅拷贝</strong>（引用+1）。Rust 的 <code>String</code> 赋值是<strong>移动语义</strong>——s1 失效，避免双重释放。</p>
+</blockquote>
+<h4>克隆（Clone）</h4>
+<pre><code class="language-rust">let s1 = String::from(&quot;hello&quot;);
+let s2 = s1.clone();  // 深拷贝
+println!(&quot;s1 = {s1}, s2 = {s2}&quot;);  // 两者都有效
+</code></pre>
+<h4>栈类型：复制语义（Copy Trait）</h4>
+<pre><code class="language-rust">let x = 5;
+let y = x;  // 整数实现了 Copy trait，赋值是复制
+println!(&quot;x = {x}, y = {y}&quot;);  // 两者都有效
+</code></pre>
+<p>实现了 <code>Copy</code> trait 的类型：所有整数、浮点、布尔、字符、以及元素都实现 Copy 的元组。</p>
+<h4>函数中的所有权</h4>
+<pre><code class="language-rust">fn main() {
+    let s = String::from(&quot;hello&quot;);
+    takes_ownership(s);    // s 被移动进函数
+    // println!(&quot;{}&quot;, s);  // 错误！s 已失效
+
+    let x = 5;
+    makes_copy(x);         // i32 是 Copy，x 仍然有效
+    println!(&quot;x = {x}&quot;);   // OK
+}
+
+fn takes_ownership(s: String) {
+    println!(&quot;{s}&quot;);
+}  // s 离开作用域，drop
+
+fn makes_copy(n: i32) {
+    println!(&quot;{n}&quot;);
+}  // n 离开作用域，无事发生
+</code></pre>
+<h4>返回值的所有权</h4>
+<pre><code class="language-rust">fn main() {
+    let s1 = gives_ownership();       // 函数返回值转移给 s1
+    let s2 = String::from(&quot;hello&quot;);
+    let s3 = takes_and_gives_back(s2); // s2 移入，返回值移给 s3
+}
+
+fn gives_ownership() -&gt; String {
+    String::from(&quot;yours&quot;)
+}
+
+fn takes_and_gives_back(s: String) -&gt; String {
+    s  // 返回所有权
+}
+</code></pre>
+<blockquote>
+<p><strong>核心思想</strong>：Rust 通过所有权系统在编译期<strong>消除内存安全问题</strong>（悬垂指针、双重释放、内存泄漏），不需要 GC。</p>
+</blockquote>
+<hr>
+<h3>7. 引用与借用</h3>
+<h4>引用（Reference）</h4>
+<pre><code class="language-rust">fn main() {
+    let s = String::from(&quot;hello&quot;);
+    let len = calculate_length(&amp;s);  // 借用，不转移所有权
+    println!(&quot;'{s}' 的长度是 {len}&quot;);  // s 仍然有效！
+}
+
+fn calculate_length(s: &amp;String) -&gt; usize {
+    s.len()
+}  // s 离开作用域，但不拥有值，不 drop
+</code></pre>
+<p><code>&amp;s</code> 创建引用，函数签名 <code>&amp;String</code> 表示借用。</p>
+<h4>可变引用</h4>
+<pre><code class="language-rust">fn main() {
+    let mut s = String::from(&quot;hello&quot;);
+    change(&amp;mut s);
+    println!(&quot;{s}&quot;);  // &quot;hello, world&quot;
+}
+
+fn change(s: &amp;mut String) {
+    s.push_str(&quot;, world&quot;);
+}
+</code></pre>
+<h4>借用规则（极其重要）</h4>
+<pre><code class="language-rust">// 规则 1：不可变引用可以有多个
+let s = String::from(&quot;hello&quot;);
+let r1 = &amp;s;  // OK
+let r2 = &amp;s;  // OK
+println!(&quot;{r1} {r2}&quot;);
+
+// 规则 2：可变引用只能有一个
+let mut s = String::from(&quot;hello&quot;);
+let r1 = &amp;mut s;
+// let r2 = &amp;mut s;  // 错误！不能同时有两个可变引用
+
+// 规则 3：可变引用和不可变引用不能共存
+let mut s = String::from(&quot;hello&quot;);
+let r1 = &amp;s;       // 不可变引用
+// let r2 = &amp;mut s;  // 错误！已有不可变引用，不能再创建可变引用
+</code></pre>
+<blockquote>
+<p><strong>对比 Java</strong>：Java 的引用类似 Rust 的 <code>&amp;T</code>（不可变借用），但 Rust 额外引入了 <code>&amp;mut T</code>（可变借用）和编译期检查，杜绝数据竞争。</p>
+</blockquote>
+<h4>悬垂引用（Dangling Reference）</h4>
+<pre><code class="language-rust">// fn dangle() -&gt; &amp;String {     // 编译错误！
+//     let s = String::from(&quot;hello&quot;);
+//     &amp;s  // 返回局部变量的引用
+// }  // s 被 drop，引用悬空
+</code></pre>
+<p>Rust 编译器<strong>禁止</strong>返回局部变量的引用。</p>
+<hr>
+<h3>8. 切片（Slice）</h3>
+<p>切片是对集合中连续部分的<strong>引用</strong>，不拥有数据。</p>
+<pre><code class="language-rust">fn main() {
+    let s = String::from(&quot;hello world&quot;);
+
+    let hello = &amp;s[0..5];   // &quot;hello&quot;
+    let world = &amp;s[6..11];  // &quot;world&quot;
+
+    // 语法糖
+    let slice = &amp;s[..5];     // 从开头
+    let slice = &amp;s[6..];     // 到结尾
+    let slice = &amp;s[..];      // 整个字符串
+}
+</code></pre>
+<h4>字符串字面量就是切片</h4>
+<pre><code class="language-rust">let s = &quot;Hello, world!&quot;;  // s 的类型是 &amp;str
+</code></pre>
+<p><code>&amp;str</code> 是指向二进制文件中某点的不可变切片。</p>
+<h4>数组切片</h4>
+<pre><code class="language-rust">let a = [1, 2, 3, 4, 5];
+let slice = &amp;a[1..3];  // &amp;[2, 3]
+</code></pre>
+<h4>实际应用</h4>
+<pre><code class="language-rust">fn first_word(s: &amp;str) -&gt; &amp;str {
+    let bytes = s.as_bytes();
+    for (i, &amp;item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return &amp;s[0..i];
+        }
+    }
+    &amp;s[..]
+}
+</code></pre>
+<blockquote>
+<p><strong>对比 Python</strong>：<code>s[0:5]</code> 创建新字符串（拷贝），Rust 的切片是<strong>零拷贝</strong>的视图。</p>
+</blockquote>
+<hr>
+<h3>9. 结构体（struct）</h3>
+<h4>定义与实例化</h4>
+<pre><code class="language-rust">struct User {
+    active: bool,
+    username: String,
+    email: String,
+    sign_in_count: u64,
+}
+
+fn main() {
+    let user1 = User {
+        active: true,
+        username: String::from(&quot;zhangsan&quot;),
+        email: String::from(&quot;zhangsan@example.com&quot;),
+        sign_in_count: 1,
+    };
+
+    // 访问字段
+    println!(&quot;{}&quot;, user1.username);
+
+    // 修改字段（整个实例必须是 mut）
+    let mut user2 = User { /* ... */ };
+    user2.email = String::from(&quot;new@example.com&quot;);
+}
+</code></pre>
+<blockquote>
+<p><strong>对比 TS interface</strong>：TS 的 interface 只是类型描述，Rust struct 是真正的数据结构，有内存布局。</p>
+</blockquote>
+<h4>字段初始化简写</h4>
+<pre><code class="language-rust">fn build_user(email: String, username: String) -&gt; User {
+    User {
+        active: true,
+        username,      // ≈ username: username
+        email,         // ≈ email: email
+        sign_in_count: 1,
+    }
+}
+</code></pre>
+<h4>结构体更新语法（..）</h4>
+<pre><code class="language-rust">let user2 = User {
+    email: String::from(&quot;another@example.com&quot;),
+    ..user1  // 其余字段从 user1 获取
+};
+// 注意：user1 的 username 是 String（非 Copy），已被移动，user1.username 不再可用
+</code></pre>
+<h4>元组结构体</h4>
+<pre><code class="language-rust">struct Color(i32, i32, i32);
+struct Point(i32, i32, i32);
+
+let black = Color(0, 0, 0);
+let origin = Point(0, 0, 0);
+// black 和 origin 是不同类型！
+</code></pre>
+<h4>单元结构体</h4>
+<pre><code class="language-rust">struct AlwaysEqual;  // 没有字段
+
+let subject = AlwaysEqual;
+</code></pre>
+<p>用于实现 trait 而不需要存储数据。</p>
+<h4>方法（impl）</h4>
+<pre><code class="language-rust">#[derive(Debug)]  // 自动派生 Debug trait
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+impl Rectangle {
+    // 方法（有 self 参数）
+    fn area(&amp;self) -&gt; u32 {
+        self.width * self.height
+    }
+
+    // 方法可以修改自身
+    fn scale(&amp;mut self, factor: u32) {
+        self.width *= factor;
+        self.height *= factor;
+    }
+
+    // 关联函数（无 self，类似静态方法）
+    fn square(size: u32) -&gt; Self {
+        Self {
+            width: size,
+            height: size,
+        }
+    }
+}
+
+fn main() {
+    let mut rect = Rectangle { width: 30, height: 50 };
+    println!(&quot;面积: {}&quot;, rect.area());
+
+    rect.scale(2);
+    println!(&quot;缩放后: {} x {}&quot;, rect.width, rect.height);
+
+    let sq = Rectangle::square(10);  // 关联函数用 ::
+    println!(&quot;正方形: {} x {}&quot;, sq.width, sq.height);
+}
+</code></pre>
+<blockquote>
+<p><strong>对比 Java class</strong>：<code>impl</code> 类似 class 的方法定义，但 Rust 将数据（struct）和行为（impl）分离，更灵活。</p>
+</blockquote>
+<h4>自动引用和解引用</h4>
+<pre><code class="language-rust">rect.area();
+// 编译器自动处理以下等价形式：
+// (&amp;rect).area()
+// (&amp;mut rect).scale(2)
+</code></pre>
+<hr>
+<h3>10. 枚举（enum）与模式匹配</h3>
+<h4>基本枚举</h4>
+<pre><code class="language-rust">enum IpAddrKind {
+    V4,
+    V6,
+}
+
+let four = IpAddrKind::V4;
+let six = IpAddrKind::V6;
+</code></pre>
+<h4>带数据的枚举</h4>
+<pre><code class="language-rust">enum IpAddr {
+    V4(u8, u8, u8, u8),
+    V6(String),
+}
+
+let home = IpAddr::V4(127, 0, 0, 1);
+let loopback = IpAddr::V6(String::from(&quot;::1&quot;));
+</code></pre>
+<blockquote>
+<p><strong>对比 TS 联合类型</strong>：<code>type IpAddr = { kind: &quot;v4&quot;, a: number, ... } | { kind: &quot;v6&quot;, addr: string }</code>，但 Rust 枚举是真正的 tagged union，内存效率更高。</p>
+</blockquote>
+<h4>经典枚举：Option</h4>
+<pre><code class="language-rust">enum Option&lt;T&gt; {
+    None,
+    Some(T),
+}
+
+let some_number = Some(5);
+let absent_number: Option&lt;i32&gt; = None;
+</code></pre>
+<blockquote>
+<p><strong>对比 JS</strong>：Rust 没有 <code>null</code>，用 <code>Option&lt;T&gt;</code> 显式表达&quot;可能有值也可能没有&quot;。编译器强制你处理 <code>None</code> 情况。</p>
+</blockquote>
+<h4>match 模式匹配</h4>
+<pre><code class="language-rust">enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter,
+}
+
+fn value_in_cents(coin: Coin) -&gt; u8 {
+    match coin {
+        Coin::Penny =&gt; 1,
+        Coin::Nickel =&gt; 5,
+        Coin::Dime =&gt; 10,
+        Coin::Quarter =&gt; {
+            println!(&quot;幸运 quarter!&quot;);
+            25
+        }
+    }
+}
+</code></pre>
+<p><code>match</code> 必须<strong>穷尽所有可能性</strong>（exhaustive），编译器会检查。</p>
+<h4>匹配 Option</h4>
+<pre><code class="language-rust">fn plus_one(x: Option&lt;i32&gt;) -&gt; Option&lt;i32&gt; {
+    match x {
+        None =&gt; None,
+        Some(i) =&gt; Some(i + 1),
+    }
+}
+</code></pre>
+<h4>通配符 <code>_</code></h4>
+<pre><code class="language-rust">let dice_roll = 9;
+match dice_roll {
+    3 =&gt; add_fancy_hat(),
+    7 =&gt; remove_fancy_hat(),
+    _ =&gt; reroll(),  // 匹配所有其他值
+}
+</code></pre>
+<h4>if let 简化匹配</h4>
+<pre><code class="language-rust">let config_max = Some(3u8);
+
+// 完整 match
+match config_max {
+    Some(max) =&gt; println!(&quot;最大值是 {max}&quot;),
+    _ =&gt; (),
+}
+
+// 简化写法
+if let Some(max) = config_max {
+    println!(&quot;最大值是 {max}&quot;);
+}
+</code></pre>
+<h4>while let</h4>
+<pre><code class="language-rust">let mut stack = Vec::new();
+stack.push(1);
+stack.push(2);
+stack.push(3);
+
+while let Some(top) = stack.pop() {
+    println!(&quot;{top}&quot;);
+}
+// 输出: 3, 2, 1
+</code></pre>
+<hr>
+<h3>11. 泛型、Trait 与生命周期</h3>
+<h4>泛型（Generics）</h4>
+<h5>函数泛型</h5>
+<pre><code class="language-rust">fn largest&lt;T: PartialOrd + Copy&gt;(list: &amp;[T]) -&gt; T {
+    let mut largest = list[0];
+    for &amp;item in list {
+        if item &gt; largest {
+            largest = item;
+        }
+    }
+    largest
+}
+</code></pre>
+<h5>结构体泛型</h5>
+<pre><code class="language-rust">struct Point&lt;T, U&gt; {
+    x: T,
+    y: U,
+}
+
+let integer_and_float = Point { x: 5, y: 4.0 };
+</code></pre>
+<h5>枚举泛型</h5>
+<pre><code class="language-rust">enum Result&lt;T, E&gt; {
+    Ok(T),
+    Err(E),
+}
+</code></pre>
+<blockquote>
+<p><strong>对比 Java 泛型</strong>：语法类似 <code>&lt;T&gt;</code>，但 Rust 泛型通过<strong>单态化</strong>（monomorphization）在编译期生成具体类型代码，零运行时开销。</p>
+</blockquote>
+<h4>Trait（特质）</h4>
+<p>Trait 定义共享行为，类似 Java 的 interface 或 TS 的 interface（但更强大）。</p>
+<h5>定义 trait</h5>
+<pre><code class="language-rust">pub trait Summary {
+    fn summarize(&amp;self) -&gt; String;
+
+    // 默认实现
+    fn default_summary(&amp;self) -&gt; String {
+        String::from(&quot;(默认摘要)&quot;)
+    }
+}
+</code></pre>
+<h5>实现 trait</h5>
+<pre><code class="language-rust">pub struct NewsArticle {
+    pub headline: String,
+    pub author: String,
+}
+
+impl Summary for NewsArticle {
+    fn summarize(&amp;self) -&gt; String {
+        format!(&quot;{} by {}&quot;, self.headline, self.author)
+    }
+}
+</code></pre>
+<h5>trait 作为参数</h5>
+<pre><code class="language-rust">// 语法 1：impl Trait
+pub fn notify(item: &amp;impl Summary) {
+    println!(&quot;快讯！{}&quot;, item.summarize());
+}
+
+// 语法 2：trait bound（更灵活，适合多参数）
+pub fn notify2&lt;T: Summary&gt;(item: &amp;T) {
+    println!(&quot;快讯！{}&quot;, item.summarize());
+}
+
+// 多个 trait bound
+pub fn notify3&lt;T: Summary + Display&gt;(item: &amp;T) {}
+
+// where 子句（复杂约束时更清晰）
+pub fn some_function&lt;T, U&gt;(t: &amp;T, u: &amp;U) -&gt; i32
+where
+    T: Display + Clone,
+    U: Clone + Debug,
+{
+    // ...
+}
+</code></pre>
+<h5>返回 trait 类型</h5>
+<pre><code class="language-rust">fn returns_summarizable() -&gt; impl Summary {
+    NewsArticle {
+        headline: String::from(&quot;标题&quot;),
+        author: String::from(&quot;作者&quot;),
+    }
+}
+</code></pre>
+<h5>条件实现</h5>
+<pre><code class="language-rust">impl&lt;T: Display + PartialOrd&gt; ToString for T {
+    // ...
+}
+</code></pre>
+<blockquote>
+<p><strong>对比 TS interface</strong>：Rust trait 可以有默认实现，支持条件实现，还能为外部类型实现本地 trait（孤儿规则限制）。</p>
+</blockquote>
+<h4>生命周期（Lifetime）</h4>
+<p>生命周期确保引用有效，编译器通过<strong>生命周期标注</strong>推断引用的有效期。</p>
+<h5>基本标注</h5>
+<pre><code class="language-rust">// 'a 表示：返回值的生命周期与两个参数中较短的那个一致
+fn longest&lt;'a&gt;(x: &amp;'a str, y: &amp;'a str) -&gt; &amp;'a str {
+    if x.len() &gt; y.len() { x } else { y }
+}
+</code></pre>
+<h5>结构体中的生命周期</h5>
+<pre><code class="language-rust">struct ImportantExcerpt&lt;'a&gt; {
+    part: &amp;'a str,  // 该引用的生命周期至少要和结构体实例一样长
+}
+
+fn main() {
+    let novel = String::from(&quot;这是一个很长的故事...&quot;);
+    let first_sentence = novel.split('.').next().unwrap();
+    let excerpt = ImportantExcerpt {
+        part: first_sentence,
+    };
+}
+</code></pre>
+<h5>生命周期省略规则</h5>
+<p>编译器会自动推断大部分生命周期，三种规则：</p>
+<ol>
+<li>每个引用参数获得一个独立生命周期</li>
+<li>如果只有一个输入生命周期，所有输出引用继承它</li>
+<li>如果有多个输入生命周期，但一个是 <code>&amp;self</code> 或 <code>&amp;mut self</code>，输出继承 <code>self</code> 的生命周期</li>
+</ol>
+<pre><code class="language-rust">// 编译器自动推断，等价于：
+// fn first_word&lt;'a&gt;(s: &amp;'a str) -&gt; &amp;'a str
+fn first_word(s: &amp;str) -&gt; &amp;str {
+    // ...
+}
+</code></pre>
+<h5>静态生命周期</h5>
+<pre><code class="language-rust">let s: &amp;'static str = &quot;我永远存在&quot;;  // 整个程序生命周期
+</code></pre>
+<blockquote>
+<p><strong>为什么需要生命周期</strong>：Rust 没有 GC，需要确保引用不会指向已释放的内存。生命周期标注告诉编译器引用的有效期，编译期验证安全性。</p>
+</blockquote>
+<hr>
+<h3>12. 错误处理</h3>
+<p>Rust 没有异常（exception），用 <code>Result</code> 和 <code>Option</code> 显式处理错误。</p>
+<h4>panic! — 不可恢复错误</h4>
+<pre><code class="language-rust">fn main() {
+    panic!(&quot;崩溃！&quot;);  // 程序终止
+
+    // 数组越界也会 panic
+    let v = vec![1, 2, 3];
+    v[99];  // panic: index out of bounds
+}
+</code></pre>
+<h4>Result — 可恢复错误</h4>
+<pre><code class="language-rust">enum Result&lt;T, E&gt; {
+    Ok(T),
+    Err(E),
+}
+</code></pre>
+<h5>基本使用</h5>
+<pre><code class="language-rust">use std::fs::File;
+
+fn main() {
+    let file = File::open(&quot;hello.txt&quot;);
+
+    let file = match file {
+        Ok(file) =&gt; file,
+        Err(error) =&gt; panic!(&quot;打开文件失败: {error:?}&quot;),
+    };
+}
+</code></pre>
+<h5>传播错误：? 操作符</h5>
+<pre><code class="language-rust">use std::fs::File;
+use std::io::{self, Read};
+
+fn read_username_from_file() -&gt; Result&lt;String, io::Error&gt; {
+    // ? 操作符：Ok 则解包，Err 则提前返回
+    let mut file = File::open(&quot;hello.txt&quot;)?;
+    let mut username = String::new();
+    file.read_to_string(&amp;mut username)?;
+    Ok(username)
+}
+
+// 链式写法
+fn read_username_from_file2() -&gt; Result&lt;String, io::Error&gt; {
+    let mut username = String::new();
+    File::open(&quot;hello.txt&quot;)?.read_to_string(&amp;mut username)?;
+    Ok(username)
+}
+</code></pre>
+<blockquote>
+<p><strong>对比 Java try-catch</strong>：<code>?</code> 类似自动传播异常，但类型安全，不会有遗漏。</p>
+</blockquote>
+<h5>unwrap 和 expect</h5>
+<pre><code class="language-rust">let file = File::open(&quot;hello.txt&quot;).unwrap();       // Ok 取值，Err 则 panic
+let file = File::open(&quot;hello.txt&quot;).expect(&quot;文件必须存在&quot;); // 自定义 panic 信息
+</code></pre>
+<h5>自定义错误类型</h5>
+<pre><code class="language-rust">use std::fmt;
+
+#[derive(Debug)]
+struct AppError {
+    message: String,
+}
+
+impl fmt::Display for AppError {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result {
+        write!(f, &quot;应用错误: {}&quot;, self.message)
+    }
+}
+
+impl std::error::Error for AppError {}
+
+fn do_something() -&gt; Result&lt;(), AppError&gt; {
+    Err(AppError {
+        message: String::from(&quot;出错了&quot;),
+    })
+}
+</code></pre>
+<blockquote>
+<p><strong>对比 Python try/except</strong>：Rust 强制你处理错误，<code>Result</code> 和 <code>Option</code> 让错误处理成为类型系统的一部分。</p>
+</blockquote>
+<hr>
+<h3>13. 集合类型</h3>
+<h4>Vector（动态数组）</h4>
+<pre><code class="language-rust">let v: Vec&lt;i32&gt; = Vec::new();           // 空 vector
+let v = vec![1, 2, 3];                  // 宏初始化
+
+let mut v = Vec::new();
+v.push(5);
+v.push(6);
+
+// 读取元素
+let third: &amp;i32 = &amp;v[2];               // 索引访问，越界 panic
+let third: Option&lt;&amp;i32&gt; = v.get(2);    // get 返回 Option，越界返回 None
+
+// 遍历
+for i in &amp;v {
+    println!(&quot;{i}&quot;);
+}
+
+// 遍历并修改
+for i in &amp;mut v {
+    *i += 50;  // 解引用
+}
+</code></pre>
+<h4>String</h4>
+<pre><code class="language-rust">let mut s = String::from(&quot;hello&quot;);
+s.push_str(&quot; world&quot;);     // 追加字符串切片
+s.push('!');              // 追加单个字符
+
+let s1 = String::from(&quot;Hello, &quot;);
+let s2 = String::from(&quot;world!&quot;);
+let s3 = s1 + &amp;s2;       // s1 被移动，不再可用
+
+// 格式化
+let s = format!(&quot;{s2} {s3}&quot;);  // 不获取所有权
+
+// 索引访问？不行！
+// Rust String 不支持 s[0]，因为 UTF-8 变长编码
+
+// 遍历字符
+for c in &quot;你好&quot;.chars() {
+    println!(&quot;{c}&quot;);
+}
+
+// 遍历字节
+for b in &quot;你好&quot;.bytes() {
+    println!(&quot;{b}&quot;);
+}
+</code></pre>
+<blockquote>
+<p><strong>对比 Python 字符串</strong>：Python 字符串支持索引 <code>s[0]</code>，Rust 不支持，因为 UTF-8 字符可能占 1-4 字节，索引操作是 O(n) 的。</p>
+</blockquote>
+<h4>HashMap</h4>
+<pre><code class="language-rust">use std::collections::HashMap;
+
+let mut scores = HashMap::new();
+scores.insert(String::from(&quot;Blue&quot;), 10);
+scores.insert(String::from(&quot;Yellow&quot;), 50);
+
+// 访问
+let team = String::from(&quot;Blue&quot;);
+let score = scores.get(&amp;team);  // Option&lt;&amp;V&gt;
+
+// 遍历
+for (key, value) in &amp;scores {
+    println!(&quot;{key}: {value}&quot;);
+}
+
+// 更新
+scores.entry(String::from(&quot;Blue&quot;)).or_insert(50);  // 仅在不存在时插入
+</code></pre>
+<blockquote>
+<p><strong>对比 Python dict</strong>：API 类似，但 Rust 的 HashMap 需要显式导入，且有所有权规则。</p>
+</blockquote>
+<hr>
+<h3>14. 模块系统</h3>
+<h4>基本模块</h4>
+<pre><code class="language-rust">// src/main.rs
+mod front_of_house {
+    pub mod hosting {
+        pub fn add_to_waitlist() {}
+    }
+}
+
+pub fn eat_at_restaurant() {
+    // 绝对路径
+    crate::front_of_house::hosting::add_to_waitlist();
+    // 相对路径
+    front_of_house::hosting::add_to_waitlist();
+}
+</code></pre>
+<h4>文件分离</h4>
+<pre><code>src/
+├── main.rs
+├── front_of_house.rs        （或 front_of_house/mod.rs）
+└── front_of_house/
+    └── hosting.rs
+</code></pre>
+<pre><code class="language-rust">// src/main.rs
+mod front_of_house;  // 声明模块
+
+// src/front_of_house.rs
+pub mod hosting;
+
+// src/front_of_house/hosting.rs
+pub fn add_to_waitlist() {}
+</code></pre>
+<h4>use 引入</h4>
+<pre><code class="language-rust">use std::collections::HashMap;
+use std::fmt::Result;
+use std::io::Result as IoResult;  // 别名
+
+// 嵌套引入
+use std::{cmp::Ordering, io};
+
+// 通配符
+use std::collections::*;
+
+// 引入父模块以同时使用多个项
+use std::io::{self, Write};
+</code></pre>
+<h4>pub 可见性</h4>
+<pre><code class="language-rust">mod front_of_house {
+    pub mod hosting {           // pub 使模块对外可见
+        pub fn add_to_waitlist() {}  // pub 使函数对外可见
+        fn seat_at_table() {}   // 私有，模块外不可访问
+    }
+}
+</code></pre>
+<h4>从其他文件引入</h4>
+<pre><code class="language-rust">// 从其他 crate 引入
+use rand::Rng;
+
+// 从当前 crate 引入
+use crate::front_of_house::hosting;
+</code></pre>
+<blockquote>
+<p><strong>对比 ES Module</strong>：<code>use</code> 类似 <code>import</code>，<code>pub</code> 类似 <code>export</code>。Rust 的模块系统更严格，默认私有。</p>
+</blockquote>
+<hr>
+<h3>15. 常用宏</h3>
+<h4>println! 与 format!</h4>
+<pre><code class="language-rust">println!(&quot;Hello&quot;);                    // 打印 + 换行
+print!(&quot;Hello&quot;);                      // 打印，无换行
+println!(&quot;{} {}&quot;, &quot;Hello&quot;, &quot;world&quot;);  // 占位符
+println!(&quot;{0} {1} {0}&quot;, &quot;A&quot;, &quot;B&quot;);    // 位置参数
+println!(&quot;{name} is {age}&quot;, name = &quot;Tom&quot;, age = 18);  // 命名参数
+println!(&quot;{:?}&quot;, (1, 2, 3));          // Debug 格式
+println!(&quot;{:.2}&quot;, 3.14159);           // 精度控制
+</code></pre>
+<h4>vec!</h4>
+<pre><code class="language-rust">let v = vec![1, 2, 3];
+// 等价于：
+let mut v = Vec::new();
+v.push(1);
+v.push(2);
+v.push(3);
+</code></pre>
+<h4>其他常用宏</h4>
+<pre><code class="language-rust">panic!(&quot;崩溃！&quot;);          // 终止程序
+unimplemented!();         // 标记未实现
+unreachable!();           // 标记不可达代码
+todo!();                  // 标记待实现
+dbg!(expression);         // 调试打印表达式及其值
+</code></pre>
+<hr>
+<h3>16. 并发基础</h3>
+<h4>创建线程</h4>
+<pre><code class="language-rust">use std::thread;
+use std::time::Duration;
+
+fn main() {
+    let handle = thread::spawn(|| {
+        for i in 1..10 {
+            println!(&quot;子线程: {i}&quot;);
+            thread::sleep(Duration::from_millis(1));
+        }
+    });
+
+    for i in 1..5 {
+        println!(&quot;主线程: {i}&quot;);
+        thread::sleep(Duration::from_millis(1));
+    }
+
+    handle.join().unwrap();  // 等待子线程完成
+}
+</code></pre>
+<h4>移动语义与线程</h4>
+<pre><code class="language-rust">let v = vec![1, 2, 3];
+
+let handle = thread::spawn(move || {
+    println!(&quot;{v:?}&quot;);
+});
+
+// println!(&quot;{v:?}&quot;);  // 错误！v 已被 move 到线程中
+
+handle.join().unwrap();
+</code></pre>
+<p><code>move</code> 闭包强制获取变量的所有权，确保线程安全。</p>
+<h4>消息传递（Channel）</h4>
+<pre><code class="language-rust">use std::sync::mpsc;  // multiple producer, single consumer
+use std::thread;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        let val = String::from(&quot;hello&quot;);
+        tx.send(val).unwrap();
+        // println!(&quot;{val}&quot;);  // 错误：val 已被 send 移动
+    });
+
+    let received = rx.recv().unwrap();
+    println!(&quot;收到: {received}&quot;);
+}
+</code></pre>
+<blockquote>
+<p><strong>对比 Go channel</strong>：Rust 的 channel 类似 Go，但通过所有权系统保证发送后不能再使用已发送的值。</p>
+</blockquote>
+<h4>共享状态：Mutex</h4>
+<pre><code class="language-rust">use std::sync::Mutex;
+
+fn main() {
+    let m = Mutex::new(5);
+
+    {
+        let mut num = m.lock().unwrap();
+        *num = 6;
+    }  // 锁自动释放
+
+    println!(&quot;m = {m:?}&quot;);
+}
+</code></pre>
+<h4>Arc（原子引用计数）</h4>
+<pre><code class="language-rust">use std::sync::{Arc, Mutex};
+use std::thread;
+
+fn main() {
+    let counter = Arc::new(Mutex::new(0));
+    let mut handles = vec![];
+
+    for _ in 0..10 {
+        let counter = Arc::clone(&amp;counter);
+        let handle = thread::spawn(move || {
+            let mut num = counter.lock().unwrap();
+            *num += 1;
+        });
+        handles.push(handle);
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    println!(&quot;结果: {}&quot;, *counter.lock().unwrap());
+}
+</code></pre>
+<blockquote>
+<p><strong>对比 Java 并发</strong>：Rust 的类型系统防止数据竞争——<code>Mutex&lt;T&gt;</code> 和 <code>Arc&lt;T&gt;</code> 的组合确保线程安全在编译期验证。</p>
+</blockquote>
+<hr>
+<h3>17. Cargo 包管理</h3>
+<h4>项目结构</h4>
+<pre><code class="language-bash">cargo new my_project        # 创建二进制项目
+cargo new my_project --lib  # 创建库项目
+</code></pre>
+<pre><code>my_project/
+├── Cargo.toml              # 项目配置 + 依赖声明
+├── Cargo.lock              # 依赖版本锁定（自动生成）
+└── src/
+    ├── main.rs             # 二进制入口
+    └── lib.rs              # 库入口
+</code></pre>
+<h4>Cargo.toml</h4>
+<pre><code class="language-toml">[package]
+name = &quot;my_project&quot;
+version = &quot;0.1.0&quot;
+edition = &quot;2021&quot;
+
+[dependencies]
+rand = &quot;0.8&quot;
+serde = { version = &quot;1.0&quot;, features = [&quot;derive&quot;] }
+</code></pre>
+<h4>常用命令</h4>
+<pre><code class="language-bash">cargo build          # 编译（debug 模式）
+cargo build --release # 编译（release 模式，优化）
+cargo run            # 编译 + 运行
+cargo check          # 快速检查编译错误（不生成二进制）
+cargo test           # 运行测试
+cargo doc --open     # 生成并打开文档
+cargo update         # 更新依赖
+</code></pre>
+<h4>工作空间（Workspace）</h4>
+<pre><code class="language-toml"># 根目录 Cargo.toml
+[workspace]
+members = [
+    &quot;crate1&quot;,
+    &quot;crate2&quot;,
+]
+</code></pre>
+<h4>测试</h4>
+<pre><code class="language-rust">#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(2 + 2, 4);
+    }
+
+    #[test]
+    #[should_panic]
+    fn it_panics() {
+        panic!(&quot;故意 panic&quot;);
+    }
+
+    #[test]
+    fn test_with_result() -&gt; Result&lt;(), String&gt; {
+        if 2 + 2 == 4 {
+            Ok(())
+        } else {
+            Err(&quot;数学错了&quot;.to_string())
+        }
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>对比 npm/yarn</strong>：Cargo 是 Rust 的 npm + webpack + jest 一体化工具。</p>
+</blockquote>
+<hr>
+<h3>18. 综合示例</h3>
+<h4>命令行猜数字游戏</h4>
+<pre><code class="language-rust">use rand::Rng;
+use std::cmp::Ordering;
+use std::io;
+
+fn main() {
+    println!(&quot;猜数字游戏！&quot;);
+
+    let secret_number = rand::thread_rng().gen_range(1..=100);
+
+    loop {
+        println!(&quot;请输入你的猜测：&quot;);
+
+        let mut guess = String::new();
+        io::stdin()
+            .read_line(&amp;mut guess)
+            .expect(&quot;读取失败&quot;);
+
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) =&gt; num,
+            Err(_) =&gt; continue,
+        };
+
+        println!(&quot;你猜的是: {guess}&quot;);
+
+        match guess.cmp(&amp;secret_number) {
+            Ordering::Less =&gt; println!(&quot;太小了！&quot;),
+            Ordering::Greater =&gt; println!(&quot;太大了！&quot;),
+            Ordering::Equal =&gt; {
+                println!(&quot;猜对了！&quot;);
+                break;
+            }
+        }
+    }
+}
+</code></pre>
+<h4>简易 Web 服务器（actix-web）</h4>
+<pre><code class="language-rust">use actix_web::{get, App, HttpServer, Responder};
+
+#[get(&quot;/&quot;)]
+async fn hello() -&gt; impl Responder {
+    &quot;Hello, world!&quot;
+}
+
+#[actix_web::main]
+async fn main() -&gt; std::io::Result&lt;()&gt; {
+    HttpServer::new(|| App::new().service(hello))
+        .bind(&quot;127.0.0.1:8080&quot;)?
+        .run()
+        .await
+}
+</code></pre>
+<hr>
+<h3>学习路径建议</h3>
+<ol>
+<li><strong>第 1 周</strong>：变量、类型、函数、控制流、所有权基础</li>
+<li><strong>第 2 周</strong>：引用、借用、切片、结构体、枚举、模式匹配</li>
+<li><strong>第 3 周</strong>：泛型、Trait、生命周期、错误处理</li>
+<li><strong>第 4 周</strong>：集合、模块、Cargo、测试</li>
+<li><strong>第 5 周</strong>：智能指针、并发、闭包、迭代器</li>
+<li><strong>第 6 周+</strong>：异步编程、FFI、宏、unsafe Rust</li>
+</ol>
+<h3>推荐资源</h3>
+<ul>
+<li><strong>官方教程</strong>：《The Rust Programming Language》（<a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener noreferrer">Rust 程序设计语言</a>）</li>
+<li><strong>交互练习</strong>：<a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener noreferrer">Rustlings</a></li>
+<li><strong>在线练习</strong>：<a href="https://doc.rust-lang.org/rust-by-example/" target="_blank" rel="noopener noreferrer">Rust By Example</a></li>
+<li><strong>社区</strong>：<a href="https://www.rust-lang.org/" target="_blank" rel="noopener noreferrer">rust-lang.org</a></li>
+<li><strong>中文社区</strong>：<a href="https://rustcc.cn/" target="_blank" rel="noopener noreferrer">Rust 语言中文社区</a></li>
+</ul>
+<hr>
+<blockquote>
+<p><strong>核心理念</strong>：Rust 的编译器是你的朋友。编译通过的程序，大概率是正确的。所有权系统、借用检查器和模式匹配是 Rust 的三大支柱，理解它们就理解了 Rust。</p>
+</blockquote>
+</div>
+    </article>
+  </main>
+  <script src="/assets/js/home.js"></script>
+</body>
+</html>
