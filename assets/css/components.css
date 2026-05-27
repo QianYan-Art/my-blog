@@ -1577,7 +1577,9 @@
 
 .post-content h2,
 .post-content h3,
-.post-content h4 {
+.post-content h4,
+.post-content h5,
+.post-content h6 {
   color: var(--ink);
   font-family: var(--font-display);
   font-weight: 500;
@@ -1595,6 +1597,15 @@
   font-size: clamp(22px, 2vw, 30px);
 }
 
+.post-content h5 {
+  font-size: clamp(18px, 1.45vw, 24px);
+}
+
+.post-content h6 {
+  font-size: clamp(16px, 1.2vw, 20px);
+  letter-spacing: 0.02em;
+}
+
 .post-content p,
 .post-content ul,
 .post-content blockquote {
@@ -1608,6 +1619,12 @@
   color: var(--lead);
   font-family: var(--font-display);
   font-style: italic;
+}
+
+.post-content hr {
+  margin: var(--space-5) 0;
+  border: 0;
+  border-top: 1px solid var(--line-strong);
 }
 
 .post-content img {
@@ -1636,6 +1653,22 @@
 
 .post-content li + li {
   margin-top: var(--space-2);
+}
+
+.post-content input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  accent-color: var(--verm);
+}
+
+.post-content .task-list-item {
+  list-style: none;
+}
+
+.post-content .task-list-item label {
+  display: inline-flex;
+  align-items: center;
 }
 
 .post-content code {

@@ -2,6 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 const { execFileSync } = require("child_process");
+const MarkdownIt = require("markdown-it");
+const markdownItTaskLists = require("markdown-it-task-lists");
 
 const ROOT = path.resolve(__dirname, "..");
 const OWNER = process.env.KBASE_OWNER || "QianYan-Art";
@@ -240,17 +242,17 @@ function compareByDateDesc(a, b) {
 }
 
 function markdownToHtml(markdown) {
-  const lines = stripFrontMatter(markdown).replace(/^\s*#\s+.+(?:\r?\n)+/, "").split(/\r?\n/);
-  const html = [];
-  let listOpen = false;
-  let listType = "";
-  let paragraph = [];
-  let codeOpen = false;
-  let codeLines = [];
-
-  function esc(value) {
-    return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
-  }
+  const body = stripFrontMatter(markdown).replace(/^\s*#\s+.+(?:\r?\n)+/, "");
+  const md = new MarkdownIt({
+    html: false,
+    linkify: true,
+    breaks: false,
+    typographer: false
+  }).use(markdownItTaskLists, {
+    enabled: true,
+    label: true,
+    labelAfter: true
+  });
 
   function sanitizeHref(rawHref) {
     const value = String(rawHref || "").trim();
@@ -264,165 +266,54 @@ function markdownToHtml(markdown) {
     return "";
   }
 
-  function inline(value) {
-    return esc(value)
-      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
-        const safeSrc = sanitizeHref(src);
-        if (!safeSrc) return alt;
-        return `<img src="${esc(safeSrc)}" alt="${alt}" loading="lazy">`;
-      })
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
-        const safeHref = sanitizeHref(href);
-        if (!safeHref) return label;
-        return `<a href="${esc(safeHref)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
-      })
-      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-      .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>")
-      .replace(/~~([^~]+)~~/g, "<del>$1</del>")
-      .replace(/`([^`]+)`/g, "<code>$1</code>");
-  }
+  const renderToken = md.renderer.renderToken.bind(md.renderer);
+  const defaultLinkOpen = md.renderer.rules.link_open || renderToken;
+  const defaultImage = md.renderer.rules.image;
+  const defaultHeadingOpen = md.renderer.rules.heading_open || renderToken;
+  const defaultHeadingClose = md.renderer.rules.heading_close || renderToken;
 
-  function flushParagraph() {
-    if (!paragraph.length) return;
-    html.push(`<p>${inline(paragraph.join(" "))}</p>`);
-    paragraph = [];
-  }
+  md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+    const hrefIndex = tokens[idx].attrIndex("href");
+    const href = hrefIndex >= 0 ? tokens[idx].attrs[hrefIndex][1] : "";
+    const safeHref = sanitizeHref(href);
+    if (!safeHref) {
+      tokens[idx].attrSet("href", "#");
+    } else {
+      tokens[idx].attrSet("href", safeHref);
+    }
+    tokens[idx].attrSet("target", "_blank");
+    tokens[idx].attrSet("rel", "noopener noreferrer");
+    return defaultLinkOpen(tokens, idx, options, env, self);
+  };
 
-  function closeList() {
-    if (!listOpen) return;
-    html.push(`</${listType}>`);
-    listOpen = false;
-    listType = "";
-  }
+  md.renderer.rules.image = (tokens, idx, options, env, self) => {
+    const srcIndex = tokens[idx].attrIndex("src");
+    const src = srcIndex >= 0 ? tokens[idx].attrs[srcIndex][1] : "";
+    const safeSrc = sanitizeHref(src);
+    if (!safeSrc) {
+      return md.utils.escapeHtml(tokens[idx].content || "");
+    }
+    tokens[idx].attrSet("src", safeSrc);
+    tokens[idx].attrSet("loading", "lazy");
+    return defaultImage ? defaultImage(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options);
+  };
 
-  function flushCode() {
-    if (!codeOpen) return;
-    html.push(`<pre><code>${esc(codeLines.join("\n"))}</code></pre>`);
-    codeLines = [];
-    codeOpen = false;
-  }
+  md.renderer.rules.table_open = () => "<div class=\"post-table-wrap\"><table>";
+  md.renderer.rules.table_close = () => "</table></div>";
 
-  function isTableRow(line) {
-    return /^\s*\|.+\|\s*$/.test(line);
-  }
+  md.renderer.rules.heading_open = (tokens, idx, options, env, self) => {
+    const originalLevel = Number(tokens[idx].tag.replace(/^h/, "")) || 1;
+    tokens[idx].tag = `h${Math.min(6, originalLevel + 1)}`;
+    return defaultHeadingOpen(tokens, idx, options, env, self);
+  };
 
-  function isTableSeparator(line) {
-    return /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line);
-  }
+  md.renderer.rules.heading_close = (tokens, idx, options, env, self) => {
+    const originalLevel = Number(tokens[idx].tag.replace(/^h/, "")) || 1;
+    tokens[idx].tag = `h${Math.min(6, originalLevel + 1)}`;
+    return defaultHeadingClose(tokens, idx, options, env, self);
+  };
 
-  function splitTableRow(line) {
-    const row = line.trim().replace(/^\|/, "").replace(/\|$/, "");
-    const cells = [];
-    let cell = "";
-    let escaped = false;
-    for (const char of row) {
-      if (escaped) {
-        cell += char;
-        escaped = false;
-        continue;
-      }
-      if (char === "\\") {
-        escaped = true;
-        cell += char;
-        continue;
-      }
-      if (char === "|") {
-        cells.push(cell.replace(/\\\|/g, "|").trim());
-        cell = "";
-        continue;
-      }
-      cell += char;
-    }
-    cells.push(cell.replace(/\\\|/g, "|").trim());
-    return cells;
-  }
-
-  function renderTable(startIndex) {
-    const headers = splitTableRow(lines[startIndex]);
-    const rows = [];
-    let index = startIndex + 2;
-    while (index < lines.length && isTableRow(lines[index])) {
-      rows.push(splitTableRow(lines[index]));
-      index += 1;
-    }
-    const thead = `<thead><tr>${headers.map((cell) => `<th>${inline(cell)}</th>`).join("")}</tr></thead>`;
-    const tbody = rows.map((row) => `<tr>${headers.map((_, cellIndex) => `<td>${inline(row[cellIndex] || "")}</td>`).join("")}</tr>`).join("");
-    html.push(`<div class="post-table-wrap"><table>${thead}<tbody>${tbody}</tbody></table></div>`);
-    return index - 1;
-  }
-
-  for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
-    const line = lines[lineIndex];
-    if (/^```/.test(line.trim())) {
-      if (codeOpen) {
-        flushCode();
-      } else {
-        flushParagraph();
-        closeList();
-        codeOpen = true;
-        codeLines = [];
-      }
-      continue;
-    }
-    if (codeOpen) {
-      codeLines.push(line);
-      continue;
-    }
-    if (/^\s*$/.test(line)) {
-      flushParagraph();
-      closeList();
-      continue;
-    }
-    if (isTableRow(line) && lineIndex + 1 < lines.length && isTableSeparator(lines[lineIndex + 1])) {
-      flushParagraph();
-      closeList();
-      lineIndex = renderTable(lineIndex);
-      continue;
-    }
-    const blockquote = line.match(/^>\s+(.+)$/);
-    if (blockquote) {
-      flushParagraph();
-      closeList();
-      html.push(`<blockquote>${inline(blockquote[1])}</blockquote>`);
-      continue;
-    }
-    const heading = line.match(/^(#{1,3})\s+(.+)$/);
-    if (heading) {
-      flushParagraph();
-      closeList();
-      html.push(`<h${heading[1].length + 1}>${inline(heading[2])}</h${heading[1].length + 1}>`);
-      continue;
-    }
-    const bullet = line.match(/^[-*]\s+(.+)$/);
-    if (bullet) {
-      flushParagraph();
-      if (!listOpen || listType !== "ul") {
-        closeList();
-        html.push("<ul>");
-        listOpen = true;
-        listType = "ul";
-      }
-      html.push(`<li>${inline(bullet[1])}</li>`);
-      continue;
-    }
-    const ordered = line.match(/^\d+\.\s+(.+)$/);
-    if (ordered) {
-      flushParagraph();
-      if (!listOpen || listType !== "ol") {
-        closeList();
-        html.push("<ol>");
-        listOpen = true;
-        listType = "ol";
-      }
-      html.push(`<li>${inline(ordered[1])}</li>`);
-      continue;
-    }
-    paragraph.push(line.trim());
-  }
-  flushCode();
-  flushParagraph();
-  closeList();
-  return html.join("\n");
+  return md.render(body);
 }
 
 function renderPost(article, markdown) {

@@ -10,5 +10,9 @@
     "check": "npm run check:syntax",
     "sync:kbase:local": "node scripts/sync-kbase.js",
     "sync:kbase": "node scripts/sync-kbase.js"
+  },
+  "dependencies": {
+    "markdown-it": "^14.2.0",
+    "markdown-it-task-lists": "^2.1.1"
   }
 }
