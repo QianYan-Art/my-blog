@@ -163,10 +163,6 @@
   .site-nav__mark {
     animation: none;
   }
-
-  body::after {
-    display: none;
-  }
 }
 
 

@@ -115,16 +115,18 @@ img {
 
 /* ── Reduced Motion ──────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
+  /* 对齐原站：仅关闭循环/装饰性动画，保留交互过渡（sweep、下划线、视差），
+     避免把所有 transition 压成 0.01ms 导致按钮"瞬间全红"、人物视差跳动。 */
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
   }
 
-  body::after {
-    display: none;
+  /* 例外：标题打字光标始终闪烁（对齐原站，签名级细节） */
+  .hero-title__cursor {
+    animation: caret-blink 1.6s step-end infinite !important;
   }
 
   html {

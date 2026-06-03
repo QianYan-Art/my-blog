@@ -30,6 +30,8 @@
   background: var(--verm);
   transform: rotate(45deg);
   transition: transform 0.4s;
+  position: relative;
+  top: -2px;
 }
 
 .site-nav__meta {
@@ -156,6 +158,7 @@
   max-width: 9.5em;
   text-wrap: balance;
   word-break: keep-all;
+  margin-top: clamp(24px, 4.5vh, 60px);
 }
 
 .hero-title__line {
@@ -284,7 +287,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  margin-top: clamp(16px, 2.2vh, 24px);
+  margin-top: clamp(24px, 4.5vh, 60px);
 }
 
 /* ---- CTAs ---- */
@@ -478,8 +481,31 @@
   background: var(--line-strong);
 }
 
+/* 卷首行置于左栏时：缩短横线至约“千颜的博客”宽度 */
+.plate__head--hero {
+  width: 34vw;
+  min-width: 300px;
+  margin-bottom: clamp(14px, 2vh, 22px);
+}
+
+/* 文章页右栏：QY.02 纪要行在上、ledger 方块在下，撑满行高使 QY.02 顶部对齐左侧 Knowledge Base */
+.articles-hero__side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+  gap: clamp(24px, 5vh, 72px);
+  min-width: 0;
+}
+
+.plate__head--articles {
+  width: 100%;
+  margin: 0;
+}
+
 .plate__head-meta {
   white-space: nowrap;
+  margin-left: clamp(8px, 1vw, 14px);
 }
 
 /* ---- Plate Title ---- */
@@ -514,34 +540,29 @@
 .plate__frame-wrap {
   position: relative;
   width: 100%;
-  max-width: min(100%, 400px); /* 微调最大宽度，使上下留白更透气，更精致 */
-  margin: 0 auto;
+  max-width: clamp(280px, 24vw, 340px);
+  margin: 0;
   flex-shrink: 0;
 }
 
 .plate__frame {
   width: 100%;
-  height: 0;
-  padding-bottom: 100%;
   background: transparent;
   position: relative;
   overflow: visible;
   cursor: default;
+  line-height: 0;
 }
 
 .plate__art {
-  position: absolute;
-  top: 0;
-  left: 0;
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center center;
-  filter: contrast(1.04) grayscale(1);
+  height: auto;
+  filter: contrast(1.04) grayscale(1) sepia(0.16) brightness(0.98);
   opacity: 1;
-  padding: 0%;
-  will-change: auto;
-  transition: opacity 0.3s var(--ease-ink);
+  will-change: transform;
+  transition: opacity 0.3s var(--ease-ink),
+              transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .plate__art:hover {
@@ -553,19 +574,69 @@
   transform: none;
 }
 
-/* ---- Plate Caption ---- */
+/* ---- Plate frame 四角裁切角标 ---- */
+.plate__frame-wrap::before,
+.plate__frame-wrap::after,
+.plate__frame::before,
+.plate__frame::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 0 solid var(--mist);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.plate__frame-wrap::before {
+  top: -8px;
+  left: -8px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.plate__frame-wrap::after {
+  top: -8px;
+  right: -8px;
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
+
+.plate__frame::before {
+  bottom: -8px;
+  left: -8px;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+}
+
+.plate__frame::after {
+  bottom: -8px;
+  right: -8px;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+}
+
+/* ---- Plate Figure（人物 + 右侧竖排 FIG 说明）---- */
+.plate__figure {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(12px, 1.4vw, 22px);
+}
+
+/* ---- Plate Caption（竖排，位于人物右侧）---- */
 .plate__caption {
   flex-shrink: 0;
-  margin-top: clamp(9px, 1.5vh, 14px);
-  padding-top: clamp(7px, 1.1vh, 10px);
-  border-top: 1px solid var(--line-strong);
+  align-self: flex-start;
+  margin-top: clamp(20px, 3vh, 32px);
+  display: flex;
+  align-items: baseline;
+  gap: 0.45em;
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.12em;
   color: var(--lead);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   text-transform: uppercase;
 }
 
@@ -586,9 +657,7 @@
 /* ---- Plate Prop ---- */
 .plate__prop {
   flex-shrink: 0;
-  margin-top: clamp(9px, 1.5vh, 14px);
-  padding-top: clamp(9px, 1.5vh, 13px);
-  border-top: 1px solid var(--line-strong);
+  margin-top: clamp(20px, 2.6vh, 32px);
   display: flex;
   flex-direction: column;
   gap: clamp(5px, 0.9vh, 9px);
@@ -842,12 +911,26 @@
     letter-spacing: -0.08em;
     line-height: 1.08;
     max-width: 100%;
+    margin-top: clamp(14px, 2vh, 22px);
   }
 
   .hero-actions {
     align-items: flex-start;
     flex-direction: column;
     gap: 18px;
+    margin-top: clamp(20px, 3vh, 28px);
+  }
+
+  /* QY.01 卷首行：移动端占满宽度（桌面端 34vw 在窄屏太窄） */
+  .plate__head--hero {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* 人物图移动端居中、限制宽度 */
+  .plate__frame-wrap {
+    margin-inline: auto;
+    max-width: min(340px, 78vw);
   }
 
   .plate-pane__head {
@@ -1437,6 +1520,13 @@
 
   .articles-hero::after {
     display: none;
+  }
+
+  /* 单列时右栏正常堆叠，取消撑高与两端分布 */
+  .articles-hero__side {
+    align-self: start;
+    justify-content: flex-start;
+    gap: clamp(18px, 4vw, 30px);
   }
 
   .article-card,

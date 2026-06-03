@@ -205,3 +205,24 @@
     window.addEventListener('load', scheduleResponsiveFitting);
   }
 })();
+
+/* ──────────────────────────────────────────────
+   鼠标跟随墨晕 —— 全站纸感光效驱动
+   CSS 已在 base.css(body::after) 与卡片/ledger 中
+   使用 --mx/--my，这里负责按指针位置写入。
+   ────────────────────────────────────────────── */
+(function () {
+  var raf = null, mx = 30, my = 70;
+
+  function update() {
+    document.body.style.setProperty('--mx', mx + '%');
+    document.body.style.setProperty('--my', my + '%');
+    raf = null;
+  }
+
+  document.addEventListener('mousemove', function (e) {
+    mx = (e.clientX / window.innerWidth) * 100;
+    my = (e.clientY / window.innerHeight) * 100;
+    if (!raf) raf = requestAnimationFrame(update);
+  });
+})();
