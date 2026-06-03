@@ -8,6 +8,7 @@
     "dev": "node server.js",
     "check:syntax": "node scripts/check-syntax.js",
     "check": "npm run check:syntax",
+    "bump:assets": "node scripts/bump-assets-version.js",
     "sync:kbase:local": "node scripts/sync-kbase.js",
     "sync:kbase": "node scripts/sync-kbase.js"
   },
