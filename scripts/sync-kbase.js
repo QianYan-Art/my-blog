@@ -214,14 +214,39 @@ function htmlEscape(value) {
 }
 
 function plainSummary(markdown) {
-  const text = stripFrontMatter(markdown)
-    .replace(/^\s*#\s+.+(?:\r?\n)+/, "")
-    .replace(/```[\s\S]*?```/g, "")
+  // 先整体剥掉跨行的噪音块：代码围栏、块级公式、HTML 注释
+  const body = stripFrontMatter(markdown)
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/~~~[\s\S]*?~~~/g, " ")
+    .replace(/\$\$[\s\S]*?\$\$/g, " ")
+    .replace(/<!--[\s\S]*?-->/g, " ");
+
+  // 逐行筛掉结构性语法（标题/表格/分隔线），正文行剥掉行首列表与引用标记
+  const parts = [];
+  for (const rawLine of body.split(/\r?\n/)) {
+    let line = rawLine.trim();
+    if (!line) continue;
+    if (/^#{1,6}\s/.test(line)) continue;        // 标题行
+    if (/^\|.*\|/.test(line)) continue;          // 表格行
+    if (/^[-=*_]{3,}$/.test(line)) continue;     // 分隔线
+    line = line
+      .replace(/^>\s?/, "")                       // 引用
+      .replace(/^[-*+]\s+/, "")                   // 无序列表
+      .replace(/^\d+[.)]\s+/, "");               // 有序列表
+    parts.push(line);
+    if (parts.join(" ").length >= 140) break;
+  }
+
+  // 行内语法清洗：图片/链接/行内代码/行内公式/强调符
+  const text = parts.join(" ")
     .replace(/!\[[^\]]*]\([^)]+\)/g, "")
-    .replace(/\[[^\]]+]\([^)]+\)/g, (match) => match.replace(/^\[|\]\([^)]+\)$/g, ""))
-    .replace(/[#>*_`~-]/g, "")
+    .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\$([^$\n]+)\$/g, "$1")
+    .replace(/[*~]/g, "")
     .replace(/\s+/g, " ")
     .trim();
+
   return text.slice(0, 110) || "这篇文章来自千颜的私有知识库，已在同步阶段生成静态索引。";
 }
 
