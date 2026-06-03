@@ -346,11 +346,11 @@ function renderPost(article, markdown) {
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css">
-  <link rel="stylesheet" href="/assets/css/base.css">
-  <link rel="stylesheet" href="/assets/css/layout.css">
-  <link rel="stylesheet" href="/assets/css/components.css">
-  <link rel="stylesheet" href="/assets/css/motion.css">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260603">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20260603">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20260603">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20260603">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20260603">
   <script>
     window.MathJax = {
       tex: { inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]], displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]] },
@@ -383,7 +383,7 @@ function renderPost(article, markdown) {
       <div class="post-content">${markdownToHtml(markdown)}</div>
     </article>
   </main>
-  <script src="/assets/js/home.js"></script>
+  <script src="/assets/js/home.js?v=20260603"></script>
 </body>
 </html>`;
 }
