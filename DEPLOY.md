@@ -1,68 +1,46 @@
-# 部署说明（`www.shiqianyan.cn`）
+# 部署说明
 
-本文档对应当前实际方案：**Nginx 直接托管静态文件 + 定时同步私库文章**。
+本项目是纯静态站点：部署的本质是把仓库内容放到静态服务器的站点根目录。本文以 Nginx 为例说明通用流程。
 
-## 1. 站点目录
+## 1. 站点托管
 
-- 线上目录：`/www/wwwroot/blog`
-- 站点域名：`www.shiqianyan.cn`
-- Nginx root 指向：`/www/wwwroot/blog`
+1. 把仓库目录上传到服务器的站点根目录（至少包含各 HTML 页面与 `assets/`、`posts/`）。
+2. 将 Nginx（或 Caddy 等）的 `root` 指向该目录即可，无需 Node 常驻服务。
 
-## 2. 首次部署
+注意：
 
-```bash
-cd /www/wwwroot
-git clone https://github.com/QianYan-Art/my-blog.git blog
-cd blog
-npm ci --omit=dev
-```
+- `assets/fonts/`（自托管字体）与 `assets/vendor/`（MathJax / highlight.js）是站点必需资源，不要遗漏。
+- 建议对 CSS/JS 配置缓存（如 `expires 1d`），配合项目的 `?v=` 版本串使用。
 
-说明：
-- 站点本身是静态页面，不依赖 Node 常驻服务。
-- Node 仅用于执行同步脚本 `scripts/sync-kbase.js`。
+## 2. 更新发布
 
-## 3. 私库同步环境变量
+1. 本地改完并验证后，执行 `npm run bump:assets -- <新版本串>` 刷新缓存版本号（如 `20260612`，同日多次发布加后缀 `b`/`c`）。
+2. 上传改动的 HTML / CSS / JS 覆盖线上文件。
+3. 覆盖前备份对应文件；覆盖后 `nginx -t` 并抽查页面是否正常返回。
 
-服务器需要准备：
+如果改动了文章页模板（`scripts/sync-kbase.js`），需要把该脚本一并上传，并重新执行一次文章同步，让所有文章详情页按新模板重新生成。
 
-- `/etc/blog-sync.env`（`GITHUB_TOKEN`、`KBASE_OWNER`、`KBASE_REPO`、`KBASE_BRANCH`、`KBASE_PUBLIC_DIR` 等）
-- `/usr/local/bin/blog-sync-kbase.sh`（可参考仓库 `ops/blog-sync-kbase.sh`）
+## 3. 文章同步（可选）
 
-手动执行一次同步：
+文章来自知识库仓库的 `public` 目录，由 `scripts/sync-kbase.js` 生成静态产物：
 
-```bash
-/usr/local/bin/blog-sync-kbase.sh
-```
+- `assets/data/articles.json`（列表索引）
+- `posts/kbase/*.html`（文章详情页）
 
-成功后会刷新：
+若希望服务器自动同步，需要 Node 环境，并：
 
-- `assets/data/articles.json`
-- `posts/kbase/*.html`
-
-## 4. 更新发布
-
-```bash
-cd /www/wwwroot/blog
-git fetch --all --prune
-git reset --hard origin/main
-npm ci --omit=dev
-/usr/local/bin/blog-sync-kbase.sh
-```
-
-## 5. 定时同步（可选）
-
-```bash
-crontab -e
-```
-
-示例（每 15 分钟）：
+1. 在站点目录执行 `npm ci --omit=dev` 安装同步依赖。
+2. 准备环境变量（`GITHUB_TOKEN`、`KBASE_OWNER`、`KBASE_REPO`、`KBASE_BRANCH`、`KBASE_PUBLIC_DIR`）。token 只需私库 `Contents: Read-only` + `Metadata: Read-only` 权限。
+3. 参考 `ops/blog-sync-kbase.sh` 编写同步入口脚本，并加入计划任务，例如每天凌晨执行：
 
 ```cron
-*/15 * * * * /usr/local/bin/blog-sync-kbase.sh >> /var/log/blog-sync.log 2>&1
+0 4 * * * /path/to/blog-sync-kbase.sh >> /var/log/blog-sync.log 2>&1
 ```
 
-## 6. 故障排查
+同步产物由服务器自行生成后，日常更新发布时就不要再从本地整传 `assets/data/articles.json` 与 `posts/kbase/`，避免用旧数据覆盖线上文章（仅文章页模板变更时例外）。
 
-- 同步失败先看：`/var/log/blog-sync.log`
-- 核查 token 权限：私库 `Contents: Read-only` + `Metadata: Read-only`
-- 如果直连 GitHub 不稳，脚本会按配置走代理重试（见 `ops/blog-sync-kbase.sh`）
+## 4. 故障排查
+
+- 同步失败先看同步日志。
+- 核查 token 权限是否满足上面第 3 节的最小权限。
+- 同步脚本采用“先生成到临时目录、再整体替换”的策略，并带文章数量保护，异常同步不会把线上文章清空。

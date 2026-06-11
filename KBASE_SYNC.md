@@ -90,7 +90,7 @@ KBASE_READ_TOKEN
 
 工作流会：
 
-1. 每 6 小时运行一次，也可以手动运行。
+1. 仅手动触发（`workflow_dispatch`），用于排查或临时补同步。
 2. 使用 `KBASE_READ_TOKEN` 读取私有知识库。
 3. 只读取私库中的 `public` 目录。
 4. 生成 `assets/data/articles.json` 和 `posts/kbase/*.html`。

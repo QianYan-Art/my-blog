@@ -5,8 +5,10 @@
 ## 特性
 
 - 纯静态输出，Nginx 可直接托管。
-- 首页采用纸张纹理、线稿插图和克制动效。
-- 文章页支持分类、搜索、渐进加载和静态详情页。
+- 宣纸 + 朱砂版画风：纸张纹理、线稿插图、衬线大标题与克制动效。
+- 全部资源自托管：思源宋体等字体分块 woff2、MathJax、highlight.js 均在仓库内，不依赖任何外部 CDN。
+- 文章列表支持分类、搜索、渐进加载；摘要在句界收尾，不做硬截断。
+- 文章详情页：目录侧栏（滚动高亮、移动端折叠）、代码高亮与一键复制、阅读进度条、返回顶部。
 - 文章来源只读取知识库 `public` 目录，不发布 `private` 内容。
 - GitHub 私库 token 只在同步阶段使用，不写入前端页面。
 - 移动端顶部导航使用更紧凑的 GitHub 图标入口，桌面端保留文字入口。
@@ -19,7 +21,7 @@
 npm run dev
 ```
 
-默认服务端口由 `server.js` 控制，当前开发环境常用 `http://127.0.0.1:3333`。
+默认端口 `3000`（`server.js` 控制），可用 `node server.js --port=3777` 或环境变量 `PORT` 覆盖。
 
 ## 代码检查
 
@@ -55,45 +57,39 @@ npm run sync:kbase
 - `blog/index.html`：文章列表页
 - `projects/index.html`：项目页
 - `about/index.html`：关于页
-- `assets/css/`：样式与响应式布局
-- `assets/js/`：首页、插图和文章列表交互
-- `scripts/sync-kbase.js`：知识库文章同步与静态页生成
+- `assets/css/`：样式（`tokens.css` 设计变量；`fonts.css` 为脚本生成的自托管字体声明）
+- `assets/js/`：交互脚本（`home.js` 首页与跨栏对齐、`articles.js` 列表、`post.js` 文章页目录/进度/复制、`plate.js` 插图视差）
+- `assets/fonts/`：自托管字体 woff2（`scripts/build-fonts.js` 生成，按 unicode-range 分块按需加载）
+- `assets/vendor/`：本地化的 MathJax 与 highlight.js
+- `scripts/sync-kbase.js`：知识库文章同步与静态页生成（文章页模板内嵌于此）
+- `scripts/bump-assets-version.js`：一键刷新全站 `?v=` 缓存版本号（含 vendor 引用）
+- `scripts/build-fonts.js`：从 @fontsource 包重新生成 `assets/fonts` 与 `fonts.css`
 - `ops/blog-sync-kbase.sh`：服务器定时同步脚本模板
 - `posts/kbase/`：生成后的文章详情页
+- `posts/*.html`：少量手写旧文（已统一为文章页模板样式）
 
-## 部署说明
+## 缓存版本号
 
-线上站点目录为 `/www/wwwroot/blog`。部署时上传当前静态项目，随后在服务器执行文章同步脚本：
+Nginx 对 CSS/JS 设有缓存，改动样式或脚本后必须刷新版本串，访客才能拿到新资源：
 
-```bash
-/usr/local/bin/blog-sync-kbase.sh
+```powershell
+npm run bump:assets -- 20260612   # 用新日期；同日多次发布加后缀 b/c
 ```
 
-服务器同步脚本会读取 GitHub 私库的 `public` 目录，生成新的静态文章索引与详情页，并带有文章数量保护，避免异常同步把线上文章刷空。
+文章详情页的版本号由 `sync-kbase.js` 模板控制，bump 脚本会同步更新模板，重新同步后不会丢失。`fonts.css` 的版本号写在 `base.css` 的 `@import` 中，变动时需手动同步。
 
-当前线上自动刷新以服务器定时任务为主，执行入口是：
+## 版本标记
 
-- `/usr/local/bin/blog-sync-kbase.sh`
-- `root` 用户 `crontab`
-- `hermes` 用户也可手动执行同一脚本
+- `v1.0-pre-redesign`：2026-06 美化改版前基线
+- `v2.0-paper-redesign`：宣纸版画风改版（自托管字体、文章页目录/高亮/进度条等）
 
-同步策略为：
+## 部署
 
-1. 优先通过境外腾讯云机器提供的临时 SOCKS 代理访问 GitHub。
-2. 如果代理同步失败，再回退到服务器本机直连重试。
-3. 如果代理 key 缺失，则直接走本机直连。
+站点是纯静态产物：把整个仓库目录（至少包含各 HTML 页面与 `assets/`、`posts/`）放到任意静态服务器（Nginx、Caddy 等）的站点根目录即可运行，无需 Node 常驻服务。
 
-当前服务器定时任务为本地时间每天 `04:00` 执行一次：
+两点提示：
 
-```cron
-0 4 * * * /usr/local/bin/blog-sync-kbase.sh >> /var/log/blog-sync.log 2>&1
-```
+- `assets/fonts/` 与 `assets/vendor/` 是字体和公式/高亮的本地资源，部署时不要遗漏。
+- 如需定时从知识库同步文章，可参考 `ops/blog-sync-kbase.sh` 在服务器上配置计划任务（需要 Node 环境与只读 token）。
 
-同步日志写入 `/var/log/blog-sync.log`，并通过 `/etc/logrotate.d/blog-sync` 轮转：
-
-- `daily`
-- 保留 `14` 份
-- `compress`
-- `copytruncate`
-
-仓库中的 `.github/workflows/sync-kbase.yml` 现在只保留手动触发，用于排查或临时补同步，不再按固定周期运行。
+更完整的部署与文章同步说明见 `DEPLOY.md`。
