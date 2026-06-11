@@ -4,6 +4,7 @@
   var count = document.getElementById('articleCount');
   var searchInput = document.getElementById('articleSearch');
   var searchClear = document.getElementById('articleSearchClear');
+  var searchBox = searchInput ? searchInput.closest('.article-search') : null;
   var loadStatus = document.getElementById('articleLoadStatus');
   var sentinel = document.getElementById('articleSentinel');
   var articles = [];
@@ -84,6 +85,15 @@
   function updateSearchClear() {
     if (!searchClear) return;
     searchClear.hidden = !query;
+  }
+
+  function setSearchOpen(open) {
+    if (!searchBox) return;
+    searchBox.classList.toggle('is-open', Boolean(open));
+  }
+
+  function searchHasFocus() {
+    return Boolean(searchBox && searchBox.contains(document.activeElement));
   }
 
   function matchesSearch(item) {
@@ -232,7 +242,23 @@
     filters.addEventListener('click', function(event) {
       var button = event.target.closest('.article-filter');
       if (!button) return;
+      if (!searchHasFocus()) setSearchOpen(false);
       setActiveFilter(button.dataset.filter || 'all');
+    });
+  }
+
+  if (searchBox) {
+    searchBox.addEventListener('pointerenter', function() {
+      setSearchOpen(true);
+    });
+
+    searchBox.addEventListener('pointerleave', function() {
+      if (!searchHasFocus()) setSearchOpen(false);
+    });
+
+    searchBox.addEventListener('click', function() {
+      setSearchOpen(true);
+      if (searchInput) searchInput.focus();
     });
   }
 
@@ -241,6 +267,16 @@
       query = normalizeText(searchInput.value);
       updateSearchClear();
       refreshVisible(true);
+    });
+
+    searchInput.addEventListener('focus', function() {
+      setSearchOpen(true);
+    });
+
+    searchInput.addEventListener('blur', function() {
+      window.setTimeout(function() {
+        if (!searchHasFocus()) setSearchOpen(false);
+      }, 0);
     });
   }
 

@@ -1142,8 +1142,8 @@
   cursor: pointer;
 }
 
-.article-board__controls:hover .article-search,
-.article-board__controls:focus-within .article-search {
+.article-search.is-open,
+.article-search:focus-within {
   width: 320px;
   cursor: default;
   transition: width 0.32s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1164,8 +1164,8 @@
     box-shadow 0.3s var(--ease-ink);
 }
 
-.article-board__controls:hover .article-search__field,
-.article-board__controls:focus-within .article-search__field {
+.article-search.is-open .article-search__field,
+.article-search:focus-within .article-search__field {
   border-color: var(--verm);
   background: var(--paper-glow);
   box-shadow: 0 6px 20px rgba(var(--verm-rgb), 0.05);
@@ -1177,8 +1177,8 @@
   transition: color 0.3s var(--ease-ink);
 }
 
-.article-board__controls:hover .article-search__icon,
-.article-board__controls:focus-within .article-search__icon {
+.article-search.is-open .article-search__icon,
+.article-search:focus-within .article-search__icon {
   color: var(--verm);
 }
 
@@ -1199,8 +1199,8 @@
   transition: opacity 0.2s var(--ease-ink);
 }
 
-.article-board__controls:hover input,
-.article-board__controls:focus-within input {
+.article-search.is-open input,
+.article-search:focus-within input {
   opacity: 1;
   pointer-events: auto;
   transition-delay: 0.1s;
@@ -1230,11 +1230,11 @@
   margin-left: 6px;
 }
 
-.article-board__controls:hover .article-search__hotkey {
+.article-search.is-open .article-search__hotkey {
   opacity: 1;
 }
 
-.article-board__controls:focus-within .article-search__hotkey,
+.article-search:focus-within .article-search__hotkey,
 .article-search input:not(:placeholder-shown) ~ .article-search__hotkey {
   opacity: 0 !important;
 }
@@ -1263,8 +1263,8 @@
   pointer-events: none;
 }
 
-.article-board__controls:hover .article-search__clear,
-.article-board__controls:focus-within .article-search__clear {
+.article-search.is-open .article-search__clear,
+.article-search:focus-within .article-search__clear {
   pointer-events: auto;
   opacity: 1;
 }
@@ -1290,8 +1290,8 @@
   transform: translateX(0);
 }
 
-.article-board__controls:hover .article-filters,
-.article-board__controls:focus-within .article-filters {
+.article-search.is-open + .article-filters,
+.article-search:focus-within + .article-filters {
   opacity: 0;
   max-width: 0;
   transform: translateX(15px);
@@ -1555,8 +1555,8 @@
     justify-content: flex-start;
   }
 
-  .article-board__controls:hover .article-search,
-  .article-board__controls:focus-within .article-search {
+  .article-search.is-open,
+  .article-search:focus-within {
     width: 100%;
   }
 
