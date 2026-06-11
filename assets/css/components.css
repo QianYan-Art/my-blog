@@ -982,12 +982,12 @@
 
 .articles-title {
   font-family: var(--font-display);
-  font-size: clamp(48px, 6vw, 104px);
+  font-size: clamp(50px, 5vw, 90px);
   font-weight: 700;
   line-height: 1.14;
   letter-spacing: -0.015em;
   color: var(--ink);
-  margin-top: var(--space-2);
+  margin-top: clamp(28px, 4vh, 52px);
   max-width: 9em;
   text-wrap: wrap;
   word-break: auto-phrase;
@@ -1001,7 +1001,7 @@
 
 .articles-lede {
   max-width: 39em;
-  margin-top: var(--space-5);
+  margin-top: clamp(28px, 4vh, 52px);
   color: var(--lead);
   font-size: clamp(16px, 1.2vw, 19px);
   line-height: 1.9;

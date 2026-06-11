@@ -108,7 +108,7 @@
 
   function fitHeroTitles() {
     fitTextBlock(document.querySelector('.hero-title'), { max: 48, min: 30, step: 1 });
-    fitTextBlock(document.querySelector('.articles-title'), { max: 54, min: 28, step: 1 });
+    fitTextBlock(document.querySelector('.articles-title'), { max: 48, min: 28, step: 1 });
     fitTextBlock(document.querySelector('.post-body h1'), { max: 46, min: 28, step: 1 });
   }
 
