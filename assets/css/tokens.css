@@ -19,14 +19,28 @@
   --wash-blue: #DADFF2;
   --wash-violet: #E9DFF1;
 
+  /* ── RGB Triplets — 供 rgba(var(--x-rgb), a) 使用 ───── */
+  --ink-rgb: 17, 16, 13;
+  --paper-rgb: 246, 240, 227;
+  --verm-rgb: 191, 51, 40;
+  --glow-rgb: 255, 249, 232;
+  --shadow-rgb: 17, 16, 13;
+
+  /* ── Surfaces & Effects ─────────────────────────────── */
+  --bg-grad: radial-gradient(ellipse 90% 70% at 50% 50%,
+    #FAF6EC 0%, #F8F4EA 40%, #EDE6D2 100%);
+  --bg-flash: #FFFFFF;
+  --noise-opacity: 0.42;
+  --noise-blend: multiply;
+
   /* ── Line Opacities ─────────────────────────────────── */
   --line-strong: rgba(17, 16, 13, 0.13);
   --line-soft: rgba(17, 16, 13, 0.07);
 
   /* ── Typography ─────────────────────────────────────── */
-  --font-ui: "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
-  --font-display: "Newsreader", Georgia, serif;
-  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-ui: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+  --font-display: "Newsreader", "Noto Serif SC", "Source Han Serif SC", "Songti SC", Georgia, serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
 
   /* ── Layout ─────────────────────────────────────────── */
   --page-max: 100%;
@@ -57,19 +71,19 @@
   --ease-ink:   cubic-bezier(0.22, 1, 0.36, 1);
   --ease-stamp: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* ── Animation Delays — Staged Entrance ─────────────── */
+  /* ── Animation Delays — Staged Entrance（总时长压缩至 ~1s）── */
   --t-rule-top: 0ms;
-  --t-brand:    180ms;
-  --t-nav:      260ms;
-  --t-label:    420ms;
-  --t-hero-1:   520ms;
-  --t-plate:    660ms;
-  --t-hero-2:   760ms;
-  --t-hero-3:   920ms;
-  --t-projects: 1120ms;
-  --t-status:   1300ms;
-  --t-caret:    1480ms;
-  --t-brush:    1580ms;
-  --t-seal:     1700ms;
-  --t-corners:  1820ms;
+  --t-brand:    90ms;
+  --t-nav:      140ms;
+  --t-label:    220ms;
+  --t-hero-1:   280ms;
+  --t-plate:    360ms;
+  --t-hero-2:   420ms;
+  --t-hero-3:   520ms;
+  --t-projects: 620ms;
+  --t-status:   720ms;
+  --t-caret:    800ms;
+  --t-brush:    860ms;
+  --t-seal:     920ms;
+  --t-corners:  980ms;
 }

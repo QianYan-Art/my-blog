@@ -221,21 +221,31 @@ function plainSummary(markdown) {
     .replace(/\$\$[\s\S]*?\$\$/g, " ")
     .replace(/<!--[\s\S]*?-->/g, " ");
 
-  // 逐行筛掉结构性语法（标题/表格/分隔线），正文行剥掉行首列表与引用标记
-  const parts = [];
-  for (const rawLine of body.split(/\r?\n/)) {
-    let line = rawLine.trim();
-    if (!line) continue;
-    if (/^#{1,6}\s/.test(line)) continue;        // 标题行
-    if (/^\|.*\|/.test(line)) continue;          // 表格行
-    if (/^[-=*_]{3,}$/.test(line)) continue;     // 分隔线
-    line = line
-      .replace(/^>\s?/, "")                       // 引用
-      .replace(/^[-*+]\s+/, "")                   // 无序列表
-      .replace(/^\d+[.)]\s+/, "");               // 有序列表
-    parts.push(line);
-    if (parts.join(" ").length >= 140) break;
+  // 逐行筛掉结构性语法（标题/表格/分隔线）。
+  // 第一遍只取正文段落行（列表/引用行常是目录式碎片，拼进摘要很乱）；
+  // 不够长再第二遍补列表/引用行兜底。
+  function collectLines(includeListLines) {
+    const collected = [];
+    for (const rawLine of body.split(/\r?\n/)) {
+      let line = rawLine.trim();
+      if (!line) continue;
+      if (/^#{1,6}\s/.test(line)) continue;        // 标题行
+      if (/^\|.*\|/.test(line)) continue;          // 表格行
+      if (/^[-=*_]{3,}$/.test(line)) continue;     // 分隔线
+      const isListOrQuote = /^(>\s?|[-*+]\s+|\d+[.)]\s+)/.test(line);
+      if (isListOrQuote && !includeListLines) continue;
+      line = line
+        .replace(/^>\s?/, "")                       // 引用
+        .replace(/^[-*+]\s+/, "")                   // 无序列表
+        .replace(/^\d+[.)]\s+/, "");               // 有序列表
+      collected.push(line);
+      if (collected.join(" ").length >= 140) break;
+    }
+    return collected;
   }
+
+  let parts = collectLines(false);
+  if (parts.join(" ").length < 40) parts = collectLines(true);
 
   // 行内语法清洗：图片/链接/行内代码/行内公式/强调符
   const text = parts.join(" ")
@@ -247,7 +257,19 @@ function plainSummary(markdown) {
     .replace(/\s+/g, " ")
     .trim();
 
-  return text.slice(0, 110) || "这篇文章来自千颜的私有知识库，已在同步阶段生成静态索引。";
+  if (!text) return "这篇文章来自千颜的私有知识库，已在同步阶段生成静态索引。";
+  if (text.length <= 110) return text;
+
+  // 优先在句界收尾，避免硬截断后半句悬空；找不到句界再退而求其次用逗号/顿号，最后才加省略号
+  const window = text.slice(0, 110);
+  const sentenceEnd = Math.max(
+    window.lastIndexOf("。"), window.lastIndexOf("！"), window.lastIndexOf("？"),
+    window.lastIndexOf("."), window.lastIndexOf("!"), window.lastIndexOf("?")
+  );
+  if (sentenceEnd >= 50) return window.slice(0, sentenceEnd + 1);
+  const clauseEnd = Math.max(window.lastIndexOf("，"), window.lastIndexOf("、"), window.lastIndexOf(","), window.lastIndexOf(";"), window.lastIndexOf("；"));
+  if (clauseEnd >= 50) return window.slice(0, clauseEnd) + "……";
+  return window.slice(0, 108) + "……";
 }
 
 function parseDateValue(value) {
@@ -371,18 +393,18 @@ function renderPost(article, markdown) {
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260603">
-  <link rel="stylesheet" href="/assets/css/base.css?v=20260603">
-  <link rel="stylesheet" href="/assets/css/layout.css?v=20260603">
-  <link rel="stylesheet" href="/assets/css/components.css?v=20260603">
-  <link rel="stylesheet" href="/assets/css/motion.css?v=20260603">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260611c">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20260611c">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20260611c">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20260611c">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20260611c">
   <script>
     window.MathJax = {
       tex: { inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]], displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]] },
       svg: { fontCache: "global" }
     };
   </script>
-  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="/assets/vendor/mathjax/tex-svg.js?v=20260611c"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -408,7 +430,9 @@ function renderPost(article, markdown) {
       <div class="post-content">${markdownToHtml(markdown)}</div>
     </article>
   </main>
-  <script src="/assets/js/home.js?v=20260603"></script>
+  <script src="/assets/js/home.js?v=20260611c"></script>
+  <script src="/assets/vendor/highlight/highlight.min.js?v=20260611c"></script>
+  <script src="/assets/js/post.js?v=20260611c"></script>
 </body>
 </html>`;
 }

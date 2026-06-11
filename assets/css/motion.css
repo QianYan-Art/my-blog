@@ -30,13 +30,13 @@
 
 @keyframes stamp-diamond {
   0%   { opacity: 0; transform: rotate(45deg) scale(0.6); filter: blur(2px); }
-  55%  { opacity: 1; transform: rotate(45deg) scale(1.18); filter: blur(0) drop-shadow(0 0 4px rgba(181,57,45,0.45)); }
+  55%  { opacity: 1; transform: rotate(45deg) scale(1.18); filter: blur(0) drop-shadow(0 0 4px rgba(var(--verm-rgb), 0.45)); }
   100% { opacity: 1; transform: rotate(45deg) scale(1); filter: blur(0); }
 }
 
 @keyframes paper-soak {
-  from { background: #FFFFFF; }
-  to   { background: radial-gradient(ellipse 90% 70% at 50% 50%, #FAF6EC 0%, #F8F4EA 40%, #EDE6D2 100%); }
+  from { background: var(--bg-flash); }
+  to   { background: var(--bg-grad); }
 }
 
 @keyframes divider-draw {

@@ -28,8 +28,8 @@ if (!/^[A-Za-z0-9._-]+$/.test(V)) {
 }
 
 // 1) 已有 ?v= 的引用 -> 换成新版本   2) 没有 ?v= 的裸引用 -> 补上
-const reHasVer = /(\/assets\/(?:css|js)\/[A-Za-z0-9._-]+\.(?:css|js))\?v=[^"'#\s]*/g;
-const reBare = /(\/assets\/(?:css|js)\/[A-Za-z0-9._-]+\.(?:css|js))(["'])/g;
+const reHasVer = /(\/assets\/[A-Za-z0-9._/-]+\.(?:css|js))\?v=[^"'#\s]*/g;
+const reBare = /(\/assets\/[A-Za-z0-9._/-]+\.(?:css|js))(["'])/g;
 
 function collectFiles(dir, out) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
