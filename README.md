@@ -66,7 +66,6 @@ npm run sync:kbase
 - `scripts/build-fonts.js`：从 @fontsource 包重新生成 `assets/fonts` 与 `fonts.css`
 - `ops/blog-sync-kbase.sh`：服务器定时同步脚本模板
 - `posts/kbase/`：生成后的文章详情页
-- `posts/*.html`：少量手写旧文（已统一为文章页模板样式）
 
 ## 缓存版本号
 
