@@ -326,8 +326,10 @@
       }
     })
     .catch(function() {
-      grid.innerHTML = '<article class="article-empty"><p>文章索引暂时不可用。请确认 <code>/assets/data/articles.json</code> 已生成。</p></article>';
-      if (count) count.textContent = '00 entries';
-      if (loadStatus) loadStatus.textContent = '文章索引暂时不可用。';
+      articles = [];
+      renderFilters(articles);
+      updateSearchClear();
+      ensureObserver();
+      refreshVisible(true);
     });
 })();

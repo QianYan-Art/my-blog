@@ -8,3 +8,9 @@ tmp-*.csv
 *.log
 微信图片_*.png
 node_modules/
+
+# KBase generated article output. These files are created locally or on the
+# server by scripts/sync-kbase.js and must not be committed to the public blog
+# repository.
+assets/data/articles.json
+posts/kbase/*.html

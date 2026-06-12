@@ -68,35 +68,30 @@ npm run sync:kbase
 
 ## 线上自动刷新
 
-如果博客部署到服务器或 GitHub Pages，线上页面不会读取你电脑里的本地文件。要自动刷新，需要让部署环境自己同步私库。
+如果博客部署到服务器，线上页面不会读取你电脑里的本地文件。要刷新文章，需要让服务器在站点工作目录内执行同步脚本。
 
-本项目已经提供 GitHub Actions：
-
-```text
-.github/workflows/sync-kbase.yml
-```
-
-你需要在博客仓库的 `Settings -> Secrets and variables -> Actions -> New repository secret` 添加：
+本站目前使用服务器脚本：
 
 ```text
-KBASE_READ_TOKEN
+/usr/local/bin/blog-sync-kbase.sh
 ```
 
-这个 token 建议使用 fine-grained personal access token：
+这个脚本会在服务器本地读取 GitHub 私库或本地缓存，生成：
 
-- 只授权 `QianYan-Art/QianYan-KBase`
-- `Contents` 权限选择 `Read-only`
-- 不要写进 HTML、JS、CSS，也不要提交到仓库
+```text
+assets/data/articles.json
+posts/kbase/*.html
+```
 
-工作流会：
+这些是部署工作目录里的运行产物，不是博客仓库源码。它们已经被 `.gitignore` 排除，不能提交到公开博客仓库。
 
-1. 仅手动触发（`workflow_dispatch`），用于排查或临时补同步。
-2. 使用 `KBASE_READ_TOKEN` 读取私有知识库。
-3. 只读取私库中的 `public` 目录。
-4. 生成 `assets/data/articles.json` 和 `posts/kbase/*.html`。
-5. 自动提交生成结果到博客仓库。
+不要恢复会自动提交文章产物的 GitHub Actions 工作流，尤其是这类行为：
 
-如果你的服务器是从博客仓库自动部署，那么这次提交会触发重新部署；如果服务器不是自动部署，则还需要在服务器上执行拉取/部署流程。
+1. 从 `QianYan-KBase` 拉取文章。
+2. 生成 `assets/data/articles.json` 或 `posts/kbase/*.html`。
+3. 使用 bot 或 GitHub token 把这些文件 commit/push 回 blog 仓库。
+
+这种流程会让别人 clone blog 仓库时直接拿到文章索引和正文。正确做法是：blog 仓库只保留前端代码、同步脚本和占位说明；文章生成物只存在于本机预览目录或服务器部署目录。
 
 ## 服务器环境变量
 
@@ -118,7 +113,7 @@ KBASE_PUBLIC_DIR=public
 - `assets/data/articles.json`
 - `posts/kbase/*.html`
 
-公开站点只发布这些静态产物，不会发布 token。需要注意：只要文章内容被生成到公开站点，访客就能看到文章正文；仓库本身仍然可以保持私有。
+公开站点会发布这些静态产物，但公开 Git 仓库不发布它们。需要注意：只要文章内容被生成到公开站点，访客就能看到文章正文；这和“不要把文章产物提交到 blog 仓库”是两个不同边界。
 
 ## 可选环境变量
 

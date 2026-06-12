@@ -1,6 +1,6 @@
 # 千颜的博客
 
-纸面风格的个人静态博客，用来展示首页、项目页、关于页，以及从 `QianYan-KBase/public` 同步生成的文章索引和文章详情页。
+纸面风格的个人静态博客，用来展示首页、项目页、关于页，以及在本地或服务器端从私有 `QianYan-KBase/public` 同步生成的文章索引和文章详情页。
 
 ## 特性
 
@@ -10,6 +10,7 @@
 - 文章列表支持分类、搜索、渐进加载；摘要在句界收尾，不做硬截断。
 - 文章详情页：目录侧栏（滚动高亮、移动端折叠）、代码高亮与一键复制、阅读进度条、返回顶部。
 - 文章来源只读取知识库 `public` 目录，不发布 `private` 内容。
+- 生成后的 KBase 文章索引与文章 HTML 不提交到博客仓库；公开仓库只保留前端代码、同步脚本和占位说明。
 - GitHub 私库 token 只在同步阶段使用，不写入前端页面。
 - 移动端顶部导航使用更紧凑的 GitHub 图标入口，桌面端保留文字入口。
 - 服务端对畸形 URL 返回 `400`，避免请求异常导致进程退出。
@@ -51,6 +52,8 @@ npm run sync:kbase
 - `assets/data/articles.json`
 - `posts/kbase/*.html`
 
+这两个位置是生成产物，已被 `.gitignore` 忽略。它们可以存在于本机或服务器工作目录中用于预览和上线，但不要提交到公开博客仓库；否则 clone 仓库的人会直接拿到文章元数据和正文。
+
 ## 目录结构
 
 - `index.html`：首页
@@ -65,7 +68,8 @@ npm run sync:kbase
 - `scripts/bump-assets-version.js`：一键刷新全站 `?v=` 缓存版本号（含 vendor 引用）
 - `scripts/build-fonts.js`：从 @fontsource 包重新生成 `assets/fonts` 与 `fonts.css`
 - `ops/blog-sync-kbase.sh`：服务器定时同步脚本模板
-- `posts/kbase/`：生成后的文章详情页
+- `assets/data/README.md`：文章索引生成产物的占位说明
+- `posts/kbase/README.md`：文章详情页生成目录的占位说明
 
 ## 缓存版本号
 
@@ -86,9 +90,12 @@ npm run bump:assets -- 20260612   # 用新日期；同日多次发布加后缀 b
 
 站点是纯静态产物：把整个仓库目录（至少包含各 HTML 页面与 `assets/`、`posts/`）放到任意静态服务器（Nginx、Caddy 等）的站点根目录即可运行，无需 Node 常驻服务。
 
+公开仓库默认不包含 KBase 文章数据。部署到正式站点后，需要在服务器工作目录执行一次文章同步，让服务器自己生成 `assets/data/articles.json` 与 `posts/kbase/*.html`；本站实际使用 `/usr/local/bin/blog-sync-kbase.sh` 完成这一步。
+
 两点提示：
 
 - `assets/fonts/` 与 `assets/vendor/` 是字体和公式/高亮的本地资源，部署时不要遗漏。
 - 如需定时从知识库同步文章，可参考 `ops/blog-sync-kbase.sh` 在服务器上配置计划任务（需要 Node 环境与只读 token）。
+- 不要恢复会把 `assets/data/articles.json` 或 `posts/kbase/*.html` 自动提交回博客仓库的 GitHub Actions 工作流。
 
 更完整的部署与文章同步说明见 `DEPLOY.md`。
