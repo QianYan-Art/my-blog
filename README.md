@@ -99,3 +99,7 @@ npm run bump:assets -- 20260612   # 用新日期；同日多次发布加后缀 b
 - 不要恢复会把 `assets/data/articles.json` 或 `posts/kbase/*.html` 自动提交回博客仓库的 GitHub Actions 工作流。
 
 更完整的部署与文章同步说明见 `DEPLOY.md`。
+
+## 许可证
+
+本项目使用 MIT License，详见 `LICENSE`。

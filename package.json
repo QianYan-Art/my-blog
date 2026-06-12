@@ -2,6 +2,7 @@
   "name": "shiqianyan-static-blog",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "description": "仿 RyuChan 风格的静态个人博客",
   "scripts": {
     "start": "node server.js",
