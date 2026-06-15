@@ -597,7 +597,8 @@ async function main() {
   fs.rmSync(POSTS_DIR, { recursive: true, force: true });
   fs.mkdirSync(path.dirname(POSTS_DIR), { recursive: true });
   fs.renameSync(nextPostsDir, POSTS_DIR);
-  fs.copyFileSync(nextOutput, OUTPUT);
+  fs.rmSync(OUTPUT, { force: true });
+  fs.renameSync(nextOutput, OUTPUT);
   fs.rmSync(TEMP_ROOT, { recursive: true, force: true });
 
   console.log(`已从 ${SOURCE_MODE}/${PUBLIC_DIR} 同步 ${articles.length} 篇文章到 ${path.relative(ROOT, OUTPUT)}。`);
