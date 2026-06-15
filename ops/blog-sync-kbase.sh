@@ -11,6 +11,8 @@ SYNC_LOG_PREFIX="[blog-sync]"
 TEMP_DIR=""
 
 umask 002
+# Pin system node so cron, hermes, and manual runs use the same runtime.
+export PATH="/usr/bin:/bin:${PATH:-}"
 
 log() {
   printf '%s %s %s\n' "$(date '+%F %T')" "$SYNC_LOG_PREFIX" "$*"
@@ -69,6 +71,9 @@ export KBASE_BRANCH="${KBASE_BRANCH:-main}"
 export KBASE_PUBLIC_DIR="${KBASE_PUBLIC_DIR:-public}"
 export KBASE_MIN_COUNT="${KBASE_MIN_COUNT:-1}"
 export KBASE_MIN_RATIO="${KBASE_MIN_RATIO:-0.6}"
+export KBASE_REQUEST_TIMEOUT_MS="${KBASE_REQUEST_TIMEOUT_MS:-45000}"
+PROXY_SYNC_TIMEOUT="${KBASE_PROXY_TIMEOUT:-600s}"
+DIRECT_SYNC_TIMEOUT="${KBASE_DIRECT_TIMEOUT:-600s}"
 
 trap 'cleanup_proxy; cleanup_temp' EXIT
 
@@ -95,19 +100,21 @@ if [[ -f "$PROXY_KEY" ]]; then
   export HTTPS_PROXY="$ALL_PROXY"
   export HTTP_PROXY="$ALL_PROXY"
 
-  if run_sync 300s 2>/dev/null; then
+  if run_sync "$PROXY_SYNC_TIMEOUT"; then
     log "代理同步成功"
   else
+    status="$?"
     log "代理同步失败，回退到服务器直连重试"
     unset ALL_PROXY HTTPS_PROXY HTTP_PROXY
     cleanup_proxy
-    run_sync 240s
+    log "代理同步失败退出码：${status}"
+    run_sync "$DIRECT_SYNC_TIMEOUT"
     log "直连重试成功"
   fi
 else
   log "缺少代理 key：$PROXY_KEY，改为服务器直连同步"
   unset ALL_PROXY HTTPS_PROXY HTTP_PROXY
-  run_sync 240s
+  run_sync "$DIRECT_SYNC_TIMEOUT"
   log "直连同步成功"
 fi
 

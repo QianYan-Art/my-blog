@@ -21,7 +21,8 @@
     "markdown-it-mark": "^4.0.0",
     "markdown-it-sub": "^2.0.0",
     "markdown-it-sup": "^2.0.0",
-    "markdown-it-task-lists": "^2.1.1"
+    "markdown-it-task-lists": "^2.1.1",
+    "socks-proxy-agent": "^10.1.0"
   },
   "devDependencies": {
     "@fontsource/geist-mono": "^5.2.8",

@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 const { execFileSync } = require("child_process");
+const { SocksProxyAgent } = require("socks-proxy-agent");
 const MarkdownIt = require("markdown-it");
 const markdownItAbbr = require("markdown-it-abbr");
 const markdownItDeflist = require("markdown-it-deflist");
@@ -22,6 +23,9 @@ const SOURCE_MODE = process.env.KBASE_SOURCE || (fs.existsSync(LOCAL_PATH) ? "lo
 const OUTPUT = path.join(ROOT, "assets", "data", "articles.json");
 const POSTS_DIR = path.join(ROOT, "posts", "kbase");
 const TEMP_ROOT = path.join(ROOT, ".tmp", "kbase-sync");
+const REQUEST_TIMEOUT_MS = Number(process.env.KBASE_REQUEST_TIMEOUT_MS || 45000);
+const PROXY_URL = process.env.ALL_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || "";
+const GITHUB_AGENT = /^socks/i.test(PROXY_URL) ? new SocksProxyAgent(PROXY_URL) : undefined;
 
 if (SOURCE_MODE === "github" && !TOKEN) {
   console.error("缺少 GITHUB_TOKEN 或 KBASE_TOKEN。不要把 token 写进前端代码，请在本地/CI 环境变量中提供。");
@@ -31,6 +35,7 @@ if (SOURCE_MODE === "github" && !TOKEN) {
 function requestJson(url) {
   return new Promise((resolve, reject) => {
     const req = https.request(url, {
+      agent: GITHUB_AGENT,
       headers: {
         "User-Agent": "qianyan-static-blog-sync",
         "Accept": "application/vnd.github+json",
@@ -52,6 +57,9 @@ function requestJson(url) {
           reject(error);
         }
       });
+    });
+    req.setTimeout(REQUEST_TIMEOUT_MS, () => {
+      req.destroy(new Error(`GitHub API timeout after ${REQUEST_TIMEOUT_MS}ms: ${url}`));
     });
     req.on("error", reject);
     req.end();
@@ -507,6 +515,9 @@ async function syncLocal(outputDir) {
 }
 
 async function syncGithub(outputDir) {
+  if (GITHUB_AGENT) {
+    console.error(`[sync:kbase] GitHub requests using proxy ${PROXY_URL.replace(/\/\/.*@/, "//<redacted>@")}`);
+  }
   const tree = await requestJson(`https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${encodeURIComponent(BRANCH)}?recursive=1`);
   const files = tree.tree.filter((item) => item.type === "blob");
   const configs = new Map(files.filter((file) => /(^|\/)config\.json$/i.test(file.path)).map((file) => [path.posix.dirname(file.path), file]));
@@ -533,14 +544,15 @@ async function syncGithub(outputDir) {
     }
     const meta = { ...frontMatter, ...config };
     const slug = uniqueSlug(slugify(meta.slug || relativePath), used);
-    const commitDate = await readGithubCommitDate(mdFile.path);
+    const preferredDate = dateHintFromPath(relativePath) || meta.date || meta.created || "";
+    const commitDate = preferredDate ? "" : await readGithubCommitDate(mdFile.path);
     const sectionTags = section.tags || [];
     const metaTags = Array.isArray(meta.tags) ? meta.tags : [];
     const article = {
       id: slug,
       title: posixBasenameTitleFromPath(titleFromPath(relativePath)) || cleanDisplayTitle(meta.title || titleFromMarkdown(markdown, slug)),
       summary: meta.summary || meta.description || plainSummary(markdown),
-      date: dateHintFromPath(relativePath) || meta.date || meta.created || commitDate || "",
+      date: preferredDate || commitDate || "",
       category: meta.category || section.category,
       tags: Array.from(new Set([...sectionTags, ...metaTags])),
       href: `/posts/kbase/${slug}.html`,

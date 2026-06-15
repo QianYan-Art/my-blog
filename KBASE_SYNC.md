@@ -83,6 +83,8 @@ assets/data/articles.json
 posts/kbase/*.html
 ```
 
+线上脚本优先建立 SSH SOCKS 隧道访问 GitHub；`scripts/sync-kbase.js` 会通过 `socks-proxy-agent` 显式使用 `ALL_PROXY` / `HTTPS_PROXY`，不能只依赖 Node 原生 `https.request` 自动读取代理环境变量。代理分支和直连回退分支默认都给 `600s` 超时，单个 GitHub API 请求默认 `45000ms` 超时，并保留 stderr 方便排查。
+
 这些是部署工作目录里的运行产物，不是博客仓库源码。它们已经被 `.gitignore` 排除，不能提交到公开博客仓库。
 
 不要恢复会自动提交文章产物的 GitHub Actions 工作流，尤其是这类行为：
@@ -104,6 +106,9 @@ KBASE_OWNER=QianYan-Art
 KBASE_REPO=QianYan-KBase
 KBASE_BRANCH=main
 KBASE_PUBLIC_DIR=public
+KBASE_PROXY_TIMEOUT=600s
+KBASE_DIRECT_TIMEOUT=600s
+KBASE_REQUEST_TIMEOUT_MS=45000
 ```
 
 注意：聊天里或代码里出现过的 token 都应视为已泄露，建议立刻撤销后重新生成。
