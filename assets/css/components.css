@@ -871,11 +871,8 @@
   }
 
   .status-meta {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 12px;
-    padding-top: 10px;
-    border-top: 1px solid var(--line-strong);
+    order: -1;
+    justify-content: center;
   }
 
   .status-meta .status-item {
@@ -885,8 +882,9 @@
     white-space: nowrap;
   }
 
+  .status-meta .status-key,
   .status-meta .status-item:last-child {
-    align-items: flex-end;
+    display: none;
   }
 }
 
