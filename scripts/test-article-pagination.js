@@ -365,6 +365,15 @@ async function testBrowserPaginationAndSearch() {
   harness.document.dispatch('pointerdown', { target: harness.document.body });
   assert.strictEqual(harness.document.searchBox.classList.contains('is-open'), false);
   harness.document.searchBox.dispatch('click', { target: harness.document.searchBox });
+  harness.document.searchClear.focus();
+  harness.document.searchBox.dispatch('focusout');
+  await flush();
+  assert.strictEqual(harness.document.searchBox.classList.contains('is-open'), true);
+  harness.document.searchClear.blur();
+  harness.document.searchBox.dispatch('focusout');
+  await flush();
+  assert.strictEqual(harness.document.searchBox.classList.contains('is-open'), false);
+  harness.document.searchBox.dispatch('click', { target: harness.document.searchBox });
 
   harness.document.searchClear.dispatch('click', { target: harness.document.searchClear });
   assert.strictEqual(harness.document.searchInput.value, '');

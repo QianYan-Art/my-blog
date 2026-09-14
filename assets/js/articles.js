@@ -571,6 +571,12 @@
       setSearchOpen(true);
       if (searchInput) searchInput.focus();
     });
+
+    searchBox.addEventListener('focusout', function() {
+      win.setTimeout(function() {
+        if (!searchHasFocus()) setSearchOpen(false);
+      }, 0);
+    });
   }
 
   if (searchInput) {
@@ -609,11 +615,6 @@
       setSearchOpen(true);
     });
 
-    searchInput.addEventListener('blur', function() {
-      win.setTimeout(function() {
-        if (!searchHasFocus()) setSearchOpen(false);
-      }, 0);
-    });
   }
 
   if (searchClear) {
