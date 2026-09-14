@@ -92,28 +92,33 @@ fi
 
 OLD_COUNT="$(read_count "$CURRENT_JSON")"
 log "开始优先通过 124 服务器代理同步 GitHub 私库文章，当前文章数：${OLD_COUNT}"
+PROXY_SYNC_OK=false
 if [[ -f "$PROXY_KEY" ]]; then
-  start_proxy
-  sleep 2
+  # 建立隧道也可能失败，必须显式判断，避免 set -e 跳过直连兜底。
+  if start_proxy; then
+    sleep 2
+    export ALL_PROXY="socks5h://127.0.0.1:${LOCAL_SOCKS_PORT}"
+    export HTTPS_PROXY="$ALL_PROXY"
+    export HTTP_PROXY="$ALL_PROXY"
 
-  export ALL_PROXY="socks5h://127.0.0.1:${LOCAL_SOCKS_PORT}"
-  export HTTPS_PROXY="$ALL_PROXY"
-  export HTTP_PROXY="$ALL_PROXY"
-
-  if run_sync "$PROXY_SYNC_TIMEOUT"; then
-    log "代理同步成功"
+    if run_sync "$PROXY_SYNC_TIMEOUT"; then
+      log "代理同步成功"
+      PROXY_SYNC_OK=true
+    else
+      status="$?"
+      log "代理同步失败退出码：${status}，回退到服务器直连重试"
+    fi
   else
     status="$?"
-    log "代理同步失败，回退到服务器直连重试"
-    unset ALL_PROXY HTTPS_PROXY HTTP_PROXY
-    cleanup_proxy
-    log "代理同步失败退出码：${status}"
-    run_sync "$DIRECT_SYNC_TIMEOUT"
-    log "直连重试成功"
+    log "代理隧道建立失败退出码：${status}，回退到服务器直连重试"
   fi
 else
-  log "缺少代理 key：$PROXY_KEY，改为服务器直连同步"
+  log "缺少代理 key，改为服务器直连同步"
+fi
+
+if [[ "$PROXY_SYNC_OK" != true ]]; then
   unset ALL_PROXY HTTPS_PROXY HTTP_PROXY
+  cleanup_proxy
   run_sync "$DIRECT_SYNC_TIMEOUT"
   log "直连同步成功"
 fi
