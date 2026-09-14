@@ -401,18 +401,18 @@ function renderPost(article, markdown) {
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260914c">
-  <link rel="stylesheet" href="/assets/css/base.css?v=20260914c">
-  <link rel="stylesheet" href="/assets/css/layout.css?v=20260914c">
-  <link rel="stylesheet" href="/assets/css/components.css?v=20260914c">
-  <link rel="stylesheet" href="/assets/css/motion.css?v=20260914c">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260914d">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20260914d">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20260914d">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20260914d">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20260914d">
   <script>
     window.MathJax = {
       tex: { inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]], displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]] },
       svg: { fontCache: "global" }
     };
   </script>
-  <script defer src="/assets/vendor/mathjax/tex-svg.js?v=20260914c"></script>
+  <script defer src="/assets/vendor/mathjax/tex-svg.js?v=20260914d"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -441,15 +441,19 @@ function renderPost(article, markdown) {
   <footer class="site-footer">
     <div class="site-footer__rule"></div>
     <div class="status-bar">
-      <div class="status-item status-item--filing"><a class="status-filing" href="https://beian.miit.gov.cn/#/Integrated/recordQuery" target="_blank" rel="noopener noreferrer">黑ICP备2025044264号-1</a></div>
-      <div class="status-spacer"></div>
-      <div class="status-item"><span class="status-key">Email</span><a class="status-email" href="mailto:shiqianyan4@gmail.com">shiqianyan4@gmail.com</a></div>
-      <div class="status-item"><span class="status-key">Updated</span><span class="status-val" id="footDate">${date}</span></div>
+      <div class="status-legal">
+        <a class="status-filing" href="https://beian.miit.gov.cn/#/Integrated/recordQuery" target="_blank" rel="noopener noreferrer">黑ICP备2025044264号-1</a>
+        <a class="status-filing status-filing--police" href="https://beian.mps.gov.cn/#/query/webSearch?code=23010802000130" target="_blank" rel="noopener noreferrer"><img src="/assets/img/police-filing.png" width="16" height="16" alt="">黑公网安备23010802000130号</a>
+      </div>
+      <div class="status-meta">
+        <div class="status-item"><span class="status-key">Email</span><a class="status-email" href="mailto:shiqianyan4@gmail.com">shiqianyan4@gmail.com</a></div>
+        <div class="status-item"><span class="status-key">Updated</span><span class="status-val" id="footDate">${date}</span></div>
+      </div>
     </div>
   </footer>
-  <script src="/assets/js/home.js?v=20260914c"></script>
-  <script src="/assets/vendor/highlight/highlight.min.js?v=20260914c"></script>
-  <script src="/assets/js/post.js?v=20260914c"></script>
+  <script src="/assets/js/home.js?v=20260914d"></script>
+  <script src="/assets/vendor/highlight/highlight.min.js?v=20260914d"></script>
+  <script src="/assets/js/post.js?v=20260914d"></script>
 </body>
 </html>`;
 }

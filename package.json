@@ -8,7 +8,7 @@
     "start": "node server.js",
     "dev": "node server.js",
     "check:syntax": "node scripts/check-syntax.js",
-    "test": "node scripts/test-article-pagination.js",
+    "test": "node scripts/test-article-pagination.js && node scripts/test-footer.js",
     "check": "npm run check:syntax && npm test",
     "bump:assets": "node scripts/bump-assets-version.js",
     "sync:kbase:local": "node scripts/sync-kbase.js",

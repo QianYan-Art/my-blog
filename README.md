@@ -17,6 +17,9 @@
 - 移动端顶部导航使用更紧凑的 GitHub 图标入口，桌面端保留文字入口。
 - 服务端对畸形 URL 返回 `400`，避免请求异常导致进程退出。
 - Markdown 链接只允许安全协议（`http/https/mailto` 与站内相对链接）。
+- 全站页脚及文章模板同步展示 ICP 与公安备案查询链接，手机按备案、联系信息分组排版。
+
+公安备案小图标 `assets/img/police-filing.png` 来自全国互联网安全管理服务平台下载中心的备案编号图标（`https://beian.mps.gov.cn/static/national%20emblem.png`），在本站本地托管，避免依赖第三方图片加载。
 
 ## 本地运行
 
@@ -32,7 +35,7 @@ npm run dev
 npm run check
 ```
 
-该命令会对仓库内 JS 文件执行语法检查，并运行分页、搜索及列表状态恢复的回归测试。也可单独执行 `npm test`。
+该命令会对仓库内 JS 文件执行语法检查，并运行分页、搜索、列表状态恢复及六处页脚备案一致性的回归测试。也可单独执行 `npm test`。
 
 ## 同步文章
 
@@ -70,6 +73,7 @@ npm run sync:kbase
 - `scripts/bump-assets-version.js`：一键刷新全站 `?v=` 缓存版本号（含 vendor 引用）
 - `scripts/build-fonts.js`：从 @fontsource 包重新生成 `assets/fonts` 与 `fonts.css`
 - `scripts/test-article-pagination.js`：分页、筛选、搜索与返回状态的逻辑回归测试
+- `scripts/test-footer.js`：静态页面与文章模板的备案编号、查询链接、安全属性及图标一致性检查
 - `ops/blog-sync-kbase.sh`：服务器定时同步脚本模板
 - `assets/data/README.md`：文章索引生成产物的占位说明
 - `posts/kbase/README.md`：文章详情页生成目录的占位说明

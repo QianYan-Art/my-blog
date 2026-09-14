@@ -785,8 +785,8 @@
 /* ---- Status bar ---- */
 
 .status-bar {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px 24px;
   padding-top: clamp(8px, 1.2vh, 13px);
@@ -803,8 +803,21 @@
   gap: 0.55em;
 }
 
-.status-spacer {
-  flex: 1 1 auto;
+.status-legal,
+.status-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  min-width: 0;
+}
+
+.status-meta {
+  justify-content: flex-end;
+}
+
+.status-meta .status-key {
+  color: var(--mist);
 }
 
 .status-filing,
@@ -815,6 +828,18 @@
 
 .status-filing {
   font: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  white-space: nowrap;
+}
+
+.status-filing img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex: 0 0 16px;
 }
 
 .status-filing:hover,
@@ -826,38 +851,42 @@
   text-underline-offset: 3px;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1000px) {
   .site-footer .status-bar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 6px 12px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
     line-height: 1.6;
   }
 
-  .site-footer .status-spacer {
-    display: none;
+  .status-meta {
+    justify-content: space-between;
   }
+}
 
-  .status-item--filing {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .site-footer .status-spacer + .status-item {
-    grid-column: 1;
-    grid-row: 2;
-    flex-wrap: wrap;
-    gap: 0 0.55em;
-  }
-
-  .site-footer .status-item:last-child {
-    grid-column: 2;
-    grid-row: 1 / span 2;
+@media (max-width: 720px) {
+  .status-legal {
     flex-direction: column;
-    align-items: flex-end;
-    justify-content: center;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .status-meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line-strong);
+  }
+
+  .status-meta .status-item {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 0;
     white-space: nowrap;
+  }
+
+  .status-meta .status-item:last-child {
+    align-items: flex-end;
   }
 }
 
