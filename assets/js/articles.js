@@ -526,7 +526,7 @@
       var target = event.target;
       var button = target && target.closest ? target.closest('.article-filter') : null;
       if (!button) return;
-      if (!searchHasFocus()) setSearchOpen(Boolean(query));
+      if (!searchHasFocus()) setSearchOpen(false);
       setActiveFilter(button.dataset.filter || 'all');
     });
   }
@@ -560,7 +560,7 @@
     });
 
     searchBox.addEventListener('pointerleave', function(event) {
-      if ((!event.pointerType || event.pointerType === 'mouse') && !searchHasFocus()) setSearchOpen(Boolean(query));
+      if ((!event.pointerType || event.pointerType === 'mouse') && !searchHasFocus()) setSearchOpen(false);
     });
 
     searchBox.addEventListener('pointerdown', function(event) {
@@ -611,7 +611,7 @@
 
     searchInput.addEventListener('blur', function() {
       win.setTimeout(function() {
-        if (!searchHasFocus()) setSearchOpen(Boolean(query));
+        if (!searchHasFocus()) setSearchOpen(false);
       }, 0);
     });
   }
@@ -627,6 +627,10 @@
   }
 
   if (doc.addEventListener) {
+    doc.addEventListener('pointerdown', function(event) {
+      if (searchBox && !searchBox.contains(event.target)) closeSearch();
+    });
+
     doc.addEventListener('keydown', function(event) {
       if (event.defaultPrevented || event.isComposing) return;
       if (event.key === 'Escape' && searchHasFocus()) {

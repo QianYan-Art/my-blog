@@ -401,18 +401,18 @@ function renderPost(article, markdown) {
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260914">
-  <link rel="stylesheet" href="/assets/css/base.css?v=20260914">
-  <link rel="stylesheet" href="/assets/css/layout.css?v=20260914">
-  <link rel="stylesheet" href="/assets/css/components.css?v=20260914">
-  <link rel="stylesheet" href="/assets/css/motion.css?v=20260914">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260914b">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20260914b">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20260914b">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20260914b">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20260914b">
   <script>
     window.MathJax = {
       tex: { inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]], displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]] },
       svg: { fontCache: "global" }
     };
   </script>
-  <script defer src="/assets/vendor/mathjax/tex-svg.js?v=20260914"></script>
+  <script defer src="/assets/vendor/mathjax/tex-svg.js?v=20260914b"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -447,9 +447,9 @@ function renderPost(article, markdown) {
       <div class="status-item"><span class="status-key">Updated</span><span class="status-val" id="footDate">${date}</span></div>
     </div>
   </footer>
-  <script src="/assets/js/home.js?v=20260914"></script>
-  <script src="/assets/vendor/highlight/highlight.min.js?v=20260914"></script>
-  <script src="/assets/js/post.js?v=20260914"></script>
+  <script src="/assets/js/home.js?v=20260914b"></script>
+  <script src="/assets/vendor/highlight/highlight.min.js?v=20260914b"></script>
+  <script src="/assets/js/post.js?v=20260914b"></script>
 </body>
 </html>`;
 }

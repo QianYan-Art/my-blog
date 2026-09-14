@@ -357,8 +357,14 @@ async function testBrowserPaginationAndSearch() {
   harness.document.filters.dispatch('click', { target: serverFilter });
   harness.document.searchBox.dispatch('pointerleave', { pointerType: 'mouse' });
   await flush();
-  assert.strictEqual(harness.document.searchBox.classList.contains('is-open'), true);
+  assert.strictEqual(harness.document.searchBox.classList.contains('is-open'), false);
   assert.strictEqual(harness.document.searchClear.hidden, false);
+  assert.notStrictEqual(harness.document.searchInput.value, '');
+  harness.document.searchBox.dispatch('pointerenter', { pointerType: 'mouse' });
+  assert.strictEqual(harness.document.searchBox.classList.contains('is-open'), true);
+  harness.document.dispatch('pointerdown', { target: harness.document.body });
+  assert.strictEqual(harness.document.searchBox.classList.contains('is-open'), false);
+  harness.document.searchBox.dispatch('click', { target: harness.document.searchBox });
 
   harness.document.searchClear.dispatch('click', { target: harness.document.searchClear });
   assert.strictEqual(harness.document.searchInput.value, '');

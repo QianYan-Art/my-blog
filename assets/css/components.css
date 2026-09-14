@@ -814,8 +814,7 @@
 }
 
 .status-filing {
-  font-family: var(--font-ui);
-  font-size: 12px;
+  font: inherit;
 }
 
 .status-filing:hover,
@@ -828,8 +827,37 @@
 }
 
 @media (max-width: 720px) {
+  .site-footer .status-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 12px;
+    line-height: 1.6;
+  }
+
+  .site-footer .status-spacer {
+    display: none;
+  }
+
   .status-item--filing {
-    flex-basis: 100%;
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .site-footer .status-spacer + .status-item {
+    grid-column: 1;
+    grid-row: 2;
+    flex-wrap: wrap;
+    gap: 0 0.55em;
+  }
+
+  .site-footer .status-item:last-child {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0;
+    white-space: nowrap;
   }
 }
 

@@ -1,47 +1,44 @@
 /* 文章列表分页与搜索的局部样式覆盖 */
 .page--articles .article-search {
-  flex: 0 1 38px;
   min-width: 38px;
   touch-action: manipulation;
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
 }
 
 .page--articles .article-search.is-open,
 .page--articles .article-search:focus-within {
-  flex: 1 1 280px;
-  max-width: 320px;
-  width: min(320px, calc(100vw - 32px));
+  width: 100%;
 }
 
 .page--articles .article-board__controls {
+  position: relative;
+  width: 320px;
+  height: 32px;
   min-width: 0;
   max-width: 100%;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  row-gap: 10px;
 }
 
-.page--articles .article-filters,
-.page--articles .article-search.is-open + .article-filters,
-.page--articles .article-search:focus-within + .article-filters {
-  display: flex;
+.page--articles .article-filters {
+  margin-left: 48px;
   align-items: center;
-  flex-wrap: wrap;
-  flex: 1 1 260px;
+  flex-wrap: nowrap;
   min-width: 0;
-  max-width: none;
-  overflow: visible;
-  white-space: normal;
-  opacity: 1;
-  transform: none;
-  pointer-events: auto;
-  position: relative;
-  z-index: 1;
+  gap: 8px;
 }
 
 .page--articles .article-filters .article-filter {
   flex: 0 0 auto;
+  letter-spacing: 0;
+}
+
+.page--articles .article-search.is-open + .article-filters,
+.page--articles .article-search:focus-within + .article-filters {
+  visibility: hidden;
 }
 
 .page--articles .article-search__clear[hidden] {
@@ -199,27 +196,11 @@
 
 @media (max-width: 720px) {
   .page--articles .article-board__controls {
-    align-items: stretch;
-    flex-direction: column;
-    row-gap: 10px;
-  }
-
-  .page--articles .article-search {
-    flex: 0 0 auto;
-  }
-
-  .page--articles .article-search.is-open,
-  .page--articles .article-search:focus-within {
-    flex: 0 0 auto;
-    max-width: none;
     width: 100%;
   }
 
-  .page--articles .article-filters,
-  .page--articles .article-search.is-open + .article-filters,
-  .page--articles .article-search:focus-within + .article-filters {
-    width: 100%;
-    flex: 0 0 auto;
+  .page--articles .article-filter {
+    padding-inline: 9px;
   }
 
   .page--articles .article-pagination {
