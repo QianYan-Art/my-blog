@@ -8,11 +8,12 @@
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260611h">
-  <link rel="stylesheet" href="/assets/css/base.css?v=20260611h">
-  <link rel="stylesheet" href="/assets/css/layout.css?v=20260611h">
-  <link rel="stylesheet" href="/assets/css/components.css?v=20260611h">
-  <link rel="stylesheet" href="/assets/css/motion.css?v=20260611h">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260914">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20260914">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20260914">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20260914">
+  <link rel="stylesheet" href="/assets/css/articles-pagination.css?v=20260914">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20260914">
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -93,7 +94,7 @@
                 <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/>
                 <path d="M10.5 10.5L14.5 14.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
               </svg>
-              <input id="articleSearch" type="search" placeholder="搜索文章..." autocomplete="off">
+              <input id="articleSearch" type="search" placeholder="搜索文章..." aria-label="搜索文章" autocomplete="off">
               <span class="article-search__hotkey" aria-hidden="true">/</span>
               <button class="article-search__clear" id="articleSearchClear" type="button" aria-label="清空搜索" hidden>×</button>
             </span>
@@ -109,23 +110,42 @@
           <p>正在读取文章索引……</p>
         </article>
       </div>
-      <div class="article-load-status" id="articleLoadStatus" aria-live="polite"></div>
-      <div class="article-sentinel" id="articleSentinel" aria-hidden="true"></div>
+      <div class="article-pagination" id="articlePagination" role="navigation" aria-label="文章分页" hidden>
+        <p class="article-pagination__summary" id="articlePaginationSummary" aria-live="polite">共 0 篇</p>
+        <div class="article-pagination__controls">
+          <button class="article-pagination__nav" id="articlePaginationPrev" type="button" data-pagination-action="prev" aria-label="上一页" title="上一页" disabled>
+            <span aria-hidden="true">←</span>
+            <span class="article-pagination__sr-only">上一页</span>
+          </button>
+          <nav class="article-pagination__pages" id="articlePaginationPages" aria-label="文章页码"></nav>
+          <button class="article-pagination__nav" id="articlePaginationNext" type="button" data-pagination-action="next" aria-label="下一页" title="下一页" disabled>
+            <span aria-hidden="true">→</span>
+            <span class="article-pagination__sr-only">下一页</span>
+          </button>
+          <label class="article-pagination__size" for="articlePageSize">
+            <span>每页</span>
+            <select id="articlePageSize" name="articlePageSize">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+            </select>
+          </label>
+        </div>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="site-footer__rule reveal reveal--rule" style="--reveal-delay: var(--t-status)"></div>
     <div class="status-bar reveal reveal--fade" style="--reveal-delay: var(--t-status)">
-      <div class="status-item"><span class="status-key">Source</span><span class="status-dot"></span><span class="status-val">QianYan-KBase</span></div>
-      <div class="status-item"><span class="status-key">Mode</span><span class="status-val">Static · Safe</span></div>
+      <div class="status-item status-item--filing"><a class="status-filing" href="https://beian.miit.gov.cn/#/Integrated/recordQuery" target="_blank" rel="noopener noreferrer">黑ICP备2025044264号-1</a></div>
       <div class="status-spacer"></div>
-      <div class="status-item"><span class="status-key">Email</span><span class="status-val">suyuan4071253@163.com</span></div>
+      <div class="status-item"><span class="status-key">Email</span><a class="status-email" href="mailto:shiqianyan4@gmail.com">shiqianyan4@gmail.com</a></div>
       <div class="status-item"><span class="status-key">Updated</span><span class="status-val" id="footDate">23 May 2026</span></div>
     </div>
   </footer>
 
-  <script src="/assets/js/home.js?v=20260611h"></script>
-  <script src="/assets/js/articles.js?v=20260611h"></script>
+  <script src="/assets/js/home.js?v=20260914"></script>
+  <script src="/assets/js/articles.js?v=20260914"></script>
 </body>
 </html>

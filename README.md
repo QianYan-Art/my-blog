@@ -7,7 +7,8 @@
 - 纯静态输出，Nginx 可直接托管。
 - 宣纸 + 朱砂版画风：纸张纹理、线稿插图、衬线大标题与克制动效。
 - 全部资源自托管：思源宋体等字体分块 woff2、MathJax、highlight.js 均在仓库内，不依赖任何外部 CDN。
-- 文章列表支持分类、搜索、渐进加载；摘要在句界收尾，不做硬截断。
+- 文章列表支持分类、搜索与分页，默认每页 20 篇，可选 10 / 20 / 50 篇；摘要在句界收尾，不做硬截断。
+- 页码、每页数量、搜索词与分类写入 URL，进入文章后可返回原列表状态。
 - 文章详情页：目录侧栏（滚动高亮、移动端折叠）、代码高亮与一键复制、阅读进度条、返回顶部。
 - 文章来源只读取知识库 `public` 目录，不发布 `private` 内容。
 - 生成后的 KBase 文章索引与文章 HTML 不提交到博客仓库；公开仓库只保留前端代码、同步脚本和占位说明。
@@ -30,7 +31,7 @@ npm run dev
 npm run check
 ```
 
-该命令会对仓库内 JS 文件执行语法检查。
+该命令会对仓库内 JS 文件执行语法检查，并运行分页、搜索及列表状态恢复的回归测试。也可单独执行 `npm test`。
 
 ## 同步文章
 
@@ -61,12 +62,13 @@ npm run sync:kbase
 - `projects/index.html`：项目页
 - `about/index.html`：关于页
 - `assets/css/`：样式（`tokens.css` 设计变量；`fonts.css` 为脚本生成的自托管字体声明）
-- `assets/js/`：交互脚本（`home.js` 首页与跨栏对齐、`articles.js` 列表、`post.js` 文章页目录/进度/复制、`plate.js` 插图视差）
+- `assets/js/`：交互脚本（`home.js` 首页与跨栏对齐、`articles.js` 分页/搜索/分类/列表状态、`post.js` 文章页目录/进度/复制与返回、`plate.js` 插图视差）
 - `assets/fonts/`：自托管字体 woff2（`scripts/build-fonts.js` 生成，按 unicode-range 分块按需加载）
 - `assets/vendor/`：本地化的 MathJax 与 highlight.js
 - `scripts/sync-kbase.js`：知识库文章同步与静态页生成（文章页模板内嵌于此）
 - `scripts/bump-assets-version.js`：一键刷新全站 `?v=` 缓存版本号（含 vendor 引用）
 - `scripts/build-fonts.js`：从 @fontsource 包重新生成 `assets/fonts` 与 `fonts.css`
+- `scripts/test-article-pagination.js`：分页、筛选、搜索与返回状态的逻辑回归测试
 - `ops/blog-sync-kbase.sh`：服务器定时同步脚本模板
 - `assets/data/README.md`：文章索引生成产物的占位说明
 - `posts/kbase/README.md`：文章详情页生成目录的占位说明

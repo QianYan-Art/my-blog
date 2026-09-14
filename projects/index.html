@@ -8,11 +8,11 @@
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260611h">
-  <link rel="stylesheet" href="/assets/css/base.css?v=20260611h">
-  <link rel="stylesheet" href="/assets/css/layout.css?v=20260611h">
-  <link rel="stylesheet" href="/assets/css/components.css?v=20260611h">
-  <link rel="stylesheet" href="/assets/css/motion.css?v=20260611h">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260914">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20260914">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20260914">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20260914">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20260914">
 </head>
 <body class="page">
   <div class="binding"></div>
@@ -38,30 +38,40 @@
   </header>
   <div class="site-nav__rule"></div>
 
-  <main class="page-main" style="display:flex;flex-direction:column;padding-block:var(--space-7);max-width:42rem;margin:0 auto;width:100%;">
+  <main class="page-main project-page">
     <p class="hero-eyebrow" style="margin-bottom:var(--space-4)">§ 项目</p>
-    <h1 style="font-family:var(--font-display);font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.25;letter-spacing:0;color:var(--ink);">精选项目</h1>
+    <h1 class="project-page__title">精选项目</h1>
 
-    <ul class="project-index" style="margin-top:var(--space-5);list-style:none;padding:0;">
-      <li style="border-top:1px solid var(--line-strong);padding-block:var(--space-4);">
-        <span style="font-family:var(--font-mono);font-size:var(--text-micro);color:var(--mist);letter-spacing:0.12em;text-transform:uppercase;">Python · Safety · System Design</span>
-        <a href="https://github.com/QianYan-Art/SafetyRAISE-OS" target="_blank" rel="noopener" style="display:block;font-family:var(--font-ui);font-size:var(--text-lede);font-weight:600;color:var(--ink);text-decoration:none;margin-top:var(--space-2);">SafetyRAISE-OS</a>
-        <p style="font-size:var(--text-body);color:var(--lead);margin-top:var(--space-1);line-height:1.6;">道路交通事故分析报告生成系统。以安全为导向，探索系统结构、协同与操作思维如何塑造更具韧性的工作流。</p>
+    <ul class="project-index">
+      <li class="project-entry">
+        <span class="project-entry__meta">Python · Safety · Analysis</span>
+        <a class="project-title-link" href="https://github.com/QianYan-Art/SafetyRAISE-OS" target="_blank" rel="noopener noreferrer">SafetyRAISE-OS</a>
+        <p class="project-entry__desc">面向道路交通事故的分析报告生成系统，将事故资料整理与分析结果汇集成结构清晰的报告。</p>
       </li>
-      <li style="border-top:1px solid var(--line-strong);padding-block:var(--space-4);">
-        <span style="font-family:var(--font-mono);font-size:var(--text-micro);color:var(--mist);letter-spacing:0.12em;text-transform:uppercase;">Python · Workflow · Automation</span>
-        <a href="https://github.com/QianYan-Art/translate-workflow" target="_blank" rel="noopener" style="display:block;font-family:var(--font-ui);font-size:var(--text-lede);font-weight:600;color:var(--ink);text-decoration:none;margin-top:var(--space-2);">translate-workflow</a>
-        <p style="font-size:var(--text-body);color:var(--lead);margin-top:var(--space-1);line-height:1.6;">将重复翻译任务转化为清晰、从容的工作流，让内容处理不再机械，从开始到完成一气呵成。</p>
+      <li class="project-entry">
+        <span class="project-entry__meta">Rust · CPU · Inference</span>
+        <a class="project-title-link" href="https://github.com/QianYan-Art/SafetyRAISE-LMEngine" target="_blank" rel="noopener noreferrer">SafetyRAISE-LMEngine</a>
+        <p class="project-entry__desc">使用 Rust 编写的纯 CPU 推理引擎，为 SafetyRAISE 的专家小模型提供本地推理支持。</p>
       </li>
-      <li style="border-top:1px solid var(--line-strong);padding-block:var(--space-4);">
-        <span style="font-family:var(--font-mono);font-size:var(--text-micro);color:var(--mist);letter-spacing:0.12em;text-transform:uppercase;">JavaScript · Realtime · Full-stack</span>
-        <a href="https://github.com/QianYan-Art/realtime-chat-app" target="_blank" rel="noopener" style="display:block;font-family:var(--font-ui);font-size:var(--text-lede);font-weight:600;color:var(--ink);text-decoration:none;margin-top:var(--space-2);">realtime-chat-app</a>
-        <p style="font-size:var(--text-body);color:var(--lead);margin-top:var(--space-1);line-height:1.6;">实时聊天应用，以前端交互与响应性为核心，探索流畅的即时通讯体验与应用架构的协作。</p>
+      <li class="project-entry">
+        <span class="project-entry__meta">CSS · JavaScript · Publishing</span>
+        <a class="project-title-link" href="https://github.com/QianYan-Art/my-blog" target="_blank" rel="noopener noreferrer">my-blog</a>
+        <p class="project-entry__desc">这座个人博客的源代码。以纸张与墨色为视觉基调，将 Markdown 知识库整理成可检索、可阅读的文章。</p>
       </li>
-      <li style="border-top:1px solid var(--line-strong);padding-block:var(--space-4);">
-        <span style="font-family:var(--font-mono);font-size:var(--text-micro);color:var(--mist);letter-spacing:0.12em;text-transform:uppercase;">Skills · Characters · ACG</span>
-        <a href="https://github.com/QianYan-Art/Character-skills" target="_blank" rel="noopener" style="display:block;font-family:var(--font-ui);font-size:var(--text-lede);font-weight:600;color:var(--ink);text-decoration:none;margin-top:var(--space-2);">Character-skills</a>
-        <p style="font-size:var(--text-body);color:var(--lead);margin-top:var(--space-1);line-height:1.6;">ACG 角色 skills 集合，探索角色系统与交互设计。</p>
+      <li class="project-entry">
+        <span class="project-entry__meta">Rust · Documentation · Maintenance</span>
+        <a class="project-title-link" href="https://github.com/QianYan-Art/maintenance" target="_blank" rel="noopener noreferrer">maintenance</a>
+        <p class="project-entry__desc">面向项目文档的长期维护工具。从代码变更定位需要更新的记录，并检查文档与实现是否保持一致。</p>
+      </li>
+      <li class="project-entry">
+        <span class="project-entry__meta">Python · Translation · Workflow</span>
+        <a class="project-title-link" href="https://github.com/QianYan-Art/translate-workflow" target="_blank" rel="noopener noreferrer">translate-workflow</a>
+        <p class="project-entry__desc">围绕文案翻译构建的应用，将重复的内容处理组织成可复用的翻译工作流。</p>
+      </li>
+      <li class="project-entry">
+        <span class="project-entry__meta">JavaScript · Realtime · Chat</span>
+        <a class="project-title-link" href="https://github.com/QianYan-Art/realtime-chat-app" target="_blank" rel="noopener noreferrer">realtime-chat-app</a>
+        <p class="project-entry__desc">实时聊天应用，连接消息收发与前端交互，探索即时沟通场景下的应用设计。</p>
       </li>
     </ul>
   </main>
@@ -69,11 +79,12 @@
   <footer class="site-footer">
     <div class="site-footer__rule"></div>
     <div class="status-bar">
-      <div class="status-item"><span class="status-key">千颜</span><span class="status-dot"></span><span class="status-val">QianYan·Shi</span></div>
+      <div class="status-item status-item--filing"><a class="status-filing" href="https://beian.miit.gov.cn/#/Integrated/recordQuery" target="_blank" rel="noopener noreferrer">黑ICP备2025044264号-1</a></div>
       <div class="status-spacer"></div>
+      <div class="status-item"><span class="status-key">Email</span><a class="status-email" href="mailto:shiqianyan4@gmail.com">shiqianyan4@gmail.com</a></div>
       <div class="status-item"><span class="status-key">Updated</span><span class="status-val" id="footDate">23 May 2026</span></div>
     </div>
   </footer>
-  <script src="/assets/js/home.js?v=20260611h"></script>
+  <script src="/assets/js/home.js?v=20260914"></script>
 </body>
 </html>

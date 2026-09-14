@@ -281,6 +281,70 @@
   line-height: 1.6;
 }
 
+.project-page {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--space-7);
+  max-width: 42rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.project-page__title {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.project-page .project-index {
+  margin-top: var(--space-5);
+}
+
+.project-page .project-entry__meta {
+  letter-spacing: 0;
+}
+
+.project-title-link {
+  display: table;
+  max-width: 100%;
+  margin-top: var(--space-2);
+  font-family: var(--font-ui);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 5px;
+  -webkit-tap-highlight-color: rgba(var(--verm-rgb), 0.16);
+  transition: color 0.2s, background-color 0.2s, text-decoration-color 0.2s;
+}
+
+.project-title-link:hover,
+.project-title-link:focus-visible,
+.project-title-link:active {
+  color: var(--verm);
+  background-color: rgba(var(--verm-rgb), 0.08);
+  text-decoration-color: currentColor;
+}
+
+.project-title-link:focus-visible,
+.status-filing:focus-visible,
+.status-email:focus-visible {
+  outline: 1px solid var(--verm);
+  outline-offset: 4px;
+}
+
+@media (max-width: 720px) {
+  .project-page__title {
+    font-size: 32px;
+  }
+}
+
 /* ---- Hero actions ---- */
 
 .hero-actions {
@@ -722,12 +786,13 @@
 
 .status-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0 clamp(1em, 1.8vw, 2.2em);
+  gap: 10px 24px;
   padding-top: clamp(8px, 1.2vh, 13px);
   font-family: var(--font-mono);
-  font-size: clamp(7px, 0.65vw, 9px);
-  letter-spacing: 0.10em;
+  font-size: 11px;
+  letter-spacing: 0;
   color: var(--lead);
   text-transform: uppercase;
 }
@@ -740,6 +805,32 @@
 
 .status-spacer {
   flex: 1 1 auto;
+}
+
+.status-filing,
+.status-email {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.status-filing {
+  font-family: var(--font-ui);
+  font-size: 12px;
+}
+
+.status-filing:hover,
+.status-email:hover,
+.status-filing:active,
+.status-email:active {
+  color: var(--verm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .status-item--filing {
+    flex-basis: 100%;
+  }
 }
 
 .status-dot {
@@ -1598,17 +1689,19 @@
 .post-shell {
   max-width: min(1180px, 100%);
   margin-inline: auto;
+  padding-top: var(--space-4);
   padding-bottom: var(--space-8);
 }
 
 .post-back {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   font-family: var(--font-mono);
   font-size: var(--text-micro);
-  letter-spacing: 0.13em;
+  letter-spacing: 0;
   color: var(--lead);
   text-transform: uppercase;
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
 }
 
 .post-back:hover {
@@ -1819,6 +1912,10 @@
 
 .post-content code {
   font-family: var(--font-mono);
+  /* 连续井号等代码字符须按原字符排版，不继承正文的连字替换。 */
+  font-variant-ligatures: none;
+  font-feature-settings: "kern" 0, "liga" 0, "calt" 0;
+  letter-spacing: 0;
   font-size: 0.88em;
   color: var(--ink);
   background: rgba(var(--ink-rgb), 0.055);
@@ -2165,7 +2262,7 @@
 
   .post-toc__item a {
     display: block;
-    font-size: 12.5px;
+    font-size: 14px;
     line-height: 1.5;
     color: var(--mist);
     overflow: hidden;

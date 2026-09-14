@@ -4,6 +4,23 @@
    代码高亮与复制 · 返回顶部
    ────────────────────────────────────────────── */
 (function () {
+  function setListReturnLink() {
+    var back = document.querySelector(".post-back");
+    if (!back || !document.referrer || typeof window.URL !== "function") return;
+
+    try {
+      var currentUrl = new window.URL(window.location.href);
+      var referrerUrl = new window.URL(document.referrer, currentUrl.href);
+      // 仅接受同源且严格位于文章列表页的来源，避免外源回跳。
+      if (referrerUrl.origin !== currentUrl.origin || referrerUrl.pathname !== "/blog/") return;
+      back.setAttribute("href", referrerUrl.pathname + referrerUrl.search + referrerUrl.hash);
+    } catch (error) {
+      // 无法解析来源时保留模板中的安全默认链接。
+    }
+  }
+
+  setListReturnLink();
+
   var content = document.querySelector(".post-content");
   if (!content) return;
 
