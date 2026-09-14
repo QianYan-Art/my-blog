@@ -41,6 +41,16 @@
   visibility: hidden;
 }
 
+@media (min-width: 721px) {
+  .page--articles .article-filters {
+    flex: 1;
+  }
+
+  .page--articles .article-filters .article-filter {
+    flex: 1 0 auto;
+  }
+}
+
 .page--articles .article-search__clear[hidden] {
   display: none !important;
   opacity: 0 !important;
