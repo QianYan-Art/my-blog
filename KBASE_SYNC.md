@@ -89,6 +89,19 @@ SSH 隧道建立失败、代理同步失败或超时，都会先清理代理环�
 
 仓库中的源文件是 `ops/blog-sync-kbase.sh`。发布此脚本时，除更新站点目录里的源码，还必须更新 `/usr/local/bin/blog-sync-kbase.sh` 实际执行入口并核对内容一致；仅更新仓库副本不会改变 cron 的行为。保留现有入口权限、环境配置与调度时间，不把服务器凭据提交到仓库。
 
+### 发布后保留 Hermes 同步权限
+
+服务器通过 `blogsync` 共享组允许普通 `hermes` 用户同步，不能只验证 root 执行成功。Hermes 的全 sudo 权限不是这条非提权同步链路的前提，不应为修复博客目录而改动其用户、sudo、skill 或服务配置。
+
+- 博客根目录、`assets`、`assets/data`、`posts`、`scripts`、`node_modules` 保持 `root:blogsync 2775`。目录的 setgid 位让新建目录和文件继承共享组。
+- 生成目录 `posts/kbase` 与 `.tmp` 及其子目录保持 `blogsync` 组、`2775`；文章 HTML 和 `assets/data/articles.json` 保持 `blogsync` 组、`664`。产物所有者可为本次执行者 root 或 hermes，不必强制改回 root。
+- `scripts/sync-kbase.js` 保持 `root:blogsync 664`；实际入口保持 `root:blogsync 750`，环境文件保持 `root:blogsync 640`，代理密钥保持 `hermes:blogsync 600`。不要把生成物的组写策略递归套到凭据、整站或依赖内部。
+- 同步入口的 `umask 002` 与父目录 setgid 共同保证新产物权限。同步程序会在 `.tmp/kbase-sync` 生成数据，删除旧目标后移动到 `posts/kbase` 和 `assets/data/articles.json`，因此需要根目录、暂存目录和目标父目录的写入及执行权限。
+
+发布时不能直接用 `cp -a` 将 Git 解包目录覆盖站点后就结束验收：归档的所有权和目录模式可能覆盖服务器共享组与 setgid。复制流程应保留目标权限；无论采用哪种发布方式，都要在发布后核对上述目录及实际入口，而不是只比较源码哈希。修复既有权限前应确认实际路径、软链接与并发同步状态，仅处理明确的共享目录及生成物。
+
+部署后通过 `sudo -u hermes -H /usr/local/bin/blog-sync-kbase.sh` 验收。这里 sudo 仅由管理员切换为普通 hermes，脚本并未提权为 root。检查退出码、文章数量、索引 `updatedAt`、生成物的共享组与组写位，并确认现有 cron、Hermes 服务、配置、skill 和开发文档未变。成功同步后可删除空的 `.tmp`；下次由具有 setgid 的博客根目录重新创建。
+
 ### 同步故障回归
 
 `npm test` 包含 `node scripts/test-sync-fallback.js`。测试在独立临时目录执行真实脚本的控制流，仅替换固定文件位置，并使用 SSH、同步与进程清理命令的替身，不连接服务器或 GitHub、不读取真实凭据。
