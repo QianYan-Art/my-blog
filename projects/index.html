@@ -8,13 +8,13 @@
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260917a">
-  <link rel="stylesheet" href="/assets/css/base.css?v=20260917a">
-  <link rel="stylesheet" href="/assets/css/layout.css?v=20260917a">
-  <link rel="stylesheet" href="/assets/css/components.css?v=20260917a">
-  <link rel="stylesheet" href="/assets/css/motion.css?v=20260917a">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260926a">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20260926a">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20260926a">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20260926a">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20260926a">
 </head>
-<body class="page">
+<body class="page page--projects">
   <div class="binding"></div>
   <div class="corner-mark cm-tl"></div>
   <div class="corner-mark cm-tr"></div>
@@ -30,7 +30,7 @@
     <span class="site-nav__meta" data-full="QianYan · ZZU · Earth" data-short="QianYan · Earth" data-mini="QY · Earth" data-micro="Earth">QianYan · ZZU · Earth</span>
     <nav class="site-nav__links">
       <a href="/blog/">文章</a>
-      <a href="/projects/">项目</a>
+      <a href="/projects/" aria-current="page">项目</a>
       <a href="/about/">关于</a>
     </nav>
     <a class="site-nav__github" href="https://github.com/QianYan-Art" target="_blank" rel="noopener" aria-label="GitHub"><span class="site-nav__github-label" data-full="GitHub" data-short="GH">GitHub</span><span class="site-nav__github-arrow-text">→</span><svg class="site-nav__github-icon" width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
@@ -38,42 +38,120 @@
   </header>
   <div class="site-nav__rule"></div>
 
-  <main class="page-main project-page">
-    <p class="hero-eyebrow" style="margin-bottom:var(--space-4)">§ 项目</p>
-    <h1 class="project-page__title">精选项目</h1>
+  <main class="page-main page-main--articles project-page">
+    <section class="articles-hero project-hero">
+      <div class="articles-hero__copy">
+        <p class="hero-eyebrow reveal reveal--fade" style="--reveal-delay: var(--t-label)">§ Selected Works</p>
+        <h1 class="articles-title project-hero__title">
+          <span class="reveal reveal--write" style="--reveal-delay: var(--t-hero-1)">从一个念头，</span>
+          <span class="reveal reveal--write" style="--reveal-delay: var(--t-hero-2)">到一个仓库，</span>
+          <span class="reveal reveal--write" style="--reveal-delay: var(--t-hero-3)">再到部署上线<span class="hero-title__cursor" aria-hidden="true"></span></span>
+        </h1>
+        <p class="articles-lede reveal reveal--fade" style="--reveal-delay: var(--t-hero-3)">
+          写代码的时间，大多花在这几个仓库里：有为交通安全做的系统，有拆开重写的推理引擎，也有你正在看的这个博客。
+        </p>
+      </div>
 
-    <ul class="project-index">
-      <li class="project-entry">
-        <span class="project-entry__meta">Python · Safety · Analysis</span>
-        <a class="project-title-link" href="https://github.com/QianYan-Art/SafetyRAISE-OS" target="_blank" rel="noopener noreferrer">SafetyRAISE-OS</a>
-        <p class="project-entry__desc">道路交通事故的分析报告生成系统</p>
-      </li>
-      <li class="project-entry">
-        <span class="project-entry__meta">Rust · CPU / GPU · Inference</span>
-        <a class="project-title-link" href="https://github.com/QianYan-Art/SafetyRAISE-LMEngine" target="_blank" rel="noopener noreferrer">SafetyRAISE-LMEngine</a>
-        <p class="project-entry__desc">Rust 从零实现的 Qwen3 推理引擎，支持 CPU / GPU 混合 resident decode，适配 SafetyRAISE 专家小模型</p>
-      </li>
-      <li class="project-entry">
-        <span class="project-entry__meta">CSS · JavaScript · Publishing</span>
-        <a class="project-title-link" href="https://github.com/QianYan-Art/my-blog" target="_blank" rel="noopener noreferrer">my-blog</a>
-        <p class="project-entry__desc">定制的个人博客</p>
-      </li>
-      <li class="project-entry">
-        <span class="project-entry__meta">Rust · Documentation · Maintenance</span>
-        <a class="project-title-link" href="https://github.com/QianYan-Art/maintenance" target="_blank" rel="noopener noreferrer">maintenance</a>
-        <p class="project-entry__desc">文档长期维护工具</p>
-      </li>
-      <li class="project-entry">
-        <span class="project-entry__meta">Python · Translation · Workflow</span>
-        <a class="project-title-link" href="https://github.com/QianYan-Art/translate-workflow" target="_blank" rel="noopener noreferrer">translate-workflow</a>
-        <p class="project-entry__desc">文案翻译应用</p>
-      </li>
-      <li class="project-entry">
-        <span class="project-entry__meta">JavaScript · Realtime · Chat</span>
-        <a class="project-title-link" href="https://github.com/QianYan-Art/realtime-chat-app" target="_blank" rel="noopener noreferrer">realtime-chat-app</a>
-        <p class="project-entry__desc">实时聊天应用</p>
-      </li>
-    </ul>
+      <div class="articles-hero__side">
+        <div class="plate__head plate__head--articles reveal reveal--fade" style="--reveal-delay: var(--t-label)">
+          <span class="plate__head-num">QY. 03</span>
+          <span class="plate__head-rule"></span>
+          <span class="plate__head-meta">项目索引</span>
+        </div>
+        <nav class="articles-ledger work-index reveal reveal--rise" style="--reveal-delay: var(--t-plate)" aria-label="项目索引">
+          <div class="articles-ledger__head">
+            <span>QY. Works</span>
+            <span>06 repos</span>
+          </div>
+          <ol class="work-index__list">
+            <li><a href="#work-safetyraise-os"><span>SafetyRAISE-OS</span><em>Python</em></a></li>
+            <li><a href="#work-lmengine"><span>SafetyRAISE-LMEngine</span><em>Rust</em></a></li>
+            <li><a href="#work-maintenance"><span>maintenance</span><em>Rust</em></a></li>
+            <li><a href="#work-my-blog"><span>my-blog</span><em>CSS</em></a></li>
+            <li><a href="#work-translate"><span>translate-workflow</span><em>Python</em></a></li>
+            <li><a href="#work-chat"><span>realtime-chat-app</span><em>JavaScript</em></a></li>
+          </ol>
+        </nav>
+      </div>
+    </section>
+
+    <section class="article-board work-board reveal reveal--fade" style="--reveal-delay: var(--t-status)" aria-labelledby="works-heading">
+      <div class="article-board__toolbar">
+        <div class="article-board__title-wrapper">
+          <p class="article-board__kicker">Index</p>
+          <h2 id="works-heading">全部项目</h2>
+        </div>
+      </div>
+
+      <ol class="work-grid">
+        <li class="work-card" id="work-safetyraise-os" style="--card-index: 0">
+          <div class="work-card__topline"><span>Python · Apache-2.0</span><span>Since 2026</span></div>
+          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/SafetyRAISE-OS" target="_blank" rel="noopener noreferrer">SafetyRAISE-OS</a></h3>
+          <p class="work-card__tagline">道路交通事故的分析报告生成系统</p>
+          <p class="work-card__desc">把现场图片与视频整理成结构化事故信息，由专家小模型给出指导意见，再经检索增强生成分析报告，最后导出 Markdown、Word 与 PDF 文书。视频链路接入 YOLO、ByteTrack 与自适应抽帧。</p>
+          <ol class="work-flow" aria-label="处理链路">
+            <li>事故材料</li><li>事故草稿</li><li>专家意见</li><li>增强报告</li><li>导出文书</li>
+          </ol>
+          <div class="work-card__foot">
+            <div class="work-card__tags"><span>React</span><span>FastAPI</span><span>YOLO</span><span>RAG</span></div>
+            <a class="work-card__extra" href="https://safetyraise.cn" target="_blank" rel="noopener noreferrer">在线服务 · 锐鉴安途 ↗</a>
+          </div>
+        </li>
+        <li class="work-card" id="work-lmengine" style="--card-index: 1">
+          <div class="work-card__topline"><span>Rust · Apache-2.0</span><span>Since 2026</span></div>
+          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/SafetyRAISE-LMEngine" target="_blank" rel="noopener noreferrer">SafetyRAISE-LMEngine</a></h3>
+          <p class="work-card__tagline">Rust 从零实现的 Qwen3 推理引擎</p>
+          <p class="work-card__desc">把 Transformer 推理的每一环都用可读的 Rust 写一遍：默认 CPU 执行，也支持 CPU / GPU 混合 resident decode 与 q8 量化，专门服务 SafetyRAISE 的专家小模型。</p>
+          <ol class="work-flow" aria-label="推理环节">
+            <li>权重加载</li><li>张量算子</li><li>注意力</li><li>KV Cache</li><li>采样生成</li>
+          </ol>
+          <div class="work-card__foot">
+            <div class="work-card__tags"><span>Rust</span><span>Qwen3</span><span>safetensors</span></div>
+            <a class="work-card__extra" href="https://huggingface.co/suyuan37/SafetyRAISE-TS-Qwen3" target="_blank" rel="noopener noreferrer">配套模型 · Hugging Face ↗</a>
+          </div>
+        </li>
+        <li class="work-card" id="work-maintenance" style="--card-index: 2">
+          <div class="work-card__topline"><span>Rust · MIT</span><span>Since 2026</span></div>
+          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/maintenance" target="_blank" rel="noopener noreferrer">maintenance</a></h3>
+          <p class="work-card__tagline">让文档跟上代码的长期维护工具</p>
+          <p class="work-card__desc">一个命令行工具，也是一份 agent skill。从 diff 中提取环境变量、参数与配置键，定位受影响的文档行，标出过时与缺失的说明；全程本地运行，不调用模型 API。</p>
+          <div class="work-card__foot">
+            <div class="work-card__tags"><span>Rust</span><span>CLI</span><span>Agent Skill</span></div>
+            <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
+          </div>
+        </li>
+        <li class="work-card" id="work-my-blog" style="--card-index: 3">
+          <div class="work-card__topline"><span>CSS · MIT</span><span>Since 2026</span></div>
+          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/my-blog" target="_blank" rel="noopener noreferrer">my-blog</a></h3>
+          <p class="work-card__tagline">你正在看的这个博客</p>
+          <p class="work-card__desc">宣纸与朱砂的纸面风格，纯静态托管，字体、公式与代码高亮全部自托管。文章由知识库的公开目录定时同步生成，不经过任何数据库。</p>
+          <div class="work-card__foot">
+            <div class="work-card__tags"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+            <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
+          </div>
+        </li>
+        <li class="work-card" id="work-translate" style="--card-index: 4">
+          <div class="work-card__topline"><span>Python</span><span>Since 2023</span></div>
+          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/translate-workflow" target="_blank" rel="noopener noreferrer">translate-workflow</a></h3>
+          <p class="work-card__tagline">基于 LM Studio 的本地翻译助手</p>
+          <p class="work-card__desc">带图形界面的长文翻译工具：智能分块保持上下文，失败时自动二分重试，支持断点续传、流式响应与自定义提示词。</p>
+          <div class="work-card__foot">
+            <div class="work-card__tags"><span>Python</span><span>LM Studio</span><span>GUI</span></div>
+            <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
+          </div>
+        </li>
+        <li class="work-card" id="work-chat" style="--card-index: 5">
+          <div class="work-card__topline"><span>JavaScript · Java</span><span>Since 2025</span></div>
+          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/realtime-chat-app" target="_blank" rel="noopener noreferrer">realtime-chat-app</a></h3>
+          <p class="work-card__tagline">实时聊天与视频通话应用</p>
+          <p class="work-card__desc">WebSocket STOMP 文字聊天与 WebRTC 一对一视频通话，后端 Spring Boot 配合 JWT 无状态认证，附带加入与离开通知。</p>
+          <div class="work-card__foot">
+            <div class="work-card__tags"><span>Spring Boot</span><span>WebSocket</span><span>WebRTC</span></div>
+            <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
+          </div>
+        </li>
+      </ol>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -84,11 +162,11 @@
         <a class="status-filing status-filing--police" href="https://beian.mps.gov.cn/#/query/webSearch?code=23010802000130" target="_blank" rel="noopener noreferrer"><img src="/assets/img/police-filing.png" width="16" height="16" alt="">黑公网安备23010802000130号</a>
       </div>
       <div class="status-meta">
-        <div class="status-item"><span class="status-key">Email</span><a class="status-email" href="mailto:shiqianyan4@gmail.com">shiqianyan4@gmail.com</a></div>
+        <div class="status-item"><span class="status-key">Email</span><a class="status-email" href="mailto:shi@mail.qianyan.me">shi@mail.qianyan.me</a></div>
         <div class="status-item"><span class="status-key">Updated</span><span class="status-val" id="footDate">23 May 2026</span></div>
       </div>
     </div>
   </footer>
-  <script src="/assets/js/home.js?v=20260917a"></script>
+  <script src="/assets/js/home.js?v=20260926a"></script>
 </body>
 </html>

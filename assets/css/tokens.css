@@ -45,8 +45,8 @@
   /* ── Layout ─────────────────────────────────────────── */
   --page-max: 100%;
   --page-pad-x: clamp(30px, 7.8vw, 150px);
-  --split-left: 63%;
-  --split-right: 37%;
+  --split-left: 52%;
+  --split-right: 48%;
 
   /* ── Spacing Scale ──────────────────────────────────── */
   --space-1: 6px;

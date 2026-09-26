@@ -123,18 +123,53 @@
     var frameWrap = document.querySelector('.plate__frame-wrap');
     var caption = document.querySelector('.plate__caption');
     var prop = document.querySelector('.plate__prop');
+    var figure = document.querySelector('.plate__figure');
+    var paneHead = pane && pane.querySelector('.plate__head');
     if (!actions || !cta || !pane || !frameWrap) return;
 
+    var title = document.querySelector('.hero-title');
+
+    var art = frameWrap.querySelector('.plate__art');
+
     pane.style.marginTop = '';
+    if (figure) figure.style.marginTop = '';
+    frameWrap.classList.remove('plate__frame-wrap--mat');
+    frameWrap.style.maxWidth = '';
+    frameWrap.style.width = '';
+    frameWrap.style.height = '';
+    if (paneHead) { paneHead.style.width = ''; paneHead.style.marginLeft = ''; }
     actions.style.marginTop = '';
     if (caption) caption.style.marginTop = '';
     if (window.innerWidth <= 720) return; // 移动端纵排，无需跨栏对齐
 
+    // 约束零（右栏有编号行时）：插图按“衬纸装裱”排——
+    // 四角角框撑满右栏：左竖线在右栏起点外 8px，右竖线落在导航红线右端；
+    // 框高 = 大标题顶部到按钮下缘，上下框线分别与两者对齐；方形插图在框内水平居中。
+    // 编号行与角框同宽，因此两端同时对齐角框与红线。
+    if (paneHead && figure && title && art) {
+      var titleTop = title.getBoundingClientRect().top;
+      var span = cta.getBoundingClientRect().bottom - titleTop;
+      var figW = figure.getBoundingClientRect().width;
+      frameWrap.classList.add('plate__frame-wrap--mat');
+      frameWrap.style.maxWidth = 'none';
+      frameWrap.style.width = (figW - 8) + 'px';
+      frameWrap.style.height = Math.max(260, span) + 'px';
+      paneHead.style.marginLeft = '-8px';
+      paneHead.style.width = (figW + 8) + 'px';
+      figure.style.marginTop = (titleTop - frameWrap.getBoundingClientRect().top) + 'px';
+    }
+
     // 约束一：按钮下缘 == 人物四角边框下框线。
-    // 按钮偏低 → 右栏整体下移补差；按钮偏高 → 左栏 actions 下移补差。
+    // 按钮偏低 → 插图下移补差（右栏有编号行时只移插图，编号行保持与眉题同行）；
+    // 按钮偏高 → 左栏 actions 下移补差。
     var d1 = cta.getBoundingClientRect().bottom - frameWrap.getBoundingClientRect().bottom;
     if (d1 > 0.5) {
-      pane.style.marginTop = d1 + 'px';
+      if (paneHead && figure) {
+        // 仅在插图因宽度受限而比文字块矮时才会出现，此时保持居中，不再下推
+        if (!title) figure.style.marginTop = d1 + 'px';
+      } else {
+        pane.style.marginTop = d1 + 'px';
+      }
     } else if (d1 < -0.5) {
       var base = parseFloat(getComputedStyle(actions).marginTop) || 0;
       var next = base - d1;

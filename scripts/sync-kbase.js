@@ -401,18 +401,18 @@ function renderPost(article, markdown) {
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260917a">
-  <link rel="stylesheet" href="/assets/css/base.css?v=20260917a">
-  <link rel="stylesheet" href="/assets/css/layout.css?v=20260917a">
-  <link rel="stylesheet" href="/assets/css/components.css?v=20260917a">
-  <link rel="stylesheet" href="/assets/css/motion.css?v=20260917a">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260926a">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20260926a">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20260926a">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20260926a">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20260926a">
   <script>
     window.MathJax = {
       tex: { inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]], displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]] },
       svg: { fontCache: "global" }
     };
   </script>
-  <script defer src="/assets/vendor/mathjax/tex-svg.js?v=20260917a"></script>
+  <script defer src="/assets/vendor/mathjax/tex-svg.js?v=20260926a"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -446,14 +446,14 @@ function renderPost(article, markdown) {
         <a class="status-filing status-filing--police" href="https://beian.mps.gov.cn/#/query/webSearch?code=23010802000130" target="_blank" rel="noopener noreferrer"><img src="/assets/img/police-filing.png" width="16" height="16" alt="">黑公网安备23010802000130号</a>
       </div>
       <div class="status-meta">
-        <div class="status-item"><span class="status-key">Email</span><a class="status-email" href="mailto:shiqianyan4@gmail.com">shiqianyan4@gmail.com</a></div>
+        <div class="status-item"><span class="status-key">Email</span><a class="status-email" href="mailto:shi@mail.qianyan.me">shi@mail.qianyan.me</a></div>
         <div class="status-item"><span class="status-key">Updated</span><span class="status-val" id="footDate">${date}</span></div>
       </div>
     </div>
   </footer>
-  <script src="/assets/js/home.js?v=20260917a"></script>
-  <script src="/assets/vendor/highlight/highlight.min.js?v=20260917a"></script>
-  <script src="/assets/js/post.js?v=20260917a"></script>
+  <script src="/assets/js/home.js?v=20260926a"></script>
+  <script src="/assets/vendor/highlight/highlight.min.js?v=20260926a"></script>
+  <script src="/assets/js/post.js?v=20260926a"></script>
 </body>
 </html>`;
 }
