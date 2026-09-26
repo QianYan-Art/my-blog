@@ -246,6 +246,13 @@
     updateFilterButtons();
   }
 
+  // 卡片右下角显示文章字数（同步时计算）；旧索引没有字数时退回阅读时长
+  function formatWordCount(item) {
+    var count = Number(item.wordCount);
+    if (count > 0) return count.toLocaleString('en-US') + ' 字';
+    return item.readingTime ? item.readingTime + ' 阅读' : '阅读';
+  }
+
   function buildArticleCard(item, index) {
     var tags = (item.tags || []).map(function(tag) {
       return '<span>' + escapeHtml(tag) + '</span>';
@@ -265,7 +272,7 @@
       '    <p>' + escapeHtml(item.summary || '这篇文章还没有摘要，但已经被安静地装进了索引。') + '</p>',
       '    <div class="article-card__foot">',
       '      <div class="article-card__tags">' + tags + '</div>',
-      '      <span class="article-card__read">' + escapeHtml(item.section || item.readingTime || 'read') + ' →</span>',
+      '      <span class="article-card__read">' + escapeHtml(formatWordCount(item)) + ' →</span>',
       '    </div>',
       '  </a>',
       '</article>'

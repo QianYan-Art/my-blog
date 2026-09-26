@@ -302,6 +302,30 @@
 })();
 
 /* ──────────────────────────────────────────────
+   返回页面时清除残留的点击焦点与悬停态
+   浏览器从前进后退缓存恢复页面时，会保留离开前被点击的链接焦点，
+   鼠标已不在原处却仍显示悬停样式。恢复后先失焦并暂停指针命中，
+   指针移动、按下、触摸、滚轮或按键时再恢复，悬停随真实位置重新计算。
+   ────────────────────────────────────────────── */
+(function () {
+  var events = ['pointermove', 'pointerdown', 'touchstart', 'wheel', 'keydown'];
+
+  function release() {
+    document.body.classList.remove('is-restoring');
+    events.forEach(function (type) { window.removeEventListener(type, release, true); });
+  }
+
+  window.addEventListener('pageshow', function (e) {
+    var nav = window.performance && performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    if (!e.persisted && !(nav && nav.type === 'back_forward')) return;
+    var active = document.activeElement;
+    if (active && active !== document.body && active.blur) active.blur();
+    document.body.classList.add('is-restoring');
+    events.forEach(function (type) { window.addEventListener(type, release, { capture: true, passive: true }); });
+  });
+})();
+
+/* ──────────────────────────────────────────────
    鼠标跟随墨晕 —— 全站纸感光效驱动
    CSS 已在 base.css(body::after) 与卡片/ledger 中
    使用 --mx/--my，这里负责按指针位置写入。

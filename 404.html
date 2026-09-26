@@ -8,13 +8,13 @@
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260926a">
-  <link rel="stylesheet" href="/assets/css/base.css?v=20260926a">
-  <link rel="stylesheet" href="/assets/css/layout.css?v=20260926a">
-  <link rel="stylesheet" href="/assets/css/components.css?v=20260926a">
-  <link rel="stylesheet" href="/assets/css/motion.css?v=20260926a">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260926b">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20260926b">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20260926b">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20260926b">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20260926b">
 </head>
-<body class="page">
+<body class="page page--notfound">
   <div class="binding"></div>
   <div class="corner-mark cm-tl"></div>
   <div class="corner-mark cm-tr"></div>
@@ -44,26 +44,53 @@
   </header>
   <div class="site-nav__rule"></div>
 
-  <main class="page-main" style="display:flex;align-items:center;justify-content:center;padding-block:var(--space-7);">
-    <article style="max-width:42rem;width:100%;border-top:1px solid var(--line-strong);padding-top:var(--space-5);">
-      <p class="hero-eyebrow">§ 404</p>
-      <h1 style="font-family:var(--font-display);font-size:clamp(34px,5vw,72px);font-weight:600;line-height:1.16;letter-spacing:0;color:var(--ink);margin-top:var(--space-3);">这一页不在目录里<span class="hero-title__cursor" aria-hidden="true"></span></h1>
-      <p style="margin-top:var(--space-4);font-size:var(--text-body);line-height:1.9;color:var(--lead);">你访问的地址可能已经调整或不存在了。我们回到首页继续浏览。</p>
-      <p style="margin-top:var(--space-4);">
-        <a class="cta" href="/">
-          <span class="cta-ornament" aria-hidden="true"></span>
-          <span>返回首页</span>
-          <svg width="24" height="10" viewBox="0 0 24 10" fill="none" aria-hidden="true"><line x1="0.5" y1="5" x2="20" y2="5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><polyline points="16,1.4 20.2,5 16,8.6" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>
-          <span class="cta-corner cta-corner--tl" aria-hidden="true"></span>
-          <span class="cta-corner cta-corner--br" aria-hidden="true"></span>
-        </a>
-      </p>
-    </article>
+  <main class="page-main page-main--articles notfound-page">
+    <section class="articles-hero notfound-hero">
+      <div class="articles-hero__copy">
+        <p class="hero-eyebrow reveal reveal--fade" style="--reveal-delay: var(--t-label)">§ Not Found</p>
+        <h1 class="articles-title">
+          <span class="reveal reveal--write" style="--reveal-delay: var(--t-hero-1)">这一页，</span>
+          <span class="reveal reveal--write" style="--reveal-delay: var(--t-hero-2)">不在目录里<span class="hero-title__cursor" aria-hidden="true"></span></span>
+        </h1>
+        <p class="articles-lede reveal reveal--fade" style="--reveal-delay: var(--t-hero-3)">
+          你访问的地址可能已经调整，或者这篇笔记还没写。可以回到首页，或从站内入口继续浏览。
+        </p>
+        <div class="hero-actions reveal reveal--fade" style="--reveal-delay: var(--t-projects)">
+          <a class="cta" href="/">
+            <span class="cta-ornament" aria-hidden="true"></span>
+            <span>返回首页</span>
+            <svg width="24" height="10" viewBox="0 0 24 10" fill="none" aria-hidden="true"><line x1="0.5" y1="5" x2="20" y2="5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><polyline points="16,1.4 20.2,5 16,8.6" stroke="currentColor" stroke-width="1.1" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>
+            <span class="cta-corner cta-corner--tl" aria-hidden="true"></span>
+            <span class="cta-corner cta-corner--br" aria-hidden="true"></span>
+          </a>
+        </div>
+      </div>
+
+      <div class="articles-hero__side">
+        <div class="plate__head plate__head--articles reveal reveal--fade" style="--reveal-delay: var(--t-label)">
+          <span class="plate__head-num">QY. 404</span>
+          <span class="plate__head-rule"></span>
+          <span class="plate__head-meta">页面未找到</span>
+        </div>
+        <nav class="articles-ledger work-index reveal reveal--rise" style="--reveal-delay: var(--t-plate)" aria-label="站内入口">
+          <div class="articles-ledger__head">
+            <span>QY. Index</span>
+            <span>04 entries</span>
+          </div>
+          <ol class="work-index__list">
+            <li><a href="/"><span>首页</span><em>Home</em></a></li>
+            <li><a href="/blog/"><span>文章</span><em>Notes</em></a></li>
+            <li><a href="/projects/"><span>项目</span><em>Works</em></a></li>
+            <li><a href="/about/"><span>关于</span><em>About</em></a></li>
+          </ol>
+        </nav>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
-    <div class="site-footer__rule"></div>
-    <div class="status-bar">
+    <div class="site-footer__rule reveal reveal--rule" style="--reveal-delay: var(--t-status)"></div>
+    <div class="status-bar reveal reveal--fade" style="--reveal-delay: var(--t-status)">
       <div class="status-legal">
         <a class="status-filing" href="https://beian.miit.gov.cn/#/Integrated/recordQuery" target="_blank" rel="noopener noreferrer">黑ICP备2025044264号-1</a>
         <a class="status-filing status-filing--police" href="https://beian.mps.gov.cn/#/query/webSearch?code=23010802000130" target="_blank" rel="noopener noreferrer"><img src="/assets/img/police-filing.png" width="16" height="16" alt="">黑公网安备23010802000130号</a>
@@ -75,6 +102,6 @@
     </div>
   </footer>
 
-  <script src="/assets/js/home.js?v=20260926a"></script>
+  <script src="/assets/js/home.js?v=20260926b"></script>
 </body>
 </html>

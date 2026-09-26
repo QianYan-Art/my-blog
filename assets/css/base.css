@@ -133,6 +133,13 @@ img {
   }
 }
 
+/* ── 返回页面时的悬停复位 ──────────────────────────
+   从浏览器前进后退缓存恢复时，上次点击的卡片/链接可能仍保持悬停态（变红、发光）。
+   home.js 在恢复时加上此类，直到指针真正移动或触摸才移除，悬停随真实位置重新计算。 */
+body.is-restoring {
+  pointer-events: none;
+}
+
 /* ── Grid Overlay Canvas ────────────────────────── */
 #grid-overlay {
   position: fixed;

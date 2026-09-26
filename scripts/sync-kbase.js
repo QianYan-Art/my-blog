@@ -221,6 +221,28 @@ function htmlEscape(value) {
   return String(value || "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 
+// 文章字数：中文（含日文假名）按字计，英文单词与数字按词计；代码块、链接地址与 Markdown 标记不计入
+function countWords(markdown) {
+  const text = stripFrontMatter(markdown)
+    .replace(/^(```|~~~)[\s\S]*?^\1[^\n]*$/gm, " ")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/https?:\/\/\S+/g, " ");
+  const cjk = (text.match(/[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\u3040-\u30ff]/g) || []).length;
+  const words = (text.match(/[A-Za-z0-9]+(?:['._-][A-Za-z0-9]+)*/g) || []).length;
+  return cjk + words;
+}
+
+// 阅读时长按正文字数估算（约 400 字/分钟），与卡片、详情页显示的字数一致
+function readingTimeFor(words) {
+  return `${Math.max(1, Math.ceil(words / 400))} min`;
+}
+
+function formatWordCount(count) {
+  return `${Number(count || 0).toLocaleString("en-US")} 字`;
+}
+
 function plainSummary(markdown) {
   // 先整体剥掉跨行的噪音块：代码围栏、块级公式、HTML 注释
   const body = stripFrontMatter(markdown)
@@ -391,6 +413,7 @@ function renderPost(article, markdown) {
   const category = htmlEscape(article.category);
   const date = htmlEscape(article.date);
   const readingTime = htmlEscape(article.readingTime);
+  const wordCount = article.wordCount ? `<span>${htmlEscape(formatWordCount(article.wordCount))}</span>` : "";
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -401,18 +424,18 @@ function renderPost(article, markdown) {
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260926a">
-  <link rel="stylesheet" href="/assets/css/base.css?v=20260926a">
-  <link rel="stylesheet" href="/assets/css/layout.css?v=20260926a">
-  <link rel="stylesheet" href="/assets/css/components.css?v=20260926a">
-  <link rel="stylesheet" href="/assets/css/motion.css?v=20260926a">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260926b">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20260926b">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20260926b">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20260926b">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20260926b">
   <script>
     window.MathJax = {
       tex: { inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]], displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]] },
       svg: { fontCache: "global" }
     };
   </script>
-  <script defer src="/assets/vendor/mathjax/tex-svg.js?v=20260926a"></script>
+  <script defer src="/assets/vendor/mathjax/tex-svg.js?v=20260926b"></script>
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -433,7 +456,7 @@ function renderPost(article, markdown) {
     <article class="post-body">
       <p class="post-kicker">${category}</p>
       <h1>${title}</h1>
-      <div class="post-meta"><span>${date}</span><span>${readingTime}</span></div>
+      <div class="post-meta"><span>${date}</span>${wordCount}<span>${readingTime}</span></div>
       <div class="article-card__tags">${tags}</div>
       <div class="post-content">${markdownToHtml(markdown)}</div>
     </article>
@@ -451,9 +474,9 @@ function renderPost(article, markdown) {
       </div>
     </div>
   </footer>
-  <script src="/assets/js/home.js?v=20260926a"></script>
-  <script src="/assets/vendor/highlight/highlight.min.js?v=20260926a"></script>
-  <script src="/assets/js/post.js?v=20260926a"></script>
+  <script src="/assets/js/home.js?v=20260926b"></script>
+  <script src="/assets/vendor/highlight/highlight.min.js?v=20260926b"></script>
+  <script src="/assets/js/post.js?v=20260926b"></script>
 </body>
 </html>`;
 }
@@ -513,7 +536,8 @@ async function syncLocal(outputDir) {
       category: meta.category || section.category,
       tags: Array.from(new Set([...sectionTags, ...metaTags])),
       href: `/posts/kbase/${slug}.html`,
-      readingTime: meta.readingTime || `${Math.max(1, Math.ceil(stripFrontMatter(markdown).length / 700))} min`,
+      readingTime: meta.readingTime || readingTimeFor(countWords(markdown)),
+      wordCount: countWords(markdown),
       featured: Boolean(meta.featured),
       sourceType: section.sourceType,
       section: section.section,
@@ -569,7 +593,8 @@ async function syncGithub(outputDir) {
       category: meta.category || section.category,
       tags: Array.from(new Set([...sectionTags, ...metaTags])),
       href: `/posts/kbase/${slug}.html`,
-      readingTime: meta.readingTime || `${Math.max(1, Math.ceil(stripFrontMatter(markdown).length / 700))} min`,
+      readingTime: meta.readingTime || readingTimeFor(countWords(markdown)),
+      wordCount: countWords(markdown),
       featured: Boolean(meta.featured),
       sourceType: section.sourceType,
       section: section.section,
