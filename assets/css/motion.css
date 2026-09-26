@@ -9,9 +9,11 @@
   to   { transform: scaleX(1); }
 }
 
+/* 书写展开：裁切框上下左右各外扩，粗衬线字形顶端、标点与光标超出行框的部分不被截掉；
+   只有右边界从 100% 推进到外扩位置，形成从左到右的书写效果 */
 @keyframes reveal-write {
-  from { clip-path: inset(0 100% 0 0); }
-  to   { clip-path: inset(0 0 0 0); }
+  from { clip-path: inset(-0.35em 100% -0.35em -0.2em); }
+  to   { clip-path: inset(-0.35em -0.35em -0.35em -0.2em); }
 }
 
 @keyframes reveal-rise {
@@ -65,7 +67,7 @@
 }
 
 .reveal--write {
-  clip-path: inset(0 100% 0 0);
+  clip-path: inset(-0.35em 100% -0.35em -0.2em);
   animation: reveal-write 680ms cubic-bezier(0.65, 0, 0.35, 1) both;
   animation-delay: var(--reveal-delay, 0ms);
 }
