@@ -47,7 +47,7 @@ npm run dev
 npm run check
 ```
 
-该命令会对仓库内 JS 文件执行语法检查，并运行分页、搜索、列表状态恢复、六处页脚备案一致性及服务器同步故障回退的回归测试。也可单独执行 `npm test`；同步回归需要 Bash，Windows 使用 Git for Windows 的 Bash。测试通过临时目录和命令替身隔离，不连接生产服务器或 GitHub。
+该命令会对仓库内 JS 文件执行语法检查，并运行分页、搜索、列表状态恢复、六处页脚备案一致性、服务器同步故障回退及同步保留占位说明的回归测试。也可单独执行 `npm test`；同步回归需要 Bash，Windows 使用 Git for Windows 的 Bash。测试通过临时目录和命令替身隔离，不连接生产服务器或 GitHub。
 
 ## 同步文章
 
@@ -85,7 +85,8 @@ npm run sync:kbase
 - `scripts/bump-assets-version.js`：一键刷新全站 `?v=` 缓存版本号（含 vendor 引用）
 - `scripts/build-fonts.js`：从 @fontsource 包重新生成 `assets/fonts` 与 `fonts.css`
 - `scripts/test-article-pagination.js`：分页、筛选、搜索与返回状态的逻辑回归测试
-- `scripts/test-footer.js`：静态页面与文章模板的备案编号、查询链接、安全属性及图标一致性检查
+- `scripts/test-footer.js`：静态页面与文章模板的备案编号、查询链接、安全属性、邮箱及图标一致性检查
+- `scripts/test-sync-placeholder.js`：在临时目录运行同步脚本副本，验证整体替换文章目录时保留占位说明
 - `ops/blog-sync-kbase.sh`：服务器定时同步脚本模板
 - `assets/data/README.md`：文章索引生成产物的占位说明
 - `posts/kbase/README.md`：文章详情页生成目录的占位说明

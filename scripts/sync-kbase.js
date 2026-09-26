@@ -608,6 +608,18 @@ async function syncGithub(outputDir) {
   return articles;
 }
 
+// posts/kbase/README.md 是受 Git 跟踪的占位说明。同步会整体替换该目录，
+// 替换前先把它带进新目录，避免每次同步后占位说明消失、三端哈希核对出现差异。
+const POSTS_PLACEHOLDER = "README.md";
+
+function carryPlaceholder(fromDir, toDir) {
+  const source = path.join(fromDir, POSTS_PLACEHOLDER);
+  const target = path.join(toDir, POSTS_PLACEHOLDER);
+  if (fs.existsSync(source) && !fs.existsSync(target)) {
+    fs.copyFileSync(source, target);
+  }
+}
+
 async function main() {
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
   fs.rmSync(TEMP_ROOT, { recursive: true, force: true });
@@ -632,6 +644,7 @@ async function main() {
     articles
   }, null, 2), "utf8");
 
+  carryPlaceholder(POSTS_DIR, nextPostsDir);
   fs.rmSync(POSTS_DIR, { recursive: true, force: true });
   fs.mkdirSync(path.dirname(POSTS_DIR), { recursive: true });
   fs.renameSync(nextPostsDir, POSTS_DIR);

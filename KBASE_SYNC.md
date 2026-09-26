@@ -4,13 +4,13 @@
 
 ## 推荐方式：读取本地备份
 
-你的本地知识库默认路径是：
+同步脚本默认读取博客仓库上一级目录中的 `QianYan-KBase`，即与博客仓库并列存放的知识库。例如博客仓库在 `D:\Answer\blog` 时，默认读取：
 
 ```powershell
 D:\Answer\QianYan-KBase
 ```
 
-因此在这台电脑上直接运行：
+按这种目录布局，直接运行：
 
 ```powershell
 npm run sync:kbase:local
@@ -33,7 +33,7 @@ QianYan-KBase/public
 - `public/my_server` 会显示为“服务器记录”
 - `private` 目录不会被同步到博客
 
-如果本地备份换了位置，可以临时指定：
+如果知识库不在博客仓库的上一级目录（例如在其他位置的工作副本中运行），需要显式指定路径，否则脚本找不到本地知识库，会转而要求 GitHub token：
 
 ```powershell
 $env:KBASE_LOCAL_PATH="D:\Answer\QianYan-KBase"

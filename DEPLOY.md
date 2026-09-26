@@ -16,8 +16,17 @@
 
 1. 本地改完并验证后，执行 `npm run bump:assets -- <新版本串>` 刷新缓存版本号（如 `20260612`，同日多次发布加后缀 `b`/`c`）。
 2. 运行 `npm run check`，用浏览器检查桌面和手机尺寸下的文章、分页、搜索、项目链接与页脚。
-3. 提交并推送到目标分支，核对本地提交与远程分支一致。用该提交的 `git archive` 制作发布包，不打包工作区、密钥、`.env`、`node_modules` 或本地生成的文章。
-4. 服务器覆盖前备份站点，上传并解包已核对的发布包，保留服务器自己的环境配置与文章数据。不要对整个站点执行镜像删除。
+3. 提交并推送到目标分支，核对本地提交与远程分支一致。用该提交的 `git archive` 制作发布包，不打包工作区、密钥、`.env`、`node_modules` 或本地生成的文章。Windows 上使用 `git -c core.autocrlf=false archive`，避免导出 CRLF 导致文件哈希与提交不一致。
+4. 服务器覆盖前备份站点，上传并解包已核对的发布包，保留服务器自己的环境配置与文章数据。不要对整个站点执行镜像删除。解包时不要覆盖已有目录的属主、属组与模式，否则会破坏同步所需的共享组与 setgid（见 `KBASE_SYNC.md`）：
+
+   ```bash
+   stat -c "%a %U:%G %n" <站点目录> <站点目录>/assets <站点目录>/posts <站点目录>/posts/kbase > perm-before.txt
+   tar -xpf release.tar --no-same-owner --no-overwrite-dir -C <站点目录>
+   stat -c "%a %U:%G %n" <站点目录> <站点目录>/assets <站点目录>/posts <站点目录>/posts/kbase > perm-after.txt
+   diff perm-before.txt perm-after.txt
+   ```
+
+   服务器访问 GitHub 不稳定时，可在本地执行 `git bundle create <文件> main`，上传后在服务器临时目录 `git clone -b main <文件> repo`，再从克隆中 `git archive` 导出同一提交，上传前后核对 bundle 的 SHA-256。
 5. 如有模板变化，运行服务器同步入口重新生成文章；随后执行 `nginx -t`、文件哈希比对与线上浏览器验收。没有修改 Nginx 配置时，无需为了静态页面更新而重启服务。
 
 三端一致指本地提交、GitHub 提交以及服务器上该提交管理的文件一致，不要求把服务器的环境文件、日志和生成文章提交到 GitHub。保留本次发布的提交号、资源版本号与备份路径，便于回滚。
@@ -48,3 +57,4 @@
 - 同步失败先看同步日志。
 - 核查 token 权限是否满足上面第 3 节的最小权限。
 - 同步脚本采用“先生成到临时目录、再整体替换”的策略，并带文章数量保护，异常同步不会把线上文章清空。
+- 整体替换 `posts/kbase/` 前，脚本会把受 Git 跟踪的占位说明 `posts/kbase/README.md` 带入新目录，同步后仍与仓库一致；原目录没有该文件时不会凭空创建。
