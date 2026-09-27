@@ -107,7 +107,7 @@
   .hero-split {
     display: flex;
     flex-direction: column;
-    gap: clamp(30px, 7vw, 42px);
+    gap: 36px; /* 与各页手机端“左栏末尾 → 编号行”间距一致 */
     min-height: auto;
     overflow: visible;
     padding-block: var(--space-4) var(--space-5);

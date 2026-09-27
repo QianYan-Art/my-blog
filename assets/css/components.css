@@ -834,7 +834,8 @@
   align-items: center;
   gap: 10px 24px;
   padding-top: clamp(8px, 1.2vh, 13px);
-  font-family: var(--font-mono);
+  /* 英文与数字用等宽字，中文回退到与正文相同的界面字体，避免落到系统等宽中文字形 */
+  font-family: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, var(--font-ui);
   font-size: 11px;
   letter-spacing: 0;
   color: var(--lead);
@@ -922,8 +923,15 @@
   .status-meta .status-item {
     flex-direction: column;
     align-items: flex-start;
+    justify-content: center;
     gap: 0;
+    min-height: 24px;
     white-space: nowrap;
+  }
+
+  /* 邮箱、ICP、公安三行同高同距：行高均为 24px，行间距统一为 2px */
+  .site-footer .status-bar {
+    gap: 2px;
   }
 
   .status-meta .status-key,
@@ -3108,9 +3116,27 @@ html:has(.page--projects) {
   margin-top: clamp(28px, 4vh, 48px);
 }
 
+/* 手机端右栏统一节奏（以文章页、项目页为基准）：
+   左栏末尾 → 编号行 36px，编号行 → 卡片 18px，卡片 → 下一节同文章区 */
 @media (max-width: 720px) {
+  .articles-hero__side,
   .notfound-hero .articles-hero__side {
-    margin-top: var(--space-5);
+    gap: 18px;
+  }
+
+  .letter-paper .letter-paper__head {
+    margin-bottom: 18px;
+  }
+
+  /* 首页插图角框外扩 8px：编号行到角框的可见间距同为 18px */
+  .plate-pane .plate__head--plate {
+    margin-bottom: 26px;
+  }
+
+  /* 手机页脚三行统一使用正文字体，数字等宽，避免英文细笔画与中文粗笔画看起来深浅不一 */
+  .site-footer .status-bar {
+    font-family: var(--font-ui);
+    font-variant-numeric: tabular-nums;
   }
 }
 
@@ -3490,10 +3516,6 @@ html:has(.page--projects) {
 }
 
 @media (max-width: 720px) {
-  .project-hero .articles-hero__side {
-    display: none;
-  }
-
   .work-grid,
   .about-shelf {
     grid-template-columns: minmax(0, 1fr);
@@ -3535,7 +3557,6 @@ html:has(.page--projects) {
 
   .about-shelf {
     gap: var(--space-6);
-    margin-top: var(--space-6);
     padding-top: var(--space-5);
   }
 }
