@@ -18,6 +18,11 @@
   padding-top: clamp(6px, 1.2vh, 16px);
 }
 
+/* 首页顶部间距全部由 .hero-pane 的 --page-top 提供，与其他页一致 */
+.page-main--home {
+  padding-top: 0;
+}
+
 /* ---- Hero split ---- */
 
 .hero-split {
@@ -38,7 +43,7 @@
   flex-direction: column;
   justify-content: flex-start;
   min-width: 0;
-  padding-top: clamp(10px, 3vh, 32px);
+  padding-top: var(--page-top);
   padding-right: clamp(24px, 3.6vw, 56px);
   z-index: 2;
 }
@@ -46,7 +51,7 @@
 .plate-pane {
   position: absolute;
   right: 0;
-  top: clamp(10px, 3vh, 32px); /* 与左栏 padding-top 相同：右栏 QY.01 行与左栏眉题同一行 */
+  top: var(--page-top); /* 与左栏 padding-top 相同：右栏 QY.01 行与左栏眉题同一行 */
   bottom: clamp(20px, 3vh, 40px); /* 确保不与页脚重叠 */
   width: var(--split-right, 37%);
   display: flex;
@@ -110,7 +115,7 @@
     gap: 36px; /* 与各页手机端“左栏末尾 → 编号行”间距一致 */
     min-height: auto;
     overflow: visible;
-    padding-block: var(--space-4) var(--space-5);
+    padding-block: 0 var(--space-5);
   }
 
   .hero-pane,
@@ -122,7 +127,7 @@
   }
 
   .hero-pane {
-    padding-top: 0;
+    padding-top: var(--page-top);
   }
 
   .hero-split::before {

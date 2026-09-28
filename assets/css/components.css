@@ -1171,7 +1171,7 @@
 }
 
 .page-main--articles {
-  padding-top: clamp(42px, 7vh, 82px);
+  padding-top: var(--page-top);
 }
 
 .articles-hero {
