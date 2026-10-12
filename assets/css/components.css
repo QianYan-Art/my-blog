@@ -2983,6 +2983,7 @@ html:has(.page--projects) {
   max-width: 40em;
   color: var(--lead);
   line-height: 1.85;
+  text-wrap: pretty; /* 避免末行只剩一两个字 */
 }
 
 /* 处理链路：悬停时朱砂沿链路逐格点亮 */

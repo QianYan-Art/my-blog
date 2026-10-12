@@ -8,11 +8,11 @@
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20260928">
-  <link rel="stylesheet" href="/assets/css/base.css?v=20260928">
-  <link rel="stylesheet" href="/assets/css/layout.css?v=20260928">
-  <link rel="stylesheet" href="/assets/css/components.css?v=20260928">
-  <link rel="stylesheet" href="/assets/css/motion.css?v=20260928">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20261012">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20261012">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20261012">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20261012">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20261012">
 </head>
 <body class="page page--projects">
   <div class="binding"></div>
@@ -68,7 +68,7 @@
             <li><a href="#work-lmengine"><span>SafetyRAISE-LMEngine</span><em>Rust</em></a></li>
             <li><a href="#work-maintenance"><span>maintenance</span><em>Rust</em></a></li>
             <li><a href="#work-my-blog"><span>my-blog</span><em>CSS</em></a></li>
-            <li><a href="#work-translate"><span>translate-workflow</span><em>Python</em></a></li>
+            <li><a href="#work-lora"><span>SafetyRAISE-Lora</span><em>Python</em></a></li>
             <li><a href="#work-chat"><span>realtime-chat-app</span><em>JavaScript</em></a></li>
           </ol>
         </nav>
@@ -130,13 +130,16 @@
             <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
           </div>
         </li>
-        <li class="work-card" id="work-translate" style="--card-index: 4">
-          <div class="work-card__topline"><span>Python</span><span>Since 2023</span></div>
-          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/translate-workflow" target="_blank" rel="noopener noreferrer">translate-workflow</a></h3>
-          <p class="work-card__tagline">基于 LM Studio 的本地翻译助手</p>
-          <p class="work-card__desc">带图形界面的长文翻译工具：智能分块保持上下文，失败时自动二分重试，支持断点续传、流式响应与自定义提示词。</p>
+        <li class="work-card" id="work-lora" style="--card-index: 4">
+          <div class="work-card__topline"><span>Python · Apache-2.0</span><span>Since 2026</span></div>
+          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/SafetyRAISE-Lora" target="_blank" rel="noopener noreferrer">SafetyRAISE-Lora</a></h3>
+          <p class="work-card__tagline">SafetyRAISE 系统配套模型的训练集合</p>
+          <p class="work-card__desc">SafetyRAISE 报告模型（Qwen3.8-27B + LoRA）的训练资产：原创合成的数据集、训练与评测脚本、线上提示词协议、llama.cpp 推理补丁和接手指南。整套训练在一台 Jetson AGX Orin 上完成，权重不在仓库中。</p>
+          <ol class="work-flow" aria-label="训练流程">
+            <li>合成数据</li><li>监督微调</li><li>线上后训练</li><li>合并量化</li><li>评测部署</li>
+          </ol>
           <div class="work-card__foot">
-            <div class="work-card__tags"><span>Python</span><span>LM Studio</span><span>GUI</span></div>
+            <div class="work-card__tags"><span>QLoRA</span><span>Qwen3.8</span><span>llama.cpp</span></div>
             <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
           </div>
         </li>
@@ -167,6 +170,6 @@
       </div>
     </div>
   </footer>
-  <script src="/assets/js/home.js?v=20260928"></script>
+  <script src="/assets/js/home.js?v=20261012"></script>
 </body>
 </html>
