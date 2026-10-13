@@ -100,13 +100,13 @@
         <li class="work-card" id="work-lmengine" style="--card-index: 1">
           <div class="work-card__topline"><span>Rust · Apache-2.0</span><span>Since 2026</span></div>
           <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/SafetyRAISE-LMEngine" target="_blank" rel="noopener noreferrer">SafetyRAISE-LMEngine</a></h3>
-          <p class="work-card__tagline">Rust 从零实现的 Qwen3 推理引擎</p>
-          <p class="work-card__desc">把 Transformer 推理的每一环都用可读的 Rust 写一遍：默认 CPU 执行，也支持 CPU / GPU 混合 resident decode 与 q8 量化，专门服务 SafetyRAISE 的专家小模型。</p>
-          <ol class="work-flow" aria-label="推理环节">
-            <li>权重加载</li><li>张量算子</li><li>注意力</li><li>KV Cache</li><li>采样生成</li>
+          <p class="work-card__tagline">SafetyRAISE 的本地 Qwen 推理框架</p>
+          <p class="work-card__desc">由从零手写的 Qwen3 推理引擎演进而来，把权重、分词器、聊天模板、请求调度与后端执行收进同一套 Rust 运行时，供专家指导、事故信息提取和报告生成复用。支持 safetensors 与 GGUF、Qwen2/3/3.5、有限视觉输入与 Qwen3.5 MTP，并提供 HTTP/SSE 服务入口。</p>
+          <ol class="work-flow" aria-label="服务链路">
+            <li>权重装载</li><li>模板分词</li><li>请求调度</li><li>后端执行</li><li>HTTP 服务</li>
           </ol>
           <div class="work-card__foot">
-            <div class="work-card__tags"><span>Rust</span><span>Qwen3</span><span>safetensors</span></div>
+            <div class="work-card__tags"><span>Rust</span><span>GGUF</span><span>Qwen3.5</span></div>
             <a class="work-card__extra" href="https://huggingface.co/suyuan37/SafetyRAISE-TS-Qwen3" target="_blank" rel="noopener noreferrer">配套模型 · Hugging Face ↗</a>
           </div>
         </li>
