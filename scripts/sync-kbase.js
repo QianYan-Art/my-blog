@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const https = require("https");
 const { execFileSync } = require("child_process");
 const { SocksProxyAgent } = require("socks-proxy-agent");
@@ -88,14 +89,19 @@ function slugify(value) {
     .toLowerCase() || "note";
 }
 
-function uniqueSlug(base, used) {
-  let slug = base || "note";
-  let index = 2;
-  while (used.has(slug)) {
-    slug = `${base}-${index}`;
-    index += 1;
+function automaticSlug(filePath) {
+  const filename = titleFromPath(filePath).normalize("NFC");
+  const date = dateHintFromPath(filename);
+  const digest = crypto.createHash("sha256").update(filename, "utf8").digest("hex").slice(0, 12);
+  return `${date || "note"}-${digest}`;
+}
+
+function uniqueSlug(base, used, sourcePath) {
+  const slug = base || "note";
+  if (used.has(slug)) {
+    throw new Error(`文章地址冲突：${used.get(slug)} 与 ${sourcePath} 都会生成 ${slug}.html，请为其中一篇显式设置不同的 slug。`);
   }
-  used.add(slug);
+  used.set(slug, sourcePath);
   return slug;
 }
 
@@ -414,6 +420,21 @@ function renderPost(article, markdown) {
   const date = htmlEscape(article.date);
   const readingTime = htmlEscape(article.readingTime);
   const wordCount = article.wordCount ? `<span>${htmlEscape(formatWordCount(article.wordCount))}</span>` : "";
+  const content = markdownToHtml(markdown);
+  const mathSource = stripFrontMatter(markdown)
+    .replace(/^(```|~~~)[\s\S]*?^\1[^\n]*$/gm, " ")
+    .replace(/`[^`\n]*`/g, "");
+  const hasMath = ["$", "\\(", "\\["].some((marker) => mathSource.includes(marker));
+  const mathAssets = hasMath ? `<script>
+    window.MathJax = {
+      tex: { inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]], displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]] },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="/assets/vendor/mathjax/tex-svg.js?v=20261107"></script>` : "";
+  const highlightAsset = content.includes("<pre><code")
+    ? `<script src="/assets/vendor/highlight/highlight.min.js?v=20261107"></script>`
+    : "";
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -424,18 +445,13 @@ function renderPost(article, markdown) {
   <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg?v=20260526a">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260526a">
   <link rel="shortcut icon" href="/assets/img/favicon-32.png?v=20260526a">
-  <link rel="stylesheet" href="/assets/css/tokens.css?v=20261012">
-  <link rel="stylesheet" href="/assets/css/base.css?v=20261012">
-  <link rel="stylesheet" href="/assets/css/layout.css?v=20261012">
-  <link rel="stylesheet" href="/assets/css/components.css?v=20261012">
-  <link rel="stylesheet" href="/assets/css/motion.css?v=20261012">
-  <script>
-    window.MathJax = {
-      tex: { inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]], displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]] },
-      svg: { fontCache: "global" }
-    };
-  </script>
-  <script defer src="/assets/vendor/mathjax/tex-svg.js?v=20261012"></script>
+  <link rel="stylesheet" href="/assets/css/fonts.css?v=20261107">
+  <link rel="stylesheet" href="/assets/css/tokens.css?v=20261107">
+  <link rel="stylesheet" href="/assets/css/base.css?v=20261107">
+  <link rel="stylesheet" href="/assets/css/layout.css?v=20261107">
+  <link rel="stylesheet" href="/assets/css/components.css?v=20261107">
+  <link rel="stylesheet" href="/assets/css/motion.css?v=20261107">
+  ${mathAssets}
 </head>
 <body class="page page--articles">
   <div class="binding"></div>
@@ -458,7 +474,7 @@ function renderPost(article, markdown) {
       <h1>${title}</h1>
       <div class="post-meta"><span>${date}</span>${wordCount}<span>${readingTime}</span></div>
       <div class="article-card__tags">${tags}</div>
-      <div class="post-content">${markdownToHtml(markdown)}</div>
+      <div class="post-content">${content}</div>
     </article>
   </main>
   <footer class="site-footer">
@@ -474,9 +490,9 @@ function renderPost(article, markdown) {
       </div>
     </div>
   </footer>
-  <script src="/assets/js/home.js?v=20261012"></script>
-  <script src="/assets/vendor/highlight/highlight.min.js?v=20261012"></script>
-  <script src="/assets/js/post.js?v=20261012"></script>
+  <script src="/assets/js/home.js?v=20261107"></script>
+  ${highlightAsset}
+  <script src="/assets/js/post.js?v=20261107"></script>
 </body>
 </html>`;
 }
@@ -514,7 +530,7 @@ async function syncLocal(outputDir) {
     throw new Error(`公开文章目录不存在：${publicPath}`);
   }
 
-  const used = new Set();
+  const used = new Map();
   const files = walkMarkdownFiles(publicPath);
   const articles = files.map((filePath) => {
     const markdown = fs.readFileSync(filePath, "utf8");
@@ -524,8 +540,8 @@ async function syncLocal(outputDir) {
     const config = readLocalConfig(filePath);
     const frontMatter = parseFrontMatter(markdown);
     const meta = { ...frontMatter, ...config };
-    const baseSlug = slugify(meta.slug || relativePath);
-    const slug = uniqueSlug(baseSlug, used);
+    const baseSlug = meta.slug ? slugify(meta.slug) : automaticSlug(relativePath);
+    const slug = uniqueSlug(baseSlug, used, relativePath);
     const sectionTags = section.tags || [];
     const metaTags = Array.isArray(meta.tags) ? meta.tags : [];
     const article = {
@@ -560,7 +576,7 @@ async function syncGithub(outputDir) {
   const configs = new Map(files.filter((file) => /(^|\/)config\.json$/i.test(file.path)).map((file) => [path.posix.dirname(file.path), file]));
   const publicPrefix = `${PUBLIC_DIR.replace(/^\/|\/$/g, "")}/`;
   const markdownFiles = files.filter((file) => file.path.startsWith(publicPrefix) && /\.mdx?$/i.test(file.path));
-  const used = new Set();
+  const used = new Map();
   const articles = [];
 
   for (const mdFile of markdownFiles) {
@@ -580,7 +596,8 @@ async function syncGithub(outputDir) {
       }
     }
     const meta = { ...frontMatter, ...config };
-    const slug = uniqueSlug(slugify(meta.slug || relativePath), used);
+    const baseSlug = meta.slug ? slugify(meta.slug) : automaticSlug(relativePath);
+    const slug = uniqueSlug(baseSlug, used, relativePath);
     const preferredDate = dateHintFromPath(relativePath) || meta.date || meta.created || "";
     const commitDate = preferredDate ? "" : await readGithubCommitDate(mdFile.path);
     const sectionTags = section.tags || [];

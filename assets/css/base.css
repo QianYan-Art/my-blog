@@ -2,9 +2,6 @@
    base.css — Global Reset, Background, Fonts & Shared Chrome
    ============================================================ */
 
-/* ── Font Faces ──────────────────────────────────────── */
-/* 自托管字体（assets/fonts，scripts/build-fonts.js 生成），不再依赖 Google Fonts */
-@import url("/assets/css/fonts.css?v=20260611");
 /* ── Reset ───────────────────────────────────────────── */
 *,
 *::before,
