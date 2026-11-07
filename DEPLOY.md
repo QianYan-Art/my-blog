@@ -11,7 +11,7 @@
 
 - `assets/fonts/`（自托管字体）与 `assets/vendor/`（MathJax / highlight.js）是站点必需资源，不要遗漏。
 - 建议对 CSS/JS 配置缓存（如 `expires 1d`），配合项目的 `?v=` 版本串使用。
-- 为 HTML、CSS、JS、JSON 和 SVG 启用 gzip，并设置 `gzip_vary on`。Nginx 默认只压缩 `text/html`，需要显式配置 `gzip_types text/html text/css application/json application/javascript image/svg+xml`。
+- 为 HTML、CSS、JS、JSON 和 SVG 启用 gzip，并设置 `gzip_vary on`。Nginx 默认只压缩 `text/html`，需要显式配置 `gzip_types text/css application/json application/javascript image/svg+xml`；`text/html` 始终由 gzip 处理，不要重复列入。
 
 ## 2. 更新发布
 
