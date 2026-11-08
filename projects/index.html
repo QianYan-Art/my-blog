@@ -65,12 +65,12 @@
             <span>06 repos</span>
           </div>
           <ol class="work-index__list">
-            <li><a href="#work-safetyraise-os"><span>SafetyRAISE-OS</span><em>Python</em></a></li>
-            <li><a href="#work-lmengine"><span>SafetyRAISE-LMEngine</span><em>Rust</em></a></li>
-            <li><a href="#work-lora"><span>SafetyRAISE-Lora</span><em>Python</em></a></li>
-            <li><a href="#work-maintenance"><span>maintenance</span><em>Rust</em></a></li>
             <li><a href="#work-my-blog"><span>my-blog</span><em>CSS</em></a></li>
-            <li><a href="#work-chat"><span>realtime-chat-app</span><em>JavaScript</em></a></li>
+            <li><a href="#work-safetyraise-os"><span>SafetyRAISE-OS</span><em>Python</em></a></li>
+            <li><a href="#work-maintenance"><span>maintenance</span><em>Rust</em></a></li>
+            <li><a href="#work-lyrabot"><span>LyraBot</span><em>Rust</em></a></li>
+            <li><a href="#work-lora"><span>SafetyRAISE-Lora</span><em>Python</em></a></li>
+            <li><a href="#work-lmengine"><span>SafetyRAISE-LMEngine</span><em>Rust</em></a></li>
           </ol>
         </nav>
       </div>
@@ -85,7 +85,20 @@
       </div>
 
       <ol class="work-grid">
-        <li class="work-card" id="work-safetyraise-os" style="--card-index: 0">
+        <li class="work-card" id="work-my-blog" style="--card-index: 0">
+          <div class="work-card__topline"><span>CSS · MIT</span><span>Since 2026</span></div>
+          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/my-blog" target="_blank" rel="noopener noreferrer">my-blog</a></h3>
+          <p class="work-card__tagline">宣纸与朱砂风格的个人静态博客</p>
+          <p class="work-card__desc">宣纸与朱砂的纸面风格，纯静态托管，字体、公式与代码高亮全部自托管。文章由知识库的公开目录定时同步生成，不经过任何数据库；地址由日期与文件名摘要生成，改正文或挪目录都不会失效。</p>
+          <ol class="work-flow" aria-label="发布链路">
+            <li>公开笔记</li><li>定时同步</li><li>生成文章</li><li>更新索引</li><li>静态托管</li>
+          </ol>
+          <div class="work-card__foot">
+            <div class="work-card__tags"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+            <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
+          </div>
+        </li>
+        <li class="work-card" id="work-safetyraise-os" style="--card-index: 1">
           <div class="work-card__topline"><span>Python · Apache-2.0</span><span>Since 2026</span></div>
           <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/SafetyRAISE-OS" target="_blank" rel="noopener noreferrer">SafetyRAISE-OS</a></h3>
           <p class="work-card__tagline">道路交通事故的分析报告生成系统</p>
@@ -98,20 +111,33 @@
             <a class="work-card__extra" href="https://safetyraise.cn" target="_blank" rel="noopener noreferrer">在线服务 · 锐鉴安途 ↗</a>
           </div>
         </li>
-        <li class="work-card" id="work-lmengine" style="--card-index: 1">
-          <div class="work-card__topline"><span>Rust · Apache-2.0</span><span>Since 2026</span></div>
-          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/SafetyRAISE-LMEngine" target="_blank" rel="noopener noreferrer">SafetyRAISE-LMEngine</a></h3>
-          <p class="work-card__tagline">SafetyRAISE 的本地 Qwen 推理框架</p>
-          <p class="work-card__desc">由从零手写的 Qwen3 推理引擎演进而来，把权重、分词器、聊天模板、请求调度与后端执行收进同一套 Rust 运行时，供专家指导、事故信息提取和报告生成复用。支持 safetensors 与 GGUF、Qwen2/3/3.5、有限视觉输入与 Qwen3.5 MTP，并提供 HTTP/SSE 服务入口。</p>
-          <ol class="work-flow" aria-label="服务链路">
-            <li>权重装载</li><li>模板分词</li><li>请求调度</li><li>后端执行</li><li>HTTP 服务</li>
+        <li class="work-card" id="work-maintenance" style="--card-index: 2">
+          <div class="work-card__topline"><span>Rust · MIT</span><span>Since 2026</span></div>
+          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/maintenance" target="_blank" rel="noopener noreferrer">maintenance</a></h3>
+          <p class="work-card__tagline">让文档跟上代码的长期维护工具</p>
+          <p class="work-card__desc">一个命令行工具，也是一份 agent skill。从 diff 中提取环境变量、参数与配置键，定位受影响的文档行，标出过时与缺失的说明；收尾逐项核验，未处理的不放行。全程本地运行，不调用模型 API。</p>
+          <ol class="work-flow" aria-label="维护流程">
+            <li>读取改动</li><li>提取键名</li><li>定位文档</li><li>标出缺口</li><li>核验收尾</li>
           </ol>
           <div class="work-card__foot">
-            <div class="work-card__tags"><span>Rust</span><span>GGUF</span><span>Qwen3.5</span></div>
-            <a class="work-card__extra" href="https://huggingface.co/shiqianyan/SafetyRAISE-TS-Qwen3" target="_blank" rel="noopener noreferrer">配套模型 · Hugging Face ↗</a>
+            <div class="work-card__tags"><span>Rust</span><span>CLI</span><span>Agent Skill</span></div>
+            <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
           </div>
         </li>
-        <li class="work-card" id="work-lora" style="--card-index: 2">
+        <li class="work-card" id="work-lyrabot" style="--card-index: 3">
+          <div class="work-card__topline"><span>Rust · MIT</span><span>Since 2026</span></div>
+          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/LyraBot" target="_blank" rel="noopener noreferrer">LyraBot</a></h3>
+          <p class="work-card__tagline">以唐语歌为门面的常驻个人 agent</p>
+          <p class="work-card__desc">用 Rust 写的常驻个人 agent。角色“唐语歌”在 QQ 私聊里陪你聊天，需要动手的活派给可选模型的后台执行者与常驻专员，做完再由她用自己的话转述；汇报先存后投，重启不丢结果，常驻内存约 30 MB。</p>
+          <ol class="work-flow" aria-label="对话链路">
+            <li>私聊消息</li><li>节奏合并</li><li>门面对话</li><li>后台派活</li><li>结果转述</li>
+          </ol>
+          <div class="work-card__foot">
+            <div class="work-card__tags"><span>Rust</span><span>QQ Bot</span><span>Multi-Agent</span></div>
+            <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
+          </div>
+        </li>
+        <li class="work-card" id="work-lora" style="--card-index: 4">
           <div class="work-card__topline"><span>Python · Apache-2.0</span><span>Since 2026</span></div>
           <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/SafetyRAISE-Lora" target="_blank" rel="noopener noreferrer">SafetyRAISE-Lora</a></h3>
           <p class="work-card__tagline">SafetyRAISE 系统配套模型的训练集合</p>
@@ -124,34 +150,17 @@
             <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
           </div>
         </li>
-        <li class="work-card" id="work-maintenance" style="--card-index: 3">
-          <div class="work-card__topline"><span>Rust · MIT</span><span>Since 2026</span></div>
-          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/maintenance" target="_blank" rel="noopener noreferrer">maintenance</a></h3>
-          <p class="work-card__tagline">让文档跟上代码的长期维护工具</p>
-          <p class="work-card__desc">一个命令行工具，也是一份 agent skill。从 diff 中提取环境变量、参数与配置键，定位受影响的文档行，标出过时与缺失的说明；全程本地运行，不调用模型 API。</p>
+        <li class="work-card" id="work-lmengine" style="--card-index: 5">
+          <div class="work-card__topline"><span>Rust · Apache-2.0</span><span>Since 2026</span></div>
+          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/SafetyRAISE-LMEngine" target="_blank" rel="noopener noreferrer">SafetyRAISE-LMEngine</a></h3>
+          <p class="work-card__tagline">SafetyRAISE 的本地 Qwen 推理框架</p>
+          <p class="work-card__desc">由从零手写的 Qwen3 推理引擎演进而来，把权重、分词器、聊天模板、请求调度与后端执行收进同一套 Rust 运行时，供专家指导、信息提取与报告生成复用；支持 safetensors 与 GGUF，提供 HTTP/SSE 服务。</p>
+          <ol class="work-flow" aria-label="服务链路">
+            <li>权重装载</li><li>模板分词</li><li>请求调度</li><li>后端执行</li><li>HTTP 服务</li>
+          </ol>
           <div class="work-card__foot">
-            <div class="work-card__tags"><span>Rust</span><span>CLI</span><span>Agent Skill</span></div>
-            <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
-          </div>
-        </li>
-        <li class="work-card" id="work-my-blog" style="--card-index: 4">
-          <div class="work-card__topline"><span>CSS · MIT</span><span>Since 2026</span></div>
-          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/my-blog" target="_blank" rel="noopener noreferrer">my-blog</a></h3>
-          <p class="work-card__tagline">你正在看的这个博客</p>
-          <p class="work-card__desc">宣纸与朱砂的纸面风格，纯静态托管，字体、公式与代码高亮全部自托管。文章由知识库的公开目录定时同步生成，不经过任何数据库。</p>
-          <div class="work-card__foot">
-            <div class="work-card__tags"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
-            <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
-          </div>
-        </li>
-        <li class="work-card" id="work-chat" style="--card-index: 5">
-          <div class="work-card__topline"><span>JavaScript · Java</span><span>Since 2025</span></div>
-          <h3 class="work-card__title"><a class="work-card__link" href="https://github.com/QianYan-Art/realtime-chat-app" target="_blank" rel="noopener noreferrer">realtime-chat-app</a></h3>
-          <p class="work-card__tagline">实时聊天与视频通话应用</p>
-          <p class="work-card__desc">WebSocket STOMP 文字聊天与 WebRTC 一对一视频通话，后端 Spring Boot 配合 JWT 无状态认证，附带加入与离开通知。</p>
-          <div class="work-card__foot">
-            <div class="work-card__tags"><span>Spring Boot</span><span>WebSocket</span><span>WebRTC</span></div>
-            <span class="work-card__read" aria-hidden="true">查看仓库 →</span>
+            <div class="work-card__tags"><span>Rust</span><span>GGUF</span><span>Qwen3.5</span></div>
+            <a class="work-card__extra" href="https://huggingface.co/shiqianyan/SafetyRAISE-TS-Qwen3" target="_blank" rel="noopener noreferrer">配套模型 · Hugging Face ↗</a>
           </div>
         </li>
       </ol>
