@@ -546,7 +546,7 @@ async function syncLocal(outputDir) {
     const metaTags = Array.isArray(meta.tags) ? meta.tags : [];
     const article = {
       id: slug,
-      title: basenameTitleFromPath(titleFromPath(relativePath)) || cleanDisplayTitle(meta.title || titleFromMarkdown(markdown, path.basename(filePath, path.extname(filePath)))),
+      title: basenameTitleFromPath(relativePath) || cleanDisplayTitle(meta.title || titleFromMarkdown(markdown, path.basename(filePath, path.extname(filePath)))),
       summary: meta.summary || meta.description || plainSummary(markdown),
       date: dateHintFromPath(relativePath) || meta.date || meta.created || readLocalGitDate(filePath) || dateFromPath(relativePath, stats),
       category: meta.category || section.category,
@@ -604,7 +604,7 @@ async function syncGithub(outputDir) {
     const metaTags = Array.isArray(meta.tags) ? meta.tags : [];
     const article = {
       id: slug,
-      title: posixBasenameTitleFromPath(titleFromPath(relativePath)) || cleanDisplayTitle(meta.title || titleFromMarkdown(markdown, slug)),
+      title: posixBasenameTitleFromPath(relativePath) || cleanDisplayTitle(meta.title || titleFromMarkdown(markdown, slug)),
       summary: meta.summary || meta.description || plainSummary(markdown),
       date: preferredDate || commitDate || "",
       category: meta.category || section.category,

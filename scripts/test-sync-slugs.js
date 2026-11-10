@@ -100,9 +100,14 @@ try {
 
   const undated = path.join(kbase, "public", "my_local", "a-测试", "长期规范.md");
   write(undated, "# 长期规范\n\n正文内容。\n");
+  const dotted = path.join(kbase, "public", "my_server", "f-NetCup", "2026-09-11_NetCup Komari 1.5.1 升级、主题检查与冗余清理记录.md");
+  write(dotted, "# 2026-09-11 NetCup Komari 1.5.1 升级、主题检查与冗余清理记录\n\n正文内容。\n");
   runSync(site, kbase);
   const undatedArticle = readIndex(site).articles.find((article) => article.title === "长期规范");
   assert.match(undatedArticle.id, /^note-[0-9a-f]{12}$/, "无日期文件应使用 note 前缀");
+  const dottedArticle = readIndex(site).articles.find((article) => article.sourcePath === "my_server/f-NetCup/2026-09-11_NetCup Komari 1.5.1 升级、主题检查与冗余清理记录.md");
+  assert(dottedArticle, "应同步文件名包含版本号点号的文章");
+  assert.strictEqual(dottedArticle.title, "NetCup Komari 1.5.1 升级、主题检查与冗余清理记录", "含点号的文件名不应被二次截断标题");
 
   console.log("文章短链接、目录移动、归档、改名、冲突与下线测试通过。");
 } finally {
