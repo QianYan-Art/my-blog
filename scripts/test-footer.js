@@ -24,7 +24,7 @@ for (const file of files) {
     assert.strictEqual(footer.split(item).length - 1, 1, `${file} 页脚缺失或重复：${item}`);
   }
   assert.strictEqual(footer.split('rel="noopener noreferrer"').length - 1, 2, `${file} 备案外链缺少安全属性`);
-  assert(footer.includes('<a class="status-email" href="mailto:shi@mail.qianyan.me">shi@mail.qianyan.me</a>'), `${file} 页脚邮箱不是当前地址`);
+  assert(footer.includes('<a class="status-email" href="mailto:shi@qianyan.me">shi@qianyan.me</a>'), `${file} 页脚邮箱不是当前地址`);
   assert(!source.includes("shiqianyan4@gmail.com"), `${file} 仍引用旧邮箱`);
 }
 const image = fs.readFileSync(path.join(root, "assets/img/police-filing.png"));
